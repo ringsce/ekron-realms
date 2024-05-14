@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="/usr/local/bin/fpc" Date="1621181457"/>
+  <Params Value=" -Mdelphi -Scghi -O1 -gw -gl -k-framework -kCocoa -l -vewnhibq -Fi/Users/pedro/Projects/ERD/jedi -Fi/Users/pedro/Projects/ERD/qcommon -Fi/Users/pedro/Projects/ERD/game -Fi/Users/pedro/Projects/ERD/client -Fi/Users/pedro/Projects/ERD/server -Fl/Users/pedro/Projects/ERD/jedi -Fo/Users/pedro/Projects/ERD/jedi -Fu/Users/pedro/Projects/ERD/jedi -Fu/Users/pedro/Projects/ERD/qcommon -Fu/Users/pedro/Projects/ERD/game -Fu/Users/pedro/Projects/ERD/client -Fu/Users/pedro/Projects/ERD/server -Fu/Users/pedro/.lazarus/lib/units/x86_64-darwin/cocoa -Fu/Users/pedro/.lazarus/lib/LCLBase/units/x86_64-darwin -Fu/Users/pedro/.lazarus/lib/freetypelaz/lib/x86_64-darwin -Fu/Users/pedro/.lazarus/lib/LazUtils/lib/x86_64-darwin -Fu/Users/pedro/.lazarus/lib/units/x86_64-darwin -Fu/Users/pedro/Projects/ERD/Projects/ -FE/Users/pedro/Projects/ERD/Projects/build/ -o/Users/pedro/Projects/ERD/Projects/build/erd -dLCL -dLCLcocoa -dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL erd.dpr"/>
+  <Complete Value="False"/>
+</CONFIG>
