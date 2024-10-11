@@ -40,8 +40,7 @@ uses
 {$INCLUDE ..\Jedi.inc}
 {$ELSE}
 {$IFDEF DARWIN}
-{
-$INCLUDE ../macos/Jedi.inc}
+{$INCLUDE ../macos/Jedi.inc}
 {$ELSE}
 {$INCLUDE ../Jedi.inc}
 {$ENDIF}

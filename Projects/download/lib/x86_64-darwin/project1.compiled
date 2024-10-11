@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Compiler Value="/usr/local/bin/fpc" Date="1621181457"/>
+  <Params Value=" -MObjFPC -Scghi -O1 -gw -gl -k-framework -kCocoa -k-weak_framework -kUserNotifications -l -vewnhibq -Fi/Users/pedro/Projects/ekron-realms/Projects/download/lib/x86_64-darwin -Fu/Users/pedro/.lazarus/lib/units/x86_64-darwin/cocoa -Fu/Users/pedro/.lazarus/lib/LCLBase/units/x86_64-darwin -Fu/Users/pedro/.lazarus/lib/freetypelaz/lib/x86_64-darwin -Fu/Users/pedro/.lazarus/lib/LazUtils/lib/x86_64-darwin -Fu/Users/pedro/.lazarus/lib/units/x86_64-darwin -Fu/Users/pedro/Projects/ekron-realms/Projects/download/ -FU/Users/pedro/Projects/ekron-realms/Projects/download/lib/x86_64-darwin/ -FE/Users/pedro/Projects/ekron-realms/Projects/download/ -o/Users/pedro/Projects/ekron-realms/Projects/download/project1 -dLCL -dLCLcocoa project1.lpr"/>
+</CONFIG>
