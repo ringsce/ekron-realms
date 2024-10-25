@@ -5,7 +5,10 @@ unit Unit1;
 interface
 
 uses
-  Interfaces, // Required for the Lazarus LCL to work on iOS
+  {$ifdef iOS}
+  Interfaces,  // Required for Lazarus on iOS
+  iOSAll,      // UIKit and iOS-specific functionality
+  {$endif}
   Forms,
   Graphics,
   ExtCtrls,
@@ -13,8 +16,7 @@ uses
   ComCtrls,
   SysUtils,
   Classes,
-  Dialogs,  // Might need custom iOS dialog replacements
-  iPhoneAll; // For iOS-specific functionality like file paths
+  Dialogs;  // Replace with iOS dialog if needed
 
 type
   TForm1 = class(TForm)
@@ -23,8 +25,12 @@ type
     ProgressBar: TProgressBar;
     DownloadButton: TButton;
     StatusLabel: TLabel;
+    DownloadProgress: Integer;
+    Timer: NSTimer;  // Use NSTimer to simulate progress
     procedure OnDownloadClick(Sender: TObject);
+    procedure UpdateProgress(timer: NSTimer);
     function GetImagePath: String;
+    procedure ShowAlert(const AMessage: String); // iOS-specific alert
   public
     constructor Create(TheOwner: TComponent); override;
   end;
@@ -49,12 +55,12 @@ begin
   Image.SetBounds(10, 10, 300, 300);
   Image.Stretch := True;  // Make the image fit the bounds
 
-  // Load image from 'images' folder relative to the iOS app bundle
+  // Load image from the app bundle
   try
-    Image.Picture.LoadFromFile(GetImagePath + 'ringsce.png'); // Ensure this file exists inside the app bundle
+    Image.Picture.LoadFromFile(GetImagePath + 'ringsce.png');
   except
     on E: Exception do
-      ShowMessage('Image could not be loaded: ' + E.Message);  // Replace this with iOS-specific dialog if needed
+      ShowAlert('Image could not be loaded: ' + E.Message);
   end;
 
   // Create and configure TProgressBar for the download status
@@ -80,25 +86,44 @@ begin
 end;
 
 procedure TForm1.OnDownloadClick(Sender: TObject);
-var
-  i: Integer;
 begin
-  // Simulate download progress (use background thread for iOS, don't block main thread)
-  for i := 0 to 100 do
-  begin
-    Sleep(50);  // Simulate download time (avoid this on the main thread for iOS)
-    ProgressBar.Position := i;
-    StatusLabel.Caption := Format('Download Status: %d%%', [i]);
-    Application.ProcessMessages; // Update the UI during the loop
-  end;
-  StatusLabel.Caption := 'Download Complete!';
+  DownloadProgress := 0;
+  Timer := NSTimer.scheduledTimerWithTimeInterval(0.5, @UpdateProgress, True);
 end;
 
-// Function to get the path to the images folder in the iOS app bundle
+procedure TForm1.UpdateProgress(timer: NSTimer);
+begin
+  if DownloadProgress < 100 then
+  begin
+    Inc(DownloadProgress);
+    ProgressBar.Position := DownloadProgress;
+    StatusLabel.Caption := Format('Download Status: %d%%', [DownloadProgress]);
+  end
+  else
+  begin
+    Timer.invalidate;  // Stop the timer
+    StatusLabel.Caption := 'Download Complete!';
+  end;
+end;
+
 function TForm1.GetImagePath: String;
 begin
-  // iOS apps don't have free access to the file system, use the app's resource path
+  {$ifdef iOS}
   Result := NSBundle.mainBundle.resourcePath.UTF8String + PathDelim + 'images' + PathDelim;
+  {$else}
+  Result := ExtractFilePath(ParamStr(0)) + 'images' + PathDelim;
+  {$endif}
+end;
+
+// Show an iOS alert using UIAlertController
+procedure TForm1.ShowAlert(const AMessage: String);
+var
+  alert: UIAlertController;
+begin
+  alert := UIAlertController.alertControllerWithTitle_message_preferredStyle('Error', AMessage, UIAlertControllerStyleAlert);
+  alert.addAction(UIAlertAction.actionWithTitle_style_handler('OK', UIAlertActionStyleDefault, nil));
+  // Present the alert using the iOS framework
+  UIWindow.keyWindow.rootViewController.presentViewController_animated_completion(alert, True, nil);
 end;
 
 begin

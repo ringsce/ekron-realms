@@ -3,8 +3,13 @@
   <ProjectOptions>
     <Version Value="12"/>
     <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
-      <Title Value="erd"/>
+      <Title Value="ekron-realms"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -235,15 +240,15 @@
   <CompilerOptions>
     <Version Value="11"/>
     <SearchPaths>
-      <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server"/>
+      <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server;kayte-lang;$(ProjOutDir)"/>
       <Libraries Value="../jedi"/>
-      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server"/>
+      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;kayte-lang"/>
       <UnitOutputDirectory Value="build"/>
       <ObjectPath Value="../jedi"/>
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
-        <SyntaxMode Value="delphi"/>
+        <SyntaxMode Value="Delphi"/>
       </SyntaxOptions>
     </Parsing>
     <Linking>
