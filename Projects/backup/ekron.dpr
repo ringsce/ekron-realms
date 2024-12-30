@@ -1,4 +1,4 @@
-program ekron-realms;
+program realms;
 
 {$IFDEF FPC}
   {$MODE ObjFPC}
@@ -80,6 +80,11 @@ var
   i: Integer;
 
   {$IFDEF WIN32}
+  hInstance: HINST;
+  hPrevInst: HINST;
+  CmdShow: Integer;
+  {$ENDIF}
+{$IFDEF WIN64}
   hInstance: HINST;
   hPrevInst: HINST;
   CmdShow: Integer;
