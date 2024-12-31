@@ -1,0 +1,25 @@
+<Map>
+  <Region>
+    <Name>North Zone</Name>
+    <Color>blue</Color>
+  </Region>
+  <Region>
+    <Name>South Zone</Name>
+    <Color>red</Color>
+  </Region>
+  <Marker>
+    <Type>Enemy</Type>
+    <Coordinates>
+      <X>45</X>
+      <Y>78</Y>
+    </Coordinates>
+  </Marker>
+  <Marker>
+    <Type>Ally</Type>
+    <Coordinates>
+      <X>12</X>
+      <Y>34</Y>
+    </Coordinates>
+  </Marker>
+</Map>
+

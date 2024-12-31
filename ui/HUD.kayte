@@ -1,0 +1,15 @@
+<HUD>
+  <HealthBar>
+    <Value>85%</Value>
+    <Color>green</Color>
+  </HealthBar>
+  <Ammo>
+    <Current>45</Current>
+    <Max>100</Max>
+  </Ammo>
+  <Score>
+    <Label>SCORE:</Label>
+    <Value>12345</Value>
+  </Score>
+</HUD>
+
