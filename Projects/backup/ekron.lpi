@@ -32,7 +32,6 @@
       <Unit>
         <Filename Value="ekron.dpr"/>
         <IsPartOfProject Value="True"/>
-        <UnitName Value="realms"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/qfiles.pas"/>
@@ -236,16 +235,6 @@
         <Filename Value="../game/game_add.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
-      <Unit>
-        <Filename Value="../Jedi/opengl2.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="OpenGL2"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../shop/shopwindow.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="ShopWindow"/>
-      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -253,10 +242,15 @@
     <SearchPaths>
       <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server;kayte-lang;$(ProjOutDir)"/>
       <Libraries Value="../jedi"/>
-      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;kayte-lang;../shop"/>
+      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;kayte-lang"/>
       <UnitOutputDirectory Value="build"/>
       <ObjectPath Value="../jedi"/>
     </SearchPaths>
+    <Parsing>
+      <SyntaxOptions>
+        <SyntaxMode Value="Delphi"/>
+      </SyntaxOptions>
+    </Parsing>
     <Linking>
       <Options>
         <Win32>
