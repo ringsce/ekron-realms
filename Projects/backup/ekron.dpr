@@ -88,7 +88,7 @@ var
   hInstance: HINST;
   hPrevInst: HINST;
   CmdShow: Integer;
-  {$ENDIF}
+{$ENDIF}
 
 begin
   { Save the current FPU state and then disable FPU exceptions for Windows }
