@@ -8,7 +8,6 @@
         <Filename Value="ekron.dpr"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="realms"/>
-        <IsVisibleTab Value="True"/>
         <TopLine Value="7"/>
         <CursorPos X="3" Y="24"/>
         <UsageCount Value="118"/>
@@ -18,7 +17,7 @@
         <Filename Value="../qcommon/qfiles.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="QFiles"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="36"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
@@ -26,21 +25,21 @@
       <Unit>
         <Filename Value="../qcommon/crc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/CPas.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/Common.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="840"/>
         <CursorPos X="5" Y="895"/>
         <UsageCount Value="118"/>
@@ -49,21 +48,21 @@
       <Unit>
         <Filename Value="../qcommon/CVar.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="10"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/Files.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="11"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/CModel.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="12"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
@@ -71,21 +70,21 @@
         <Filename Value="../qcommon/md4.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="MD4"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="13"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/PMoveUnit.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="14"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/net_chan.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="14"/>
+        <EditorIndex Value="15"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
@@ -98,7 +97,7 @@
       <Unit>
         <Filename Value="../game/q_shared.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="16"/>
         <CursorPos X="23" Y="23"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
@@ -106,7 +105,7 @@
       <Unit>
         <Filename Value="../game/m_flash.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="16"/>
+        <EditorIndex Value="17"/>
         <UsageCount Value="118"/>
         <Loaded Value="True"/>
       </Unit>
@@ -483,7 +482,7 @@
       <Unit>
         <Filename Value="/Applications/lazarus/components/lazutils/compwriterpas.pas"/>
         <UnitName Value="CompWriterPas"/>
-        <EditorIndex Value="17"/>
+        <EditorIndex Value="18"/>
         <TopLine Value="750"/>
         <CursorPos X="11" Y="767"/>
         <UsageCount Value="58"/>
@@ -491,7 +490,7 @@
       </Unit>
       <Unit>
         <Filename Value="/Applications/lazarus/components/jcf2/ReadWrite/UI/EditorConverter.pas"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="12"/>
         <CursorPos X="3" Y="40"/>
         <UsageCount Value="53"/>
@@ -509,17 +508,17 @@
       <Unit>
         <Filename Value="../macos/OpenGL2.pas"/>
         <UnitName Value="opengl2"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <CursorPos X="7"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="../Jedi.inc"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <CursorPos X="54"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
@@ -527,15 +526,25 @@
         <Filename Value="../shop/shopwindow.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="ShopWindow"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="172"/>
         <CursorPos Y="205"/>
         <UsageCount Value="21"/>
         <Loaded Value="True"/>
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
+      <Unit>
+        <Filename Value="../macos/sys_mac.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="14"/>
+        <CursorPos X="13" Y="31"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
+      </Unit>
     </Units>
-    <JumpHistory HistoryIndex="18">
+    <JumpHistory HistoryIndex="20">
       <Position>
         <Filename Value="../game/m_flash.pas"/>
       </Position>
@@ -609,6 +618,13 @@
       <Position>
         <Filename Value="../shop/shopwindow.pas"/>
         <Caret Line="205" TopLine="172"/>
+      </Position>
+      <Position>
+        <Filename Value="ekron.dpr"/>
+        <Caret Line="24" Column="3" TopLine="7"/>
+      </Position>
+      <Position>
+        <Filename Value="../macos/sys_mac.pas"/>
       </Position>
     </JumpHistory>
     <RunParams>

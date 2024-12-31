@@ -1,0 +1,28 @@
+# Makefile.fpc for ShopWindow
+
+[program]
+name=ShopWindowApp
+sourcefiles=ShopWindow.pas
+units=.
+target=$(name)
+
+[compiler]
+freepascal=$(fpcbin)
+options=-MObjFPC -Scgi -O2 -g -vewnhi
+
+[linker]
+libraries=$(libdir)
+extra=$(extraflags)
+
+[custom]
+sdl2options=-dUSE_SDL2
+sdl3options=-dUSE_SDL3
+
+[targets]
+sdl2:
+	options=$(sdl2options)
+	linklib=-lSDL2 -lGL -lGLU
+sdl3:
+	options=$(sdl3options)
+	linklib=-lSDL3 -lGL -lGLU
+
