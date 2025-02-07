@@ -16,8 +16,21 @@ uses
   cd_win    in '..\win32\cd_win.pas',
   vid_menu  in '..\win32\vid_menu.pas',
   ConProc   in '..\win32\ConProc.pas',
-  {$ELSEIF DEFINED(LINUX) OR DEFINED(DARWIN)}
+  {$ENDIF}
+  {$IFDEF LINUX}
   sys_linux   in '../linux/sys_linux.pas',
+  vid_so      in '../linux/vid_so.pas',
+  snd_sdl     in '../linux/snd_sdl.pas',
+  in_linux    in '../linux/in_linux.pas',
+  q_shlinux   in '../linux/q_shlinux.pas',
+  net_udp     in '../linux/net_udp.pas',
+  cd_sdl      in '../linux/cd_sdl.pas',
+  vid_menu    in '../linux/vid_menu.pas',
+  glob        in '../linux/glob.pas',
+  rw_linux_h  in '../linux/rw_linux_h.pas',
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  sys_linux   in '../linux/sys_linux.pas', // Use Linux-specific files for macOS if compatible
   vid_so      in '../linux/vid_so.pas',
   snd_sdl     in '../linux/snd_sdl.pas',
   in_linux    in '../linux/in_linux.pas',
