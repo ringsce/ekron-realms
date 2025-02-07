@@ -1,4 +1,8 @@
 program quake2d;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
  
 uses
   SysUtils,

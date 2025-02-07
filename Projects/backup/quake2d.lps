@@ -8,8 +8,8 @@
         <Filename Value="quake2d.dpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="75"/>
-        <CursorPos X="5" Y="108"/>
+        <TopLine Value="56"/>
+        <CursorPos X="3" Y="73"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit>
@@ -477,16 +477,9 @@
         <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
     </Units>
-    <JumpHistory HistoryIndex="2">
+    <JumpHistory>
       <Position>
         <Filename Value="../game/m_flash.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="quake2d.dpr"/>
-        <Caret Line="73" Column="3" TopLine="56"/>
-      </Position>
-      <Position>
-        <Filename Value="quake2d.dpr"/>
       </Position>
     </JumpHistory>
     <RunParams>
