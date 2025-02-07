@@ -171,7 +171,7 @@ var
 implementation
 
 uses
-  Cmd,
+  cmd       in '..\qcommon\cmd.pas',
   Common,
   Files,
   CPas;

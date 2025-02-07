@@ -522,19 +522,21 @@ end;
 function memchr(const buf: Pointer; c: Integer; len: size_t): Pointer;
 var
   l: Char;
+  p: PChar;
 begin
-  Result := buf;
-  l := chr(c);
-  while len <> 0 do
-  begin
-    if PChar(Result)[0] = l then
-      Exit;
-    Inc(Integer(Result));
-    Dec(len);
-  end;
-  Result := NULL;
-end;
+  p := PChar(buf); // Cast the buffer to a PChar for pointer arithmetic
+  l := Chr(c);     // Convert the integer to a character
 
+  while len > 0 do
+  begin
+    if p^ = l then // Compare the current character with the target character
+      Exit(p);     // Return the pointer to the found character
+    Inc(p);        // Move to the next character
+    Dec(len);      // Decrement the remaining length
+  end;
+
+  Result := nil;   // Return nil if the character is not found
+end;
 function strchr(const str: PChar; c: Integer): PChar;
 begin
   Result := memchr(str, c, strlen(str) + 1);

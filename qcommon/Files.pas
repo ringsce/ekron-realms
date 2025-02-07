@@ -116,22 +116,26 @@ var
 implementation
 
 uses
-{$IFnDEF FPC}
+  {$IFDEF MSWINDOWS}
+  sys_win, cd_win, q_shwin,
+  {$ENDIF}
+
+  {$IFDEF LINUX}
   sys_linux, cd_sdl, q_shlinux,
-{$ELSE}
-  _shlinux,
-{$ENDIF}
+  {$ENDIF}
+
+  {$IFDEF DARWIN}
+  sys_mac, cd_sdl, q_shmac, // Use macOS-specific system handling
+  {$ENDIF}
+
+  {$IFDEF FPC}
+  _shlinux, // FPC-specific shared library handling for Linux/macOS
+  {$ENDIF}
+
   CPas,
   SysUtils,
   q_Shared,
   qfiles,
-  {$IFDEF WIN32}
-  sys_win,
-  cd_win,
-  q_shwin,
-  {$ELSE}
-  //libc,
-  {$ENDIF}
   Cmd,
   Common;
 

@@ -33,8 +33,34 @@ unit sys_mac;
 interface
 
 uses
-  Windows,
+  {$IFDEF MSWINDOWS}
+  Windows, // Windows-specific unit
+  {$ENDIF}
+
+  {$IFDEF LINUX}
+  BaseUnix, Unix, // Linux-specific units
+  {$ENDIF}
+
+  {$IFDEF DARWIN}
+  MacOSAll, // macOS-specific units
+  {$ENDIF}
+
+
+  SysUtils,
+  (*MMSystem, To be checked*)
+  Math,
+  Files,
+  Common,
+  cl_main,
+  conproc,
+  vid_dll,
+  q_shwin,
+
   q_shared;
+
+// Your code here
+
+implementation
 
 const
   MINIMUM_WIN_MEMORY = $0A00000;
@@ -55,8 +81,8 @@ var
   argv: array[0..MAX_NUM_ARGVS - 1] of PChar;
   console_text: array[0..255] of Char;
   console_textlen: Integer;
-  game_library: HINST;
-  global_hInstance: HINST;
+  game_library: Pointer;   // Changed from HINST to Pointer for cross-platform compatibility
+  global_hInstance: Pointer; // Changed from HINST to Pointer
 
 procedure Sys_Error(error: PChar; args: array of const);
 procedure Sys_Quit;
@@ -72,21 +98,8 @@ procedure Sys_Unloadgame;
 function Sys_GetGameAPI(parms: Pointer): Pointer;
 
 procedure WinError;
-procedure ParseCommandLine(lpCmdLine: LPSTR);
-function WinMain(hInstance, hPrevInstance: HINST; lpCmdLine: LPSTR; nCmdShow: Integer): Integer; stdcall;
-
-implementation
-
-uses
-  SysUtils,
-  MMSystem,
-  Math,
-  Files,
-  Common,
-  cl_main,
-  conproc,
-  vid_dll,
-  q_shwin;
+procedure ParseCommandLine(lpCmdLine: PChar); // Changed from LPSTR to PChar (cross-platform)
+function Sys_Main(argc: Integer; argv: PPChar): Integer; // Renamed from WinMain to Sys_Main (cross-platform)
 
 var
 

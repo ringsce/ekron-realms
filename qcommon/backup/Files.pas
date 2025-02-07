@@ -58,6 +58,10 @@
 
 unit Files;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 // define this to dissalow any data but the demo pak file
 //{$DEFINE NO_ADDONS}
 
@@ -112,21 +116,27 @@ var
 implementation
 
 uses
+  {$IFDEF MSWINDOWS}
+  sys_win, cd_win, q_shwin,
+  {$ENDIF}
+
+  {$IFDEF LINUX}
+  sys_linux, cd_sdl, q_shlinux,
+  {$ENDIF}
+
+  {$IFDEF DARWIN}
+  sys_macos, cd_sdl, q_shmacos, // Use macOS-specific system handling
+  {$ENDIF}
+
+  {$IFDEF FPC}
+  _shlinux, // FPC-specific shared library handling for Linux/macOS
+  {$ENDIF}
+
   CPas,
   SysUtils,
   q_Shared,
   qfiles,
-  {$IFDEF WIN32}
-  sys_win,
-  cd_win,
-  q_shwin,
-  {$ELSE}
-  sys_linux,
-  cd_sdl,
-  q_shlinux,
-  //libc,
-  {$ENDIF}
-  CMD,
+  Cmd,
   Common;
 
 // if a packfile directory differs from this, it is assumed to be hacked

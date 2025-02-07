@@ -42,6 +42,10 @@
 
 unit CVar;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 
 uses
@@ -167,7 +171,7 @@ var
 implementation
 
 uses
-  cmd,
+  Cmd,
   Common,
   Files,
   CPas;

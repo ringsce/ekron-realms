@@ -240,6 +240,19 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="VulkanRender"/>
       </Unit>
+      <Unit>
+        <Filename Value="../vulkan/vulkan.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../launcher.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="cmd.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Cmd"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -247,7 +260,7 @@
     <SearchPaths>
       <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server"/>
       <Libraries Value="../jedi"/>
-      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;../vulkan"/>
+      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;../vulkan;.."/>
       <UnitOutputDirectory Value="build"/>
       <ObjectPath Value="../jedi"/>
     </SearchPaths>

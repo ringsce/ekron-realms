@@ -30,16 +30,16 @@ uses
   rw_linux_h  in '../linux/rw_linux_h.pas',
   {$ENDIF}
   {$IFDEF DARWIN}
-  sys_linux   in '../linux/sys_linux.pas',
-  vid_so      in '../linux/vid_so.pas',
-  snd_sdl     in '../linux/snd_sdl.pas',
-  in_linux    in '../linux/in_linux.pas',
-  q_shlinux   in '../linux/q_shlinux.pas',
-  net_udp     in '../linux/net_udp.pas',
-  cd_sdl      in '../linux/cd_sdl.pas',
-  vid_menu    in '../linux/vid_menu.pas',
-  glob        in '../linux/glob.pas',
-  rw_linux_h  in '../linux/rw_linux_h.pas',
+  sys_mac   in '../mac/sys_mac.pas',
+  vid_so      in '../mac/vid_so.pas',
+  snd_sdl     in '../mac/snd_sdl.pas',
+  in_linux    in '../mac/in_mac.pas',
+  q_shlinux   in '../mac/q_shmac.pas',
+  net_udp     in '../mac/net_udp.pas',
+  cd_sdl      in '../mac/cd_sdl.pas',
+  vid_menu    in '../mac/vid_menu.pas',
+  glob        in '../mac/glob.pas',
+  rw_linux_h  in '../mac/rw_linux_h.pas',
   {$ENDIF}
   { Vulkan API support }
   Vulkan     in '../vulkan/vulkan.pas',
@@ -96,7 +96,7 @@ uses
   sv_world  in '..\server\sv_world.pas',
   DelphiTypes  in '..\qcommon\DelphiTypes.pas',
   q_shared_add in '..\game\q_shared_add.pas',
-  game_add     in '..\game\game_add.pas', VulkanRender;
+  game_add     in '..\game\game_add.pas', launcher;
 
 {$R *.res}
 
