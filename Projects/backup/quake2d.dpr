@@ -16,7 +16,8 @@ uses
   cd_win    in '..\win32\cd_win.pas',
   vid_menu  in '..\win32\vid_menu.pas',
   ConProc   in '..\win32\ConProc.pas',
-  {$ELSEIF DEFINED(LINUX) OR DEFINED(DARWIN)}
+  {$ENDIF}
+  {$IFDEF LINUX}
   sys_linux   in '../linux/sys_linux.pas',
   vid_so      in '../linux/vid_so.pas',
   snd_sdl     in '../linux/snd_sdl.pas',
@@ -27,7 +28,23 @@ uses
   vid_menu    in '../linux/vid_menu.pas',
   glob        in '../linux/glob.pas',
   rw_linux_h  in '../linux/rw_linux_h.pas',
-  {$ENDIF}  // <-- Ensure this closes the last IFDEF block
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  sys_linux   in '../linux/sys_linux.pas',
+  vid_so      in '../linux/vid_so.pas',
+  snd_sdl     in '../linux/snd_sdl.pas',
+  in_linux    in '../linux/in_linux.pas',
+  q_shlinux   in '../linux/q_shlinux.pas',
+  net_udp     in '../linux/net_udp.pas',
+  cd_sdl      in '../linux/cd_sdl.pas',
+  vid_menu    in '../linux/vid_menu.pas',
+  glob        in '../linux/glob.pas',
+  rw_linux_h  in '../linux/rw_linux_h.pas',
+  {$ENDIF}
+  { Vulkan API support }
+  Vulkan     in '../vulkan/vulkan.pas',
+  VulkanUtils in '../vulkan/VulkanUtils.pas',
+  VulkanRender in '../vulkan/VulkanRender.pas',
 
   qfiles    in '..\qcommon\qfiles.pas',
   crc       in '..\qcommon\crc.pas',
@@ -79,7 +96,7 @@ uses
   sv_world  in '..\server\sv_world.pas',
   DelphiTypes  in '..\qcommon\DelphiTypes.pas',
   q_shared_add in '..\game\q_shared_add.pas',
-  game_add     in '..\game\game_add.pas';
+  game_add     in '..\game\game_add.pas', VulkanRender;
 
 {$R *.res}
 
@@ -90,7 +107,7 @@ var
 begin
   { Save the current FPU state and then disable FPU exceptions }
   Saved8087CW := Default8087CW;
-  Set8087CW($133f); { Disable all FPU exceptions }
+  Set8087CW($133f); { Disable all fpu exceptions }
 
   { Build the command line }
   CommandLine := '';
@@ -103,6 +120,9 @@ begin
   {$ELSE}
   Main(ParamCount, PChar(CommandLine));
   {$ENDIF}
+
+  { Initialize Vulkan }
+  VulkanRender.Init();
 
   { Reset the FPU to the previous state }
   Set8087CW(Saved8087CW);

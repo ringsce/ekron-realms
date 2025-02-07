@@ -30,7 +30,7 @@ uses
   rw_linux_h  in '../linux/rw_linux_h.pas',
   {$ENDIF}
   {$IFDEF DARWIN}
-  sys_linux   in '../linux/sys_linux.pas', // Use Linux-specific files for macOS if compatible
+  sys_linux   in '../linux/sys_linux.pas',
   vid_so      in '../linux/vid_so.pas',
   snd_sdl     in '../linux/snd_sdl.pas',
   in_linux    in '../linux/in_linux.pas',
@@ -41,6 +41,11 @@ uses
   glob        in '../linux/glob.pas',
   rw_linux_h  in '../linux/rw_linux_h.pas',
   {$ENDIF}
+  { Vulkan API support }
+  Vulkan     in '../vulkan/vulkan.pas',
+  VulkanUtils in '../vulkan/VulkanUtils.pas',
+  VulkanRender in '../vulkan/VulkanRender.pas',
+
   qfiles    in '..\qcommon\qfiles.pas',
   crc       in '..\qcommon\crc.pas',
   CPas      in '..\qcommon\CPas.pas',
@@ -116,6 +121,10 @@ begin
   Main(ParamCount, PChar(CommandLine));
   {$ENDIF}
 
+  { Initialize Vulkan }
+  VulkanRender.Init();
+
   { Reset the FPU to the previous state }
   Set8087CW(Saved8087CW);
 end.
+

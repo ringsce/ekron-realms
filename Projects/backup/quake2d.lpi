@@ -235,11 +235,6 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="VulkanUtils"/>
       </Unit>
-      <Unit>
-        <Filename Value="../vulkan/vulkanrender.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="VulkanRender"/>
-      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
