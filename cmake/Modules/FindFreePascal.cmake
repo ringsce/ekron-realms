@@ -1,14 +1,23 @@
-# FindFreePascal.cmake - A custom CMake module to locate the Free Pascal Compiler
+# Find Free Pascal Compiler (FPC)
+find_program(FPC_EXECUTABLE fpc
+    PATHS
+    /usr/bin
+    /usr/local/bin
+    /opt/homebrew/bin
+    /opt/local/bin
+    $ENV{FPC_HOME}
+    DOC "Path to the Free Pascal Compiler"
+)
 
-find_program(FPC_EXECUTABLE NAMES fpc PATHS /usr/bin /usr/local/bin)
-
-if (NOT FPC_EXECUTABLE)
-    message(FATAL_ERROR "Free Pascal Compiler not found. Install FPC and try again.")
-else ()
-    message(STATUS "Found Free Pascal Compiler: ${FPC_EXECUTABLE}")
+# If found, set variables
+if (FPC_EXECUTABLE)
+    get_filename_component(FPC_PATH ${FPC_EXECUTABLE} PATH)
     set(FPC_FOUND TRUE)
+    set(FPC_COMPILER ${FPC_EXECUTABLE} CACHE FILEPATH "Free Pascal Compiler")
+    message(STATUS "Found Free Pascal Compiler: ${FPC_EXECUTABLE}")
+else()
+    message(FATAL_ERROR "Free Pascal Compiler (fpc) not found! Install it or set FPC_HOME.")
 endif()
 
-# Add FPC as a language in the CMake project.
-enable_language(Pascal)
+mark_as_advanced(FPC_EXECUTABLE)
 
