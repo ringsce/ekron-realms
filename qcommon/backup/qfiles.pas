@@ -40,6 +40,10 @@
 
 unit QFiles;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 (*
 ========================================================================
 
@@ -480,11 +484,9 @@ type
   dface_t = record
     planenum: Word;
     side: Smallint;
-
     firstedge: Integer;                 // we must support > 64k edges
     numedges: Smallint;
     texinfo: Smallint;
-
     // lighting info
     styles: array[0..MAXLIGHTMAPS - 1] of Byte;
     lightofs: Integer;                  // start of [numstyles*surfsize] samples
@@ -495,16 +497,12 @@ type
   dleaf_p = ^dleaf_t;
   dleaf_t = record
     contents: Integer;                  // OR of all brushes (not needed?)
-
     cluster: Smallint;
     area: Smallint;
-
     mins: array[0..2] of Smallint;      // for frustum culling
     maxs: array[0..2] of Smallint;
-
     firstleafface: Word;
     numleaffaces: Word;
-
     firstleafbrush: Word;
     numleafbrushes: Word;
   end;
@@ -526,7 +524,7 @@ type
     contents: Integer;
   end;
   dbrush_at = array[0..0] of dbrush_t;
-  dbrush_a = ^dbrush_a;
+  dbrush_a = ^dbrush_at;  // ✅ Corrected this line
 
 const
   ANGLE_UP = -1;

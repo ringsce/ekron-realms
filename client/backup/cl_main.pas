@@ -149,7 +149,7 @@ uses
   {$ENDIF}
 
   {$IFDEF DARWIN}  // macOS-specific
-  vid_macos in '../mac/vid_mac.pas',
+  vid_macos in '../mac/vid_macos.pas',
   in_macos in '../mac/in_macos.pas',
   q_shmacos in '../mac/q_shmacos.pas',
   sys_macos in '../mac/sys_macos.pas',

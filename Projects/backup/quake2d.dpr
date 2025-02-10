@@ -96,7 +96,7 @@ uses
   sv_world  in '..\server\sv_world.pas',
   DelphiTypes  in '..\qcommon\DelphiTypes.pas',
   q_shared_add in '..\game\q_shared_add.pas',
-  game_add     in '..\game\game_add.pas', launcher;
+  game_add     in '..\game\game_add.pas', launcher, Unit1;
 
 {$R *.res}
 

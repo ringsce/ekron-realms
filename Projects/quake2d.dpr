@@ -40,12 +40,14 @@ uses
   vid_menu    in '../mac/vid_menu.pas',
   glob        in '../mac/glob.pas',
   rw_linux_h  in '../mac/rw_linux_h.pas',
+  MoltenVK    in '../mac/MoltenVK.pas', // Add MoltenVK unit
   {$ENDIF}
   { Vulkan API support }
   Vulkan     in '../vulkan/vulkan.pas',
   VulkanUtils in '../vulkan/VulkanUtils.pas',
   VulkanRender in '../vulkan/VulkanRender.pas',
 
+  { Other units }
   qfiles    in '..\qcommon\qfiles.pas',
   crc       in '..\qcommon\crc.pas',
   CPas      in '..\qcommon\CPas.pas',
@@ -121,10 +123,9 @@ begin
   Main(ParamCount, PChar(CommandLine));
   {$ENDIF}
 
-  { Initialize Vulkan }
-  VulkanRender.Init();
+  { Initialize Vulkan with MoltenVK on Apple platforms }
+  InitVulkan;
 
   { Reset the FPU to the previous state }
   Set8087CW(Saved8087CW);
 end.
-
