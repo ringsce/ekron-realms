@@ -216,7 +216,7 @@ uses
   {$ENDIF}
 
   {$IFDEF DARWIN}
-  sys_mac, // macOS system-specific functions
+  sys_macos, // macOS system-specific functions
   vid_macos, // macOS-specific video (Sys_GetClipboardData)
   {$ENDIF}
 

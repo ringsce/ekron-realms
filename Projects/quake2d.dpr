@@ -31,7 +31,7 @@ uses
   {$ENDIF}
   {$IFDEF DARWIN}
   sys_mac   in '../mac/sys_mac.pas',
-  vid_so      in '../mac/vid_so.pas',
+  vid_macos      in '../mac/vid_macos.pas',
   snd_sdl     in '../mac/snd_sdl.pas',
   in_linux    in '../mac/in_mac.pas',
   q_shlinux   in '../mac/q_shmac.pas',

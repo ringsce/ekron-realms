@@ -117,30 +117,19 @@ type
 implementation
 
 uses
-  {$IFDEF MSWINDOWS}
+  {$IFDEF WIN32}
   vid_dll,
   q_shwin,
   in_win,
   net_wins,
-  vid_menu, // Windows version
-  {$ENDIF}
-
-  {$IFDEF LINUX}
+  vid_menu, // win version
+  {$ELSE}
   vid_so,
   q_shlinux,
   in_linux,
-  vid_menu, // Linux version (under /linux dir)
+  vid_menu, //linux version  under /linux dir
   net_udp,
   {$ENDIF}
-
-  {$IFDEF DARWIN}
-  vid_macos, // macOS-specific video handling
-  q_shmac,
-  in_mac,
-  vid_menu, // macOS version
-  net_udp,
-  {$ENDIF}
-
   CVar,
   cl_main,
   snd_dma,
