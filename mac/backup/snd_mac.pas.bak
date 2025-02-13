@@ -34,10 +34,6 @@ procedure AudioCallback(
 var
   i: Integer;
   BufferData: PByte;
-
-implementation
-
-
 begin
   BufferData := PByte(inBuffer^.mAudioData);
 
