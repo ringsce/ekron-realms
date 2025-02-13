@@ -56,7 +56,8 @@ interface
 uses
   q_shared,
   snd_loc,
-  client;
+  client,
+  DirectSound;
 
 // 64K is > 1 second at 16-bit, 22050 Hz
 

@@ -47,14 +47,14 @@ uses
 
 
   SysUtils,
-  MMSystem,
+  (*MMSystem, To be checked*)
   Math,
   Files,
   Common,
   cl_main,
-  conproc,
-  vid_dll,
-  q_shwin,
+  //conproc,
+  //vid_dll,
+  //q_shwin,
 
   q_shared;
 

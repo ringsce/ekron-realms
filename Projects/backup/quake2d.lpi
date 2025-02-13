@@ -248,6 +248,11 @@
         <Filename Value="../launcher.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
+      <Unit>
+        <Filename Value="cmd.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="Cmd"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -52,9 +52,9 @@ uses
   Files,
   Common,
   cl_main,
-  conproc,
-  vid_dll,
-  q_shwin,
+  //conproc,
+  vid_macos,
+  //q_shwin,
 
   q_shared;
 

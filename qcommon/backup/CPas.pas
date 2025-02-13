@@ -191,7 +191,8 @@ function strncmp(const str1, str2: PChar; len: size_t): Integer;
 function strxfrm(dst: PChar; const src: PChar; len: size_t): size_t;
 
 function memchr(const buf: Pointer; c: Integer; len: size_t): Pointer;
-function strchr(const str: PChar; c: Integer): PChar;
+//function strchr(const str: PChar; c: Integer): PChar;
+function strchr(const str1: PChar; c: Char): PChar;
 function strcspn(const str1, str2: PChar): size_t;
 function strpbrk(const str1, str2: PChar): PChar;
 function strrchr(const str: PChar; c: Integer): PChar;
@@ -522,22 +523,44 @@ end;
 function memchr(const buf: Pointer; c: Integer; len: size_t): Pointer;
 var
   l: Char;
+  p: PChar;
 begin
-  Result := buf;
-  l := chr(c);
-  while len <> 0 do
+  p := PChar(buf); // Cast the buffer to a PChar for pointer arithmetic
+  l := Chr(c);     // Convert the integer to a character
+
+  while len > 0 do
   begin
-    if PChar(Result)[0] = l then
-      Exit;
-    Inc(Integer(Result));
-    Dec(len);
+    if p^ = l then // Compare the current character with the target character
+      Exit(p);     // Return the pointer to the found character
+    Inc(p);        // Move to the next character
+    Dec(len);      // Decrement the remaining length
   end;
-  Result := NULL;
+
+  Result := nil;   // Return nil if the character is not found
 end;
 
-function strchr(const str: PChar; c: Integer): PChar;
+function strlen(const str1: PChar): size_t;
 begin
-  Result := memchr(str, c, strlen(str) + 1);
+  Result := 0;
+  while str1[Result] <> #0 do
+    Inc(Result);
+end;
+
+function strchr(const str1: PChar; c: Char): PChar;
+var
+  p: PChar;
+begin
+  p := str1;
+  while p^ <> #0 do
+  begin
+    if p^ = c then
+    begin
+      Result := p;
+      Exit;
+    end;
+    Inc(p);
+  end;
+  Result := nil;
 end;
 
 function strcspn(const str1, str2: PChar): size_t;
@@ -546,9 +569,9 @@ var
 begin
   Result := 0;
   t := str1;
-  while t[0] <> #0 do
+  while t^ <> #0 do
   begin
-    if strchr(str2, Ord(t[0])) <> NULL then
+    if strchr(str2, t^) <> nil then  // Fix: Pass `t^` instead of `Ord(t^)`
       Exit;
     Inc(Result);
     Inc(t);
@@ -558,13 +581,13 @@ end;
 function strpbrk(const str1, str2: PChar): PChar;
 begin
   Result := str1;
-  while Result[0] <> #0 do
+  while Result^ <> #0 do
   begin
-    if strchr(str2, Ord(Result[0])) <> NULL then
+    if strchr(str2, Result^) <> nil then  // Fix: Pass `Result^` instead of `Ord(Result[0])`
       Exit;
     Inc(Result);
   end;
-  Result := NULL;
+  Result := nil;  // Fix: Use `nil` instead of `NULL`
 end;
 
 function strrchr(const str: PChar; c: Integer): PChar;
@@ -591,9 +614,9 @@ var
 begin
   Result := 0;
   t := str1;
-  while t[0] <> #0 do
+  while t^ <> #0 do
   begin
-    if strchr(str2, Ord(t[0])) = NULL then
+    if strchr(str2, t^) = nil then  // Fix: Pass `t^` instead of `Ord(t[0])`
       Exit;
     Inc(Result);
     Inc(t);
@@ -616,24 +639,43 @@ begin
 end;
 
 var
-  strtok_str: PChar;
+  strtok_str: PChar = nil;  // Global variable to keep track of the tokenized string
 
 function strtok(str: PChar; const tok: PChar): PChar;
 begin
-  if str <> NULL then
+  if str <> nil then
     strtok_str := str;
-  Result := strtok_str;
-  while strtok_str[0] <> #0 do
+
+  if strtok_str = nil then
   begin
-    if strchr(tok, Ord(strtok_str[0])) <> NULL then
-    begin
-      strtok_str[0] := #0;
-      Inc(strtok_str);
-      Exit;
-    end;
-    Inc(strtok_str);
+    Result := nil;
+    Exit;
   end;
-  Result := NULL;
+
+  // Skip leading delimiters
+  while (strtok_str^ <> #0) and (strchr(tok, strtok_str^) <> nil) do
+    Inc(strtok_str);
+
+  if strtok_str^ = #0 then
+  begin
+    Result := nil;
+    Exit;
+  end;
+
+  // Mark the beginning of the token
+  Result := strtok_str;
+
+  // Move forward until we hit a delimiter
+  while (strtok_str^ <> #0) and (strchr(tok, strtok_str^) = nil) do
+    Inc(strtok_str);
+
+  if strtok_str^ <> #0 then
+  begin
+    strtok_str^ := #0;  // Null-terminate the token
+    Inc(strtok_str);
+  end
+  else
+    strtok_str := nil;  // No more tokens left
 end;
 
 function memset(buf: Pointer; c: Integer; len: size_t): Pointer;
@@ -647,8 +689,14 @@ begin
   Result := NULL;
 end;
 
-function strlen(const str1: PChar): size_t;
+function strlen(const str1: PChar): SizeInt;
 begin
+  if str1 = nil then
+  begin
+    Result := 0;
+    Exit;
+  end;
+
   Result := 0;
   while str1[Result] <> #0 do
     Inc(Result);

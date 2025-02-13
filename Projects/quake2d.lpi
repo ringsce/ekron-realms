@@ -253,6 +253,21 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="Cmd"/>
       </Unit>
+      <Unit>
+        <Filename Value="../debuggermain.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="DebuggerMain"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../DebuggerMain.lfm"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form1"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit1"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

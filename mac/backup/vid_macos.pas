@@ -33,6 +33,10 @@ interface
   is used for both the software and OpenGL rendering versions of the
   Quake refresh engine. }
 
+unit vid_macos;
+
+interface
+
 uses
   { Borland Standard Units (Windows only) }
   {$IFDEF MSWINDOWS}
