@@ -8,7 +8,7 @@ unit snd_mac;
 interface
 
 uses
-  MacOSAll, SysUtils;
+  MacOSAll, SysUtils, Math;  // Math is required for Sin()
 
 const
   SAMPLE_RATE = 44100;
@@ -20,25 +20,28 @@ type
     inUserData: Pointer;
     inAQ: AudioQueueRef;
     inBuffer: AudioQueueBufferRef
-  ); cdecl;
+  ); mwpascal;  // Fixed calling convention
 
 var
   AudioQueue: AudioQueueRef;
   Buffers: array[0..NUM_BUFFERS-1] of AudioQueueBufferRef;
 
+procedure InitAudio;
+
+implementation
+
 procedure AudioCallback(
   inUserData: Pointer;
   inAQ: AudioQueueRef;
   inBuffer: AudioQueueBufferRef
-); cdecl;
+); mwpascal;  // Fixed calling convention
 var
   i: Integer;
   BufferData: PByte;
-
-implementation
-
-
 begin
+  if inBuffer = nil then
+    Exit; // Prevent null pointer access
+
   BufferData := PByte(inBuffer^.mAudioData);
 
   // Fill buffer with dummy sine wave data (example)
@@ -49,7 +52,8 @@ begin
   inBuffer^.mAudioDataByteSize := BUFFER_SIZE;
 
   // Enqueue buffer for playback
-  AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, nil);
+  if AudioQueueEnqueueBuffer(inAQ, inBuffer, 0, nil) <> 0 then
+    WriteLn('Failed to enqueue buffer');
 end;
 
 procedure InitAudio;
@@ -69,38 +73,36 @@ begin
   Format.mFramesPerPacket := 1;
 
   // Create audio queue
-  if AudioQueueNewOutput(@Format, @AudioCallback, nil, nil, nil, 0, @AudioQueue) <> 0 then
+if AudioQueueNewOutput(Format, @AudioCallback, nil, nil, nil, 0, @AudioQueue) <> 0 then
+begin
+  WriteLn('Failed to create audio queue');
+  Exit;
+end;
+
+// Allocate and enqueue buffers
+for i := 0 to NUM_BUFFERS - 1 do
+begin
+  if AudioQueueAllocateBuffer(AudioQueue, BUFFER_SIZE, @Buffers[i]) <> 0 then
   begin
-    WriteLn('Failed to create audio queue');
+    WriteLn('Failed to allocate buffer');
     Exit;
   end;
-
-  // Allocate and enqueue buffers
-  for i := 0 to NUM_BUFFERS - 1 do
-  begin
-    if AudioQueueAllocateBuffer(AudioQueue, BUFFER_SIZE, @Buffers[i]) <> 0 then
-    begin
-      WriteLn('Failed to allocate buffer');
-      Exit;
-    end;
-    AudioCallback(nil, AudioQueue, Buffers[i]); // Pre-fill buffer
-  end;
+  AudioCallback(nil, AudioQueue, Buffers[i]); // Pre-fill buffer
+end;
 
   // Start playback
   AudioQueueStart(AudioQueue, nil);
 end;
 
-begin
+initialization
   WriteLn('Initializing CoreAudio...');
   InitAudio;
   WriteLn('Playing sound...');
 
-  // Keep program running so audio can play
-  ReadLn;
-
-  // Stop audio
+finalization
   AudioQueueStop(AudioQueue, True);
   AudioQueueDispose(AudioQueue, True);
   WriteLn('Audio stopped.');
+
 end.
 

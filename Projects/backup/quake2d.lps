@@ -7,8 +7,9 @@
       <Unit>
         <Filename Value="quake2d.dpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="97"/>
-        <CursorPos X="76" Y="99"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="7"/>
+        <CursorPos X="5" Y="35"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -560,53 +561,14 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/snd_mac.pas"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="9"/>
-        <CursorPos Y="8"/>
+        <TopLine Value="59"/>
+        <CursorPos X="77" Y="76"/>
         <UsageCount Value="13"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="547" TopLine="524"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="544" Column="12" TopLine="527"/>
-      </Position>
-      <Position>
-        <Filename Value="../debuggermain.pas"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="548" Column="10" TopLine="531"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="579" TopLine="545"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="564" TopLine="543"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="559" TopLine="535"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="548" Column="10" TopLine="531"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="547" TopLine="531"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="549" TopLine="517"/>
-      </Position>
       <Position>
         <Filename Value="../qcommon/CPas.pas"/>
         <Caret Line="564" TopLine="531"/>
@@ -686,6 +648,46 @@
       <Position>
         <Filename Value="../mac/snd_mac.pas"/>
         <Caret Line="6" Column="13"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="8"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="46" Column="36" TopLine="20"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="104" TopLine="70"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="55" TopLine="54"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="101" Column="45" TopLine="70"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Column="20"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="81" Column="3" TopLine="59"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="92" Column="2" TopLine="69"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="75" Column="4" TopLine="58"/>
+      </Position>
+      <Position>
+        <Filename Value="../mac/snd_mac.pas"/>
+        <Caret Line="92" TopLine="59"/>
       </Position>
     </JumpHistory>
     <RunParams>
