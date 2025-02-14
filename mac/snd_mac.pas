@@ -73,7 +73,7 @@ begin
   Format.mFramesPerPacket := 1;
 
   // Create audio queue
-if AudioQueueNewOutput(Format, @AudioCallback, nil, nil, nil, 0, @AudioQueue) <> 0 then
+if AudioQueueNewOutput(Format, @AudioCallback, nil, nil, nil, 0, AudioQueue) <> 0 then
 begin
   WriteLn('Failed to create audio queue');
   Exit;
@@ -82,7 +82,7 @@ end;
 // Allocate and enqueue buffers
 for i := 0 to NUM_BUFFERS - 1 do
 begin
-  if AudioQueueAllocateBuffer(AudioQueue, BUFFER_SIZE, @Buffers[i]) <> 0 then
+  if AudioQueueAllocateBuffer(AudioQueue, BUFFER_SIZE, Buffers[i]) <> 0 then
   begin
     WriteLn('Failed to allocate buffer');
     Exit;

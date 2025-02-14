@@ -74,7 +74,7 @@ uses
 
   {$IFDEF DARWIN}
   snd_mac in '../mac/snd_mac.pas',
-  in_mac in '../mac/in_mac.pas',
+  //in_mac in '../mac/in_mac.pas',
   {$ENDIF}
 
   cl_scrn,

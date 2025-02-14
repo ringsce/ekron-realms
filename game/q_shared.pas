@@ -2495,6 +2495,8 @@ end;
 
 //====================================================================
 
+// ... (rest of the file content)
+
 initialization
   // Check the size of standard types:
   Assert(sizeof(char) = 1);
@@ -2503,34 +2505,33 @@ initialization
   Assert(sizeof(cardinal) = 4);
   Assert(sizeof(pointer) = 4);
   Assert(sizeof(smallint) = 2);
+
   // Check the size of types defined in q_shared.h
   Assert(sizeof(byte) = 1);
-  Assert(sizeof(q_shared.qboolean) = 4);
-  Assert(sizeof(q_shared.multicast_t) = 4);
-  Assert(sizeof(q_shared.vec_t) = 4);
-  Assert(sizeof(q_shared.vec3_t) = 12);
-  Assert(sizeof(q_shared.vec5_t) = 20);
-  Assert(sizeof(q_shared.fixed4_t) = 4);
-  Assert(sizeof(q_shared.fixed8_t) = 4);
-  Assert(sizeof(q_shared.fixed16_t) = 4);
-  Assert(sizeof(q_shared.cvar_t) = 28);
-  Assert(sizeof(q_shared.cplane_t) = 20);
-  Assert(sizeof(q_shared.cmodel_t) = 40);
-  Assert(sizeof(q_shared.csurface_t) = 24);
-  Assert(sizeof(q_shared.mapsurface_t) = 56);
-  Assert(sizeof(q_shared.trace_t) = 56);
-  Assert(sizeof(q_shared.pmtype_t) = 4);
-{$IFNDEF GAMEDLL}
-  Assert(sizeof(q_shared.pmove_state_t) = 28);
-{$ENDIF}
-  Assert(sizeof(q_shared.usercmd_t) = 16);
-  Assert(sizeof(q_shared.pmove_t) = 240);
-  Assert(sizeof(q_shared.temp_event_t) = 4);
-  Assert(sizeof(q_shared.entity_event_t) = 4);
-  Assert(sizeof(q_shared.entity_state_t) = 84);
-  Assert(sizeof(q_shared.player_state_t) = 184);
+  Assert(sizeof(qboolean) = 4);
+  Assert(sizeof(multicast_t) = 4);
+  Assert(sizeof(vec_t) = 4);
+  Assert(sizeof(vec3_t) = 12);
+  Assert(sizeof(vec5_t) = 20);
+  Assert(sizeof(fixed4_t) = 4);
+  Assert(sizeof(fixed8_t) = 4);
+  Assert(sizeof(fixed16_t) = 4);
+  Assert(sizeof(cvar_t) = 28);
+  Assert(sizeof(cplane_t) = 20);
+  Assert(sizeof(cmodel_t) = 40);
+  Assert(sizeof(csurface_t) = 24);
+  Assert(sizeof(mapsurface_t) = 56);
+  Assert(sizeof(trace_t) = 56);
+  Assert(sizeof(pmtype_t) = 4);
+  Assert(sizeof(pmove_state_t) = 28);
+  Assert(sizeof(usercmd_t) = 16);
+  Assert(sizeof(pmove_t) = 240);
+  Assert(sizeof(temp_event_t) = 4);
+  Assert(sizeof(entity_event_t) = 4);
+  Assert(sizeof(entity_state_t) = 84);
+  Assert(sizeof(player_state_t) = 184);
 
-  // Perform Initialisation of Endien Routines
-  // needed for LittleLong, LittleShort, LittleFloat, BigLong, BigShort, BigFloat
+  // Perform Initialisation of Endian Routines
+  // Needed for LittleLong, LittleShort, LittleFloat, BigLong, BigShort, BigFloat
   Swap_Init;
 end.

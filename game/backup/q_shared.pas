@@ -45,6 +45,10 @@
 {----------------------------------------------------------------------------}
 unit q_shared;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 
 uses

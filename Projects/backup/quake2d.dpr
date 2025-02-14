@@ -32,7 +32,7 @@ uses
   {$IFDEF DARWIN}
   sys_mac   in '../mac/sys_mac.pas',
   vid_macos      in '../mac/vid_macos.pas',
-  //snd_mac     in '../mac/snd_mac.pas',
+  snd_mac     in '../mac/snd_mac.pas',
   in_linux    in '../mac/in_mac.pas',
   q_shlinux   in '../mac/q_shmac.pas',
   net_udp     in '../mac/net_udp.pas',

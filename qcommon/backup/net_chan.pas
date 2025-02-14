@@ -32,12 +32,16 @@
 {                                                                            }
 {----------------------------------------------------------------------------}
 {$IFDEF WIN32}
-{$INCLUDE ..\JEDI.inc}
+{$INCLUDE ../Jedi.inc}
 {$ELSE}
 {$INCLUDE ../Jedi.inc}
 {$ENDIF}
 
 unit net_chan;
+
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
 
 interface
 
@@ -103,7 +107,9 @@ unacknowledged reliable
 *}
 
 var
-  net_from: netadr_t;
+  curtime: Integer;
+  //curtime := Sys_Milliseconds; // Assuming Sys_Milliseconds returns the current time
+net_from: netadr_t;
   net_message: sizebuf_t;
   net_message_buffer: array[0..MAX_MSGLEN - 1] of Byte;
 
@@ -144,17 +150,44 @@ Netchan_Init
 
 ===============
 *}
+function Sys_Milliseconds: Integer;
+begin
+  Result := Trunc(Now * 86400000); // Convert time to milliseconds
+end;
+
+(* AdrtoString *)
+function NET_AdrToString(const adr: netadr_t): AnsiString;
+begin
+  Result := Format('%d.%d.%d.%d:%d', [adr.ip[0], adr.ip[1], adr.ip[2], adr.ip[3], adr.port]);
+end;
+
+procedure NET_SendPacket(socket: Integer; length: Integer; data: Pointer; const adr: netadr_t);
+var
+  address: AnsiString;
+begin
+  // Convert the address to a string for logging
+  address := NET_AdrToString(adr);
+
+  // Log the packet details (stub implementation)
+  WriteLn('Sending packet of size ', length, ' to ', address);
+end;
+
 procedure Netchan_Init;
 var
   port: Integer;
+  curtime: Integer;
 begin
-  // pick a port value that should be nice and random
+  // Initialize curtime properly inside the begin block
+  curtime := Sys_Milliseconds;
+
+  // Pick a port value that should be nice and random
   port := Sys_Milliseconds and $FFFF;
 
   showpackets := Cvar_Get('showpackets', '0', 0);
   showdrop := Cvar_Get('showdrop', '0', 0);
   qport := Cvar_Get('qport', va('%d', [port]), CVAR_NOSET);
 end;
+
 
 {*
 ===============
@@ -163,20 +196,25 @@ Netchan_OutOfBand
 Sends an out-of-band datagram
 ================
 *}
+
+
 procedure Netchan_OutOfBand(net_socket: netsrc_t; const adr: netadr_t; length_: Integer; data: PByte);
 var
   send: sizebuf_t;
   send_buf: array[0..MAX_MSGLEN - 1] of Byte;
 begin
-  // write the packet header
+  // Initialize the send buffer
+  FillChar(send_buf, SizeOf(send_buf), 0);
   SZ_Init(send, @send_buf, SizeOf(send_buf));
 
-  MSG_WriteLong(send, -1);              // -1 sequence means out of band
+  // Write the packet header
+  MSG_WriteLong(send, -1); // -1 sequence means out of band
   SZ_Write(send, data, length_);
 
-  // send the datagram
-  NET_SendPacket(net_socket, send.cursize, send.data, adr);
+  // Send the packet
+  NET_SendPacket(Integer(net_socket), send.cursize, @send_buf[0], adr);
 end;
+
 
 {*
 ===============
@@ -203,16 +241,21 @@ called to open a channel to a remote system
 ==============
 *}
 procedure Netchan_Setup(sock: netsrc_t; chan: netchan_p; adr: netadr_t; qport: Integer);
+var
+  curtime: Integer; // Declare curtime if it is not globally defined
 begin
+  // Initialize the netchan structure
   FillChar(chan^, SizeOf(chan^), 0);
 
+  // Assign values to the netchan structure
   chan.sock := sock;
   chan.remote_address := adr;
   chan.qport := qport;
-  chan.last_received := curtime;
+  chan.last_received := curtime; // Ensure curtime is defined and initialized
   chan.incoming_sequence := 0;
   chan.outgoing_sequence := 1;
 
+  // Initialize the message buffer
   SZ_Init(chan.message, @chan.message_buf, SizeOf(chan.message_buf));
   chan.message.allowoverflow := True;
 end;

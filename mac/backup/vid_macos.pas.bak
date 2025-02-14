@@ -61,21 +61,20 @@ uses
   vid_h,
 
   {$IFDEF MSWINDOWS}
-  snd_win,   // Windows-specific sound
-  in_win,    // Windows input
-  sys_win,   // Windows system
+  snd_win,
+  in_win,
+  sys_win,
   {$ENDIF}
 
   {$IFDEF LINUX}
-  snd_sdl,   // SDL-based sound (Linux)
-  in_linux,  // Linux input
-  sys_linux, // Linux system
+  snd_sdl,
+  in_linux,
+  sys_linux,
   {$ENDIF}
 
   {$IFDEF DARWIN}
-  snd_mac in '../mac/snd_mac.pas',   // macOS-specific sound
-  in_mac,    // macOS input
-  sys_mac   in '../mac/sys_mac.pas',
+  snd_mac in '../mac/snd_mac.pas',
+  in_mac in '../mac/in_mac.pas',
   {$ENDIF}
 
   cl_scrn,
@@ -84,6 +83,14 @@ uses
   Console,
   snd_dma,
   Client;
+
+implementation
+
+{$IFDEF DARWIN}
+uses sys_mac in '../mac/sys_mac.pas';  // Move sys_mac to implementation
+{$ENDIF}
+
+// Your implementation code here...
 
 { Defined Constants }
 const

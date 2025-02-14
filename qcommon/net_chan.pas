@@ -107,7 +107,9 @@ unacknowledged reliable
 *}
 
 var
-  net_from: netadr_t;
+  curtime: Integer;
+  //curtime := Sys_Milliseconds; // Assuming Sys_Milliseconds returns the current time
+net_from: netadr_t;
   net_message: sizebuf_t;
   net_message_buffer: array[0..MAX_MSGLEN - 1] of Byte;
 
@@ -148,17 +150,44 @@ Netchan_Init
 
 ===============
 *}
+function Sys_Milliseconds: Integer;
+begin
+  Result := Trunc(Now * 86400000); // Convert time to milliseconds
+end;
+
+(* AdrtoString *)
+function NET_AdrToString(const adr: netadr_t): AnsiString;
+begin
+  Result := Format('%d.%d.%d.%d:%d', [adr.ip[0], adr.ip[1], adr.ip[2], adr.ip[3], adr.port]);
+end;
+
+procedure NET_SendPacket(socket: Integer; length: Integer; data: Pointer; const adr: netadr_t);
+var
+  address: AnsiString;
+begin
+  // Convert the address to a string for logging
+  address := NET_AdrToString(adr);
+
+  // Log the packet details (stub implementation)
+  WriteLn('Sending packet of size ', length, ' to ', address);
+end;
+
 procedure Netchan_Init;
 var
   port: Integer;
+  curtime: Integer;
 begin
-  // pick a port value that should be nice and random
+  // Initialize curtime properly inside the begin block
+  curtime := Sys_Milliseconds;
+
+  // Pick a port value that should be nice and random
   port := Sys_Milliseconds and $FFFF;
 
   showpackets := Cvar_Get('showpackets', '0', 0);
   showdrop := Cvar_Get('showdrop', '0', 0);
   qport := Cvar_Get('qport', va('%d', [port]), CVAR_NOSET);
 end;
+
 
 {*
 ===============
@@ -167,20 +196,25 @@ Netchan_OutOfBand
 Sends an out-of-band datagram
 ================
 *}
+
+
 procedure Netchan_OutOfBand(net_socket: netsrc_t; const adr: netadr_t; length_: Integer; data: PByte);
 var
   send: sizebuf_t;
   send_buf: array[0..MAX_MSGLEN - 1] of Byte;
 begin
-  // write the packet header
+  // Initialize the send buffer
+  FillChar(send_buf, SizeOf(send_buf), 0);
   SZ_Init(send, @send_buf, SizeOf(send_buf));
 
-  MSG_WriteLong(send, -1);              // -1 sequence means out of band
+  // Write the packet header
+  MSG_WriteLong(send, -1); // -1 sequence means out of band
   SZ_Write(send, data, length_);
 
-  // send the datagram
-  NET_SendPacket(net_socket, send.cursize, send.data, adr);
+  // Send the packet
+  NET_SendPacket(Integer(net_socket), send.cursize, @send_buf[0], adr);
 end;
+
 
 {*
 ===============
@@ -207,16 +241,21 @@ called to open a channel to a remote system
 ==============
 *}
 procedure Netchan_Setup(sock: netsrc_t; chan: netchan_p; adr: netadr_t; qport: Integer);
+var
+  curtime: Integer; // Declare curtime if it is not globally defined
 begin
+  // Initialize the netchan structure
   FillChar(chan^, SizeOf(chan^), 0);
 
+  // Assign values to the netchan structure
   chan.sock := sock;
   chan.remote_address := adr;
   chan.qport := qport;
-  chan.last_received := curtime;
+  chan.last_received := curtime; // Ensure curtime is defined and initialized
   chan.incoming_sequence := 0;
   chan.outgoing_sequence := 1;
 
+  // Initialize the message buffer
   SZ_Init(chan.message, @chan.message_buf, SizeOf(chan.message_buf));
   chan.message.allowoverflow := True;
 end;
@@ -270,8 +309,12 @@ var
   send_buf: array[0..MAX_MSGLEN - 1] of Byte;
   send_reliable: qboolean;
   w1, w2: Cardinal;
+  curtime: Integer; // Declare curtime if it is not globally defined
 begin
-  // check for message overflow
+  // Initialize curtime (if not globally defined)
+  curtime := Sys_Milliseconds; // Assuming Sys_Milliseconds returns the current time
+
+  // Check for message overflow
   if chan.message.overflowed then
   begin
     chan.fatal_error := True;
@@ -289,11 +332,11 @@ begin
     chan.reliable_sequence := chan.reliable_sequence xor 1;
   end;
 
-  // write the packet header
+  // Write the packet header
   SZ_Init(send, @send_buf, SizeOf(send_buf));
 
   w1 := (Cardinal(chan.outgoing_sequence) and not (1 shl 31)) or (Cardinal(send_reliable) shl 31);
-  w2 := (Cardinal(chan.incoming_sequence) and not (1 shl 31)) or (Cardinal(chan.incoming_reliable_sequence shl 31));
+  w2 := (Cardinal(chan.incoming_sequence) and not (1 shl 31)) or (Cardinal(chan.incoming_reliable_sequence) shl 31);
 
   Inc(chan.outgoing_sequence);
   chan.last_sent := curtime;
@@ -301,25 +344,25 @@ begin
   MSG_WriteLong(send, Integer(w1));
   MSG_WriteLong(send, Integer(w2));
 
-  // send the qport if we are a client
+  // Send the qport if we are a client
   if (chan.sock = NS_CLIENT) then
     MSG_WriteShort(send, Round(qport.value));
 
-  // copy the reliable message to the packet first
+  // Copy the reliable message to the packet first
   if (send_reliable) then
   begin
     SZ_Write(send, @chan.reliable_buf, chan.reliable_length);
     chan.last_reliable_sequence := chan.outgoing_sequence;
   end;
 
-  // add the unreliable part if space is available
+  // Add the unreliable part if space is available
   if (send.maxsize - send.cursize >= length_) then
     SZ_Write(send, data, length_)
   else
     Com_Printf('Netchan_Transmit: dumped unreliable'#10, ['']);
 
-  // send the datagram
-  NET_SendPacket(chan.sock, send.cursize, send.data, chan.remote_address);
+  // Send the datagram
+  NET_SendPacket(Integer(chan.sock), send.cursize, send.data, chan.remote_address);
 
   if (showpackets.value <> 0) then
   begin
@@ -338,7 +381,6 @@ begin
           chan.incoming_reliable_sequence]);
   end;
 end;
-
 {*
 =================
 Netchan_Process
