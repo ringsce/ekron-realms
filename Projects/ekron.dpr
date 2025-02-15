@@ -8,9 +8,6 @@ uses
   SysUtils,
   {$IFDEF WIN32}
   Windows,
-  sys_win in '..\win32\sys_win.pas',
-  vid_dll in '..\win32\vid_dll.pas',
-  snd_win in '..\win32\snd_win.pas',
   {$ENDIF }
   {$IFDEF LINUX}
   sys_linux in '..\linux\sys_linux.pas',
@@ -80,7 +77,9 @@ uses
   rw_dib in '..\win32\rw_dib.pas',
   rw_Imp in '..\win32\rw_Imp.pas',
   rw_win in '..\win32\rw_win.pas',
-  vid_menu in '..\win32\vid_menu.pas';
+  vid_menu in '..\win32\vid_menu.pas',
+  g_local_32 in '..\ctf\g_local_32.pas',
+  g_local_64 in '..\ctf\g_local_64.pas';
 
 {$R *.res}
 

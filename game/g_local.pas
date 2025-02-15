@@ -42,8 +42,8 @@ interface
 
 uses
   GameUnit,
-  g_local_add,
-  q_shared;
+  g_local_add;
+  //q_shared;
 
 
 type

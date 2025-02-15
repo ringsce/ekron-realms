@@ -66,10 +66,12 @@
 Unit GameUnit;
 
 Interface
-Uses g_local, q_shared;
+Uses
+  g_local,
+  q_shared;
 
 Const
-  GAME_API_VERSION = 3;
+  GAME_API_VERSION = 1; // API Version
 
 // edict->svflags
 

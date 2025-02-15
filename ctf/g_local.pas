@@ -47,6 +47,7 @@ interface
 //ZOID
 {$endif}
 
+
 // CAK - TAKEN FROM q_shared.h
 const
   MAX_QPATH = 64; // max length of a quake game pathname

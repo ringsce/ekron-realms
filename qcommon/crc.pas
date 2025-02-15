@@ -115,14 +115,23 @@ begin
 end;
 
 function CRC_Block(start: Pointer; count: Integer): Word;
+var
+  crc: Word; // Local variable to store the CRC value
+  p: PByte;  // Pointer to traverse the input block
 begin
-  CRC_Init(@Result);
-  while count <> 0 do
+  crc := 0;  // Initialize the CRC value
+  CRC_Init(@crc); // Initialize CRC using the local variable
+
+  p := PByte(start); // Cast the start pointer to PByte
+  while count > 0 do
   begin
-    Result := (Result shl 8) xor crctable[(Result shr 8) xor PByte(start)^];
-    Inc(Integer(start));
-    Dec(count);
+    crc := (crc shl 8) xor crctable[(crc shr 8) xor p^]; // Update CRC
+    Inc(p); // Move to the next byte
+    Dec(count); // Decrement the remaining byte count
   end;
+
+  Result := crc; // Return the final CRC value
 end;
+
 
 end.
