@@ -96,17 +96,17 @@ uses
   cd_sdl,
   vid_so,
   {$ENDIF}
-  CModel,
-    CPas,
-    Cmd,
-    Common,
-    cl_tent,
-    cl_parse,
-    cl_ents,
-    CVar,
-    Console,
-    sysutils,
-    math;
+CModel,
+  CPas,
+  Cmd,
+  Common,
+  cl_tent,
+  cl_parse,
+  cl_ents,
+  CVar,
+  Console,
+  sysutils,
+  math;
 
 {
 ====================
