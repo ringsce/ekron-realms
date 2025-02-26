@@ -69,7 +69,7 @@ interface
 
 uses
   {$IFDEF LINUX}
-  Libc,
+  BaseUnix, Unix, UnixType;
   {$ENDIF}
   CVar {, ref};
 

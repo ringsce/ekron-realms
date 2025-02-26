@@ -125,7 +125,7 @@ uses
   {$ENDIF}
 
   {$IFDEF DARWIN}
-  sys_macos, cd_sdl, q_shmacos, // Use macOS-specific system handling
+  sys_mac, cd_sdl, q_shmac, // Use macOS-specific system handling
   {$ENDIF}
 
   {$IFDEF FPC}
