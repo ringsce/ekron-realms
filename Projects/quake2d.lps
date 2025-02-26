@@ -7,7 +7,6 @@
       <Unit>
         <Filename Value="quake2d.dpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <TopLine Value="15"/>
         <CursorPos X="9" Y="36"/>
         <UsageCount Value="211"/>
@@ -17,7 +16,7 @@
         <Filename Value="../qcommon/qfiles.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="QFiles"/>
-        <EditorIndex Value="6"/>
+        <EditorIndex Value="7"/>
         <TopLine Value="495"/>
         <CursorPos X="30" Y="527"/>
         <UsageCount Value="211"/>
@@ -26,14 +25,14 @@
       <Unit>
         <Filename Value="../qcommon/crc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="14"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/CPas.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="14"/>
+        <EditorIndex Value="15"/>
         <TopLine Value="675"/>
         <CursorPos Y="704"/>
         <UsageCount Value="211"/>
@@ -56,10 +55,13 @@
       <Unit>
         <Filename Value="../qcommon/Files.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <TopLine Value="111"/>
-        <CursorPos X="27" Y="128"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="60"/>
+        <CursorPos X="3" Y="73"/>
         <UsageCount Value="211"/>
+        <Loaded Value="True"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/CModel.pas"/>
@@ -83,7 +85,7 @@
       <Unit>
         <Filename Value="../qcommon/net_chan.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="10"/>
         <TopLine Value="350"/>
         <CursorPos X="5" Y="383"/>
         <UsageCount Value="211"/>
@@ -120,7 +122,7 @@
       <Unit>
         <Filename Value="../client/cl_main.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="8"/>
         <TopLine Value="135"/>
         <CursorPos X="31" Y="152"/>
         <UsageCount Value="211"/>
@@ -149,9 +151,9 @@
       <Unit>
         <Filename Value="../client/menu.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
+        <EditorIndex Value="2"/>
         <TopLine Value="123"/>
-        <CursorPos Y="157"/>
+        <CursorPos X="15" Y="130"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -198,7 +200,7 @@
       <Unit>
         <Filename Value="../client/keys.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="3"/>
         <TopLine Value="202"/>
         <CursorPos X="10" Y="219"/>
         <UsageCount Value="211"/>
@@ -267,7 +269,7 @@
       <Unit>
         <Filename Value="../client/cl_view.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="79"/>
         <CursorPos X="28" Y="90"/>
         <UsageCount Value="211"/>
@@ -296,7 +298,7 @@
       <Unit>
         <Filename Value="../client/cl_tent.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="267"/>
         <CursorPos X="21" Y="214"/>
         <UsageCount Value="211"/>
@@ -455,7 +457,7 @@
       <Unit>
         <Filename Value="../game/q_shared_add.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="5"/>
+        <EditorIndex Value="6"/>
         <TopLine Value="199"/>
         <CursorPos X="35" Y="216"/>
         <UsageCount Value="211"/>
@@ -501,7 +503,7 @@
       <Unit>
         <Filename Value="../launcher.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="4"/>
+        <EditorIndex Value="5"/>
         <TopLine Value="7"/>
         <CursorPos X="5" Y="40"/>
         <UsageCount Value="209"/>
@@ -522,7 +524,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DebuggerMain"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="16"/>
         <UsageCount Value="104"/>
         <Loaded Value="True"/>
       </Unit>
@@ -538,8 +540,7 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/sys_mac.pas"/>
-        <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
+        <EditorIndex Value="4"/>
         <TopLine Value="35"/>
         <CursorPos X="12" Y="56"/>
         <UsageCount Value="143"/>
@@ -547,8 +548,7 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/vid_macos.pas"/>
-        <IsPartOfProject Value="True"/>
-        <EditorIndex Value="8"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="60"/>
         <CursorPos X="5" Y="77"/>
         <UsageCount Value="121"/>
@@ -564,12 +564,19 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/snd_mac.pas"/>
-        <IsPartOfProject Value="True"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="75"/>
         <CursorPos X="66" Y="76"/>
         <UsageCount Value="70"/>
         <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../linux/sys_linux.pas"/>
+        <UnitName Value="sys_mac"/>
+        <EditorIndex Value="-1"/>
+        <CursorPos X="15" Y="31"/>
+        <UsageCount Value="10"/>
+        <DefaultSyntaxHighlighter Value="Delphi"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">

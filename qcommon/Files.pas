@@ -71,7 +71,7 @@ uses
   {$IFDEF LINUX}
   BaseUnix, Unix, UnixType;
   {$ENDIF}
-  CVar {, ref};
+  CVar, ref;
 
 // From qcommon.h, line 687
 (*

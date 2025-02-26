@@ -7,6 +7,7 @@
       <Unit>
         <Filename Value="quake2d.dpr"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <TopLine Value="15"/>
         <CursorPos X="9" Y="36"/>
         <UsageCount Value="211"/>
@@ -295,10 +296,9 @@
       <Unit>
         <Filename Value="../client/cl_tent.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="11"/>
-        <TopLine Value="30"/>
-        <CursorPos X="15" Y="47"/>
+        <TopLine Value="267"/>
+        <CursorPos X="21" Y="214"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -523,7 +523,7 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DebuggerMain"/>
         <EditorIndex Value="15"/>
-        <UsageCount Value="103"/>
+        <UsageCount Value="104"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -533,7 +533,7 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="83"/>
-        <UsageCount Value="103"/>
+        <UsageCount Value="104"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit>
       <Unit>
@@ -542,7 +542,7 @@
         <EditorIndex Value="3"/>
         <TopLine Value="35"/>
         <CursorPos X="12" Y="56"/>
-        <UsageCount Value="142"/>
+        <UsageCount Value="143"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -551,7 +551,7 @@
         <EditorIndex Value="8"/>
         <TopLine Value="60"/>
         <CursorPos X="5" Y="77"/>
-        <UsageCount Value="120"/>
+        <UsageCount Value="121"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -568,15 +568,11 @@
         <EditorIndex Value="12"/>
         <TopLine Value="75"/>
         <CursorPos X="66" Y="76"/>
-        <UsageCount Value="69"/>
+        <UsageCount Value="70"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="../mac/snd_mac.pas"/>
-        <Caret Line="76" Column="66" TopLine="75"/>
-      </Position>
       <Position>
         <Filename Value="../mac/vid_macos.pas"/>
         <Caret Line="77" Column="5" TopLine="60"/>
@@ -692,6 +688,10 @@
       <Position>
         <Filename Value="../client/cl_tent.pas"/>
         <Caret Line="46" Column="9" TopLine="29"/>
+      </Position>
+      <Position>
+        <Filename Value="../client/cl_tent.pas"/>
+        <Caret Line="47" Column="15" TopLine="30"/>
       </Position>
     </JumpHistory>
     <RunParams>
