@@ -69,9 +69,9 @@ interface
 
 uses
   {$IFDEF LINUX}
-  BaseUnix, Unix, UnixType;
+  BaseUnix, Unix, UnixType,
   {$ENDIF}
-  CVar, ref;
+  CVar in 'CVar.pas';  // Adjust the path accordingly
 
 // From qcommon.h, line 687
 (*
