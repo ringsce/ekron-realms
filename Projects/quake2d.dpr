@@ -34,12 +34,12 @@ uses
   vid_macos      in '../mac/vid_macos.pas',
   snd_mac     in '../mac/snd_mac.pas',
   in_mac    in '../mac/in_mac.pas',
-  q_shlinux   in '../mac/q_shmac.pas',
+  q_shmac   in '../mac/q_shmac.pas',
   net_udp     in '../mac/net_udp.pas',
   cd_sdl      in '../mac/cd_sdl.pas',
   vid_menu    in '../mac/vid_menu.pas',
   glob        in '../mac/glob.pas',
-  rw_linux_h  in '../mac/rw_linux_h.pas',
+  rw_mac_h  in '../mac/rw_mac_h.pas',
   MoltenVK    in '../mac/MoltenVK.pas', // Add MoltenVK unit
   {$ENDIF}
   { Vulkan API support }
@@ -98,7 +98,7 @@ uses
   sv_world  in '..\server\sv_world.pas',
   DelphiTypes  in '..\qcommon\DelphiTypes.pas',
   q_shared_add in '..\game\q_shared_add.pas',
-  game_add     in '..\game\game_add.pas', launcher, Unit1;
+  game_add     in '..\game\game_add.pas', launcher;
 
 {$R *.res}
 

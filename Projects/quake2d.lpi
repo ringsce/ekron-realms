@@ -3,11 +3,19 @@
   <ProjectOptions>
     <Version Value="12"/>
     <General>
+      <Flags>
+        <MainUnitHasCreateFormStatements Value="False"/>
+        <MainUnitHasTitleStatement Value="False"/>
+        <MainUnitHasScaledStatement Value="False"/>
+      </Flags>
       <SessionStorage Value="InProjectDir"/>
       <Title Value="quake2d"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
+    <i18n>
+      <EnableI18N Value="True"/>
+    </i18n>
     <BuildModes>
       <Item Name="Default" Default="True"/>
     </BuildModes>
@@ -266,14 +274,13 @@
         <IsPartOfProject Value="True"/>
         <ComponentName Value="Form1"/>
         <ResourceBaseClass Value="Form"/>
-        <UnitName Value="Unit1"/>
       </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <SearchPaths>
-      <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server"/>
+      <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server;$(ProjOutDir)"/>
       <Libraries Value="../jedi"/>
       <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;../vulkan;.."/>
       <UnitOutputDirectory Value="build"/>
@@ -281,7 +288,7 @@
     </SearchPaths>
     <Parsing>
       <SyntaxOptions>
-        <SyntaxMode Value="delphi"/>
+        <SyntaxMode Value="Delphi"/>
       </SyntaxOptions>
     </Parsing>
     <Linking>
