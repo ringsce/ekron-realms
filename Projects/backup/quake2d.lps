@@ -8,8 +8,7 @@
         <Filename Value="quake2d.dpr"/>
         <IsPartOfProject Value="True"/>
         <IsVisibleTab Value="True"/>
-        <TopLine Value="32"/>
-        <CursorPos X="3" Y="43"/>
+        <CursorPos X="34" Y="22"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -27,6 +26,7 @@
         <Filename Value="../qcommon/crc.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="15"/>
+        <CursorPos X="28" Y="2"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -493,7 +493,7 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DebuggerMain"/>
         <EditorIndex Value="17"/>
-        <UsageCount Value="108"/>
+        <UsageCount Value="110"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -503,7 +503,7 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="83"/>
-        <UsageCount Value="108"/>
+        <UsageCount Value="110"/>
       </Unit>
       <Unit>
         <Filename Value="../mac/sys_mac.pas"/>
@@ -534,7 +534,7 @@
         <EditorIndex Value="14"/>
         <TopLine Value="75"/>
         <CursorPos X="66" Y="76"/>
-        <UsageCount Value="71"/>
+        <UsageCount Value="72"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -551,24 +551,16 @@
         <CursorPos X="43" Y="112"/>
         <UsageCount Value="10"/>
       </Unit>
+      <Unit>
+        <Filename Value="../../../../fpcupdeluxe/lazarus/lcl/intfgraphics.pas"/>
+        <UnitName Value="IntfGraphics"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="20"/>
+        <CursorPos X="3" Y="31"/>
+        <UsageCount Value="10"/>
+      </Unit>
     </Units>
-    <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="../qcommon/net_chan.pas"/>
-        <Caret Line="171" TopLine="138"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/net_chan.pas"/>
-        <Caret Line="206" TopLine="179"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/net_chan.pas"/>
-        <Caret Line="201" Column="15" TopLine="185"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/net_chan.pas"/>
-        <Caret Line="206" TopLine="185"/>
-      </Position>
+    <JumpHistory HistoryIndex="28">
       <Position>
         <Filename Value="../qcommon/net_chan.pas"/>
         <Caret Line="217" TopLine="183"/>
@@ -672,6 +664,18 @@
       <Position>
         <Filename Value="quake2d.dpr"/>
         <Caret Line="42" Column="30" TopLine="28"/>
+      </Position>
+      <Position>
+        <Filename Value="quake2d.dpr"/>
+        <Caret Line="43" Column="3" TopLine="32"/>
+      </Position>
+      <Position>
+        <Filename Value="../qcommon/crc.pas"/>
+        <Caret Line="2" Column="28"/>
+      </Position>
+      <Position>
+        <Filename Value="quake2d.dpr"/>
+        <Caret Line="101" Column="51" TopLine="77"/>
       </Position>
     </JumpHistory>
     <RunParams>

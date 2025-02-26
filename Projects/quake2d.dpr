@@ -59,6 +59,7 @@ uses
   MD4       in '..\qcommon\MD4.pas',
   PMoveUnit in '..\qcommon\PMoveUnit.pas',
   net_chan  in '..\qcommon\net_chan.pas',
+  gzio      in '..\qcommon\gzio.pas',
   Delphi_cdecl_printf in '..\qcommon\Delphi_cdecl_printf.pas',
   q_shared  in '..\game\q_shared.pas',
   m_flash   in '..\game\m_flash.pas',
