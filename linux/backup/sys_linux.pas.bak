@@ -28,7 +28,7 @@
 { - Fixed uses clause                                                        }
 {----------------------------------------------------------------------------}
 
-unit sys_linux;
+unit sys_mac;
 
 interface
 
