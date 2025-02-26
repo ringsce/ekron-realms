@@ -25,14 +25,14 @@
       <Unit>
         <Filename Value="../qcommon/crc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="13"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/CPas.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="14"/>
         <TopLine Value="675"/>
         <CursorPos Y="704"/>
         <UsageCount Value="211"/>
@@ -266,7 +266,6 @@
       <Unit>
         <Filename Value="../client/cl_view.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="10"/>
         <TopLine Value="79"/>
         <CursorPos X="28" Y="90"/>
@@ -296,12 +295,12 @@
       <Unit>
         <Filename Value="../client/cl_tent.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
-        <WindowIndex Value="-1"/>
-        <TopLine Value="-1"/>
-        <CursorPos X="-1" Y="-1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="11"/>
+        <TopLine Value="30"/>
+        <CursorPos X="15" Y="47"/>
         <UsageCount Value="211"/>
-        <DefaultSyntaxHighlighter Value="Delphi"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../client/cl_fx.pas"/>
@@ -523,8 +522,8 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DebuggerMain"/>
-        <EditorIndex Value="14"/>
-        <UsageCount Value="68"/>
+        <EditorIndex Value="15"/>
+        <UsageCount Value="103"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -534,7 +533,7 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="83"/>
-        <UsageCount Value="68"/>
+        <UsageCount Value="103"/>
         <DefaultSyntaxHighlighter Value="LFM"/>
       </Unit>
       <Unit>
@@ -543,7 +542,7 @@
         <EditorIndex Value="3"/>
         <TopLine Value="35"/>
         <CursorPos X="12" Y="56"/>
-        <UsageCount Value="107"/>
+        <UsageCount Value="142"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -552,7 +551,7 @@
         <EditorIndex Value="8"/>
         <TopLine Value="60"/>
         <CursorPos X="5" Y="77"/>
-        <UsageCount Value="85"/>
+        <UsageCount Value="120"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -561,31 +560,19 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="11"/>
         <CursorPos X="14" Y="28"/>
-        <UsageCount Value="32"/>
+        <UsageCount Value="28"/>
       </Unit>
       <Unit>
         <Filename Value="../mac/snd_mac.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="75"/>
         <CursorPos X="66" Y="76"/>
-        <UsageCount Value="34"/>
+        <UsageCount Value="69"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="quake2d.dpr"/>
-        <Caret Line="35" Column="5" TopLine="7"/>
-      </Position>
-      <Position>
-        <Filename Value="../mac/snd_mac.pas"/>
-        <Caret Line="76" Column="77" TopLine="59"/>
-      </Position>
-      <Position>
-        <Filename Value="../mac/snd_mac.pas"/>
-        <Caret Line="65" Column="10" TopLine="59"/>
-      </Position>
       <Position>
         <Filename Value="../mac/snd_mac.pas"/>
         <Caret Line="76" Column="66" TopLine="75"/>
@@ -693,6 +680,18 @@
       <Position>
         <Filename Value="../client/cl_view.pas"/>
         <Caret Line="93" Column="3" TopLine="76"/>
+      </Position>
+      <Position>
+        <Filename Value="../client/cl_view.pas"/>
+        <Caret Line="90" Column="28" TopLine="79"/>
+      </Position>
+      <Position>
+        <Filename Value="../client/cl_tent.pas"/>
+        <Caret Line="65" TopLine="32"/>
+      </Position>
+      <Position>
+        <Filename Value="../client/cl_tent.pas"/>
+        <Caret Line="46" Column="9" TopLine="29"/>
       </Position>
     </JumpHistory>
     <RunParams>

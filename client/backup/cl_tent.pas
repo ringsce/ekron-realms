@@ -44,7 +44,7 @@ uses
       {$IFDEF DARWIN}
       // macOS-specific units
       //vid_so,
-      MacOSAll,  // Replace with the actual macOS unit if available
+      sys_macos,  // Replace with the actual macOS unit if available
       {$ELSE}
       // Default/fallback units if needed
       vid_so,
