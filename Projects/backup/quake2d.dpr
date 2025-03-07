@@ -59,7 +59,7 @@ uses
   MD4       in '..\qcommon\MD4.pas',
   PMoveUnit in '..\qcommon\PMoveUnit.pas',
   net_chan  in '..\qcommon\net_chan.pas',
-  gzio  in '..\qcommon\gzio.pas',
+  gzio      in '..\qcommon\gzio.pas',
   Delphi_cdecl_printf in '..\qcommon\Delphi_cdecl_printf.pas',
   q_shared  in '..\game\q_shared.pas',
   m_flash   in '..\game\m_flash.pas',
@@ -99,7 +99,7 @@ uses
   sv_world  in '..\server\sv_world.pas',
   DelphiTypes  in '..\qcommon\DelphiTypes.pas',
   q_shared_add in '..\game\q_shared_add.pas',
-  game_add     in '..\game\game_add.pas', launcher;
+  game_add     in '..\game\game_add.pas', launcher, Unit1;
 
 {$R *.res}
 
