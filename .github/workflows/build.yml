@@ -69,3 +69,63 @@ jobs:
           name: quake2d-macos-arm64
           path: quake2d-macos-arm64.tar.gz
 
+  build-rpi3:
+    name: Build for Raspberry Pi 3+ (ARMv7)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Free Pascal and Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y fpc lazarus
+
+      - name: Compile for Raspberry Pi 3+ (ARMv7)
+        run: |
+          make all FLAGS="-Mobjfpc -Scgi -vewn -O2 -gl -Xs -k'-dead_strip' -Tlinux -Parm"
+
+      - name: Package Executable
+        run: |
+          mkdir -p release/rpi3
+          cp Projects/quake2d release/rpi3/
+          cp launcher release/rpi3/
+          tar -czvf quake2d-rpi3.tar.gz -C release/rpi3 .
+
+      - name: Upload Raspberry Pi 3+ Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quake2d-rpi3
+          path: quake2d-rpi3.tar.gz
+
+  build-odroid-c2:
+    name: Build for Odroid C2 (ARM64)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Free Pascal and Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y fpc lazarus
+
+      - name: Compile for Odroid C2 (ARM64)
+        run: |
+          make all FLAGS="-Mobjfpc -Scgi -vewn -O2 -gl -Xs -k'-dead_strip' -Tlinux -Paarch64"
+
+      - name: Package Executable
+        run: |
+          mkdir -p release/odroid-c2
+          cp Projects/quake2d release/odroid-c2/
+          cp launcher release/odroid-c2/
+          tar -czvf quake2d-odroid-c2.tar.gz -C release/odroid-c2 .
+
+      - name: Upload Odroid C2 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: quake2d-odroid-c2
+          path: quake2d-odroid-c2.tar.gz
+
