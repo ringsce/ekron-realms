@@ -30,59 +30,68 @@
 
 unit sys_mac;
 
+{$mode objfpc}{$H+}
+
 interface
 
 uses
-  {$IFDEF MSWINDOWS}
-  Windows, // Windows-specific unit
-  {$ENDIF}
+  MacOSAll,   // macOS-specific units
+  SysUtils,   // Core system utilities
+  Math,       // Math functions
+  Files,      // File system operations
+  Common,     // Common utilities
+  cl_main,    // Game-specific main module
+  vid_macos,  // macOS video handling
+  q_shared;   // Shared definitions
 
-  {$IFDEF LINUX}
-  BaseUnix, Unix, // Linux-specific units
-  {$ENDIF}
+const
+  MINIMUM_MAC_MEMORY = $0A00000;
+  MAXIMUM_MAC_MEMORY = $1000000;
+  MAX_NUM_ARGVS = 128;
 
-  {$IFDEF DARWIN}
-  MacOSAll, // macOS-specific units
-  {$ENDIF}
-
-
-  SysUtils,
-  (*MMSystem, To be checked*)
-  Math,
-  Files,
-  Common,
-  cl_main,
-  //conproc,
-  vid_macos,
-  //q_shwin,
-
-  q_shared;
-
-// Your code here
+type
+  TSysMac = class
+  private
+    sys_msg_time: Cardinal;
+    sys_frame_time: Cardinal;
+    starttime: Integer;
+    ActiveApp: Integer;
+    Minimized: Boolean;
+    argc: Integer;
+    argv: array[0..MAX_NUM_ARGVS - 1] of PChar;
+    console_text: array[0..255] of Char;
+    console_textlen: Integer;
+    game_library: Pointer;   // Changed from HINST to Pointer for macOS
+    global_hInstance: Pointer; // Changed from HINST to Pointer
+  public
+    constructor Create;
+    procedure Init;
+  end;
 
 implementation
 
-const
-  MINIMUM_WIN_MEMORY = $0A00000;
-  MAXIMUM_WIN_MEMORY = $1000000;
-  MAX_NUM_ARGVS = 128;
+{ TSysMac }
 
-var
-  s_win95: qboolean;
-  starttime: Integer;
-  ActiveApp: Integer;
-  Minimized: qboolean;
-  hinput: THandle;
-  houtput: THandle;
-  sys_msg_time: Cardinal;
-  sys_frame_time: Cardinal;
-  qwclsemaphore: THandle;
-  argc: Integer;
-  argv: array[0..MAX_NUM_ARGVS - 1] of PChar;
-  console_text: array[0..255] of Char;
-  console_textlen: Integer;
-  game_library: Pointer;   // Changed from HINST to Pointer for cross-platform compatibility
-  global_hInstance: Pointer; // Changed from HINST to Pointer
+constructor TSysMac.Create;
+begin
+  sys_msg_time := 0;
+  sys_frame_time := 0;
+  starttime := 0;
+  ActiveApp := 0;
+  Minimized := False;
+  argc := 0;
+  console_textlen := 0;
+  game_library := nil;
+  global_hInstance := nil;
+end;
+
+procedure TSysMac.Init;
+begin
+  WriteLn('sys_mac: Initializing system...');
+  // Add any necessary macOS initialization logic here
+end;
+
+end.
 
 procedure Sys_Error(error: PChar; args: array of const);
 procedure Sys_Quit;
