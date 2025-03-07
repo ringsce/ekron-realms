@@ -1,59 +1,22 @@
-# Makefile.fpc for ShopWindow (Cross-Platform)
+[package]
+name=ekron_realms
+version=1.0
 
-# Compiler
-FPC = fpc
+[compiler]
+# Enable object-oriented mode and debugging
+options=-Mobjfpc -Scgi -gl -Xs -O2 -vewn
 
-# Detect the operating system
-ifeq ($(OS),Windows_NT)
-    PLATFORM = Windows
-else
-    PLATFORM = $(shell uname -s)
-endif
+# Target platform
+target=darwin
 
-# Platform-specific configurations
-ifeq ($(PLATFORM),Windows)
-    # Windows settings
-    FPC_FLAGS = -MObjFPC -Scgi -O2 -g -vewnhi
-    SDL2_LIBS = -lSDL2 -lSDL2main -lopengl32 -lglu32
-    SDL3_LIBS = -lSDL3 -lopengl32 -lglu32
-    EXE_EXT = .exe
-else ifeq ($(PLATFORM),Darwin)
-    # macOS settings
-    FPC_FLAGS = -MObjFPC -Scgi -O2 -g -vewnhi -Parm
-    SDL2_LIBS = -lSDL2 -framework OpenGL -framework GLUT
-    SDL3_LIBS = -lSDL3 -framework OpenGL -framework GLUT
-    EXE_EXT =
-else
-    # Linux settings
-    FPC_FLAGS = -MObjFPC -Scgi -O2 -g -vewnhi
-    SDL2_LIBS = -lSDL2 -lGL -lGLU
-    SDL3_LIBS = -lSDL3 -lGL -lGLU
-    EXE_EXT =
-endif
+# Main program entry
+main=quake2d.lpr
 
-# Source file
-SRC = ShopWindow.pas
+[install]
+# Output binary location
+bindir=bin
+libdir=lib
 
-# Executable name
-TARGET = ShopWindowApp$(EXE_EXT)
+# Files to install
+files=my_project:$(bindir)/ekron_realms
 
-# SDL configuration
-USE_SDL2 = -dUSE_SDL2
-USE_SDL3 = -dUSE_SDL3
-
-# Default target
-all: sdl2
-
-# Build with SDL2
-sdl2: $(SRC)
-	$(FPC) $(FPC_FLAGS) $(USE_SDL2) $(SDL2_LIBS) -o$(TARGET) $<
-
-# Build with SDL3
-sdl3: $(SRC)
-	$(FPC) $(FPC_FLAGS) $(USE_SDL3) $(SDL3_LIBS) -o$(TARGET) $<
-
-# Clean build artifacts
-clean:
-	rm -f $(TARGET) *.o *.ppu
-
-.PHONY: all sdl2 sdl3 clean
