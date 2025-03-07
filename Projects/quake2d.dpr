@@ -46,6 +46,8 @@ uses
   Vulkan     in '../vulkan/vulkan.pas',
   VulkanUtils in '../vulkan/VulkanUtils.pas',
   VulkanRender in '../vulkan/VulkanRender.pas',
+  kayte in '../kayte/kayte.pas',
+  //kayteparser in ' ../kayte/kayteparser.pas',
 
   { Other units }
   qfiles    in '..\qcommon\qfiles.pas',

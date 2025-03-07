@@ -43,9 +43,11 @@ uses
   MoltenVK  in '../mac/MoltenVK.pas', // Add MoltenVK unit
 {$ENDIF}
 { Vulkan API support }
-  Vulkan     in '..\vulkan\vulkan.pas',
-  VulkanUtils in '..\vulkan\VulkanUtils.pas',
-  VulkanRender in '..\vulkan\VulkanRender.pas',
+  Vulkan     in '../vulkan/vulkan.pas',
+  VulkanUtils in '../vulkan/VulkanUtils.pas',
+  VulkanRender in '../vulkan/VulkanRender.pas',
+  kayte in '../kayte/kayte.pas',
+  kayteparser in ' ../kayte/kayteparser.pas',
 
   { Other units }
   qfiles    in '..\qcommon\qfiles.pas',

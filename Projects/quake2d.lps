@@ -7,8 +7,9 @@
       <Unit>
         <Filename Value="quake2d.dpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="28"/>
-        <CursorPos X="12" Y="45"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="39"/>
+        <CursorPos X="5" Y="50"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -364,10 +365,9 @@
       <Unit>
         <Filename Value="../server/sv_ccmds.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="48"/>
-        <CursorPos X="3" Y="59"/>
+        <TopLine Value="39"/>
+        <CursorPos X="38" Y="53"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -474,7 +474,6 @@
         <Filename Value="../launcher.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="9"/>
-        <TopLine Value="20"/>
         <CursorPos X="32" Y="28"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
@@ -495,7 +494,8 @@
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DebuggerMain"/>
         <EditorIndex Value="20"/>
-        <UsageCount Value="153"/>
+        <TopLine Value="47"/>
+        <UsageCount Value="161"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -505,12 +505,13 @@
         <ResourceBaseClass Value="Form"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="83"/>
-        <UsageCount Value="153"/>
+        <UsageCount Value="161"/>
       </Unit>
       <Unit>
         <Filename Value="../mac/sys_mac.pas"/>
         <EditorIndex Value="8"/>
-        <CursorPos X="63" Y="59"/>
+        <TopLine Value="41"/>
+        <CursorPos Y="95"/>
         <UsageCount Value="143"/>
         <Loaded Value="True"/>
       </Unit>
@@ -528,14 +529,14 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="11"/>
         <CursorPos X="14" Y="28"/>
-        <UsageCount Value="23"/>
+        <UsageCount Value="22"/>
       </Unit>
       <Unit>
         <Filename Value="../mac/snd_mac.pas"/>
         <EditorIndex Value="17"/>
         <TopLine Value="75"/>
         <CursorPos X="66" Y="76"/>
-        <UsageCount Value="95"/>
+        <UsageCount Value="98"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -543,14 +544,14 @@
         <UnitName Value="sys_mac"/>
         <EditorIndex Value="-1"/>
         <CursorPos X="15" Y="31"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit>
       <Unit>
         <Filename Value="../../../../fpcupdeluxe/lazarus/examples/xmlresource/xmlresourcefile.pas"/>
         <EditorIndex Value="-1"/>
         <TopLine Value="100"/>
         <CursorPos X="43" Y="112"/>
-        <UsageCount Value="5"/>
+        <UsageCount Value="4"/>
       </Unit>
       <Unit>
         <Filename Value="../../../../fpcupdeluxe/lazarus/lcl/intfgraphics.pas"/>
@@ -558,13 +559,13 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="20"/>
         <CursorPos X="3" Y="31"/>
-        <UsageCount Value="28"/>
+        <UsageCount Value="27"/>
       </Unit>
       <Unit>
         <Filename Value="../qcommon/gzio.pas"/>
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="4"/>
-        <UsageCount Value="23"/>
+        <UsageCount Value="31"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -573,19 +574,11 @@
         <EditorIndex Value="2"/>
         <TopLine Value="57"/>
         <CursorPos Y="78"/>
-        <UsageCount Value="23"/>
+        <UsageCount Value="30"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="../qcommon/net_chan.pas"/>
-        <Caret Line="173" TopLine="173"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/net_chan.pas"/>
-        <Caret Line="165" Column="26" TopLine="144"/>
-      </Position>
       <Position>
         <Filename Value="../qcommon/net_chan.pas"/>
         <Caret Line="196" TopLine="169"/>
@@ -696,6 +689,14 @@
       <Position>
         <Filename Value="quake2d.dpr"/>
         <Caret Line="45" Column="12" TopLine="28"/>
+      </Position>
+      <Position>
+        <Filename Value="../server/sv_ccmds.pas"/>
+        <Caret Line="59" Column="3" TopLine="48"/>
+      </Position>
+      <Position>
+        <Filename Value="quake2d.dpr"/>
+        <Caret Line="50" Column="8" TopLine="39"/>
       </Position>
     </JumpHistory>
     <RunParams>
