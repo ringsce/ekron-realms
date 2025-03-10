@@ -202,7 +202,7 @@ function strtok(str: PChar; const tok: PChar): PChar;
 
 function memset(buf: Pointer; c: Integer; len: size_t): Pointer;
 function strerror(nb_error: Integer): PChar;
-function strlen(const str1: PChar): size_t;
+function strlen(const str1: Pointer): SizeInt;
 
 function atoi(s: PChar): Integer;
 function atof(s: PChar): Single;
@@ -539,13 +539,13 @@ begin
   Result := nil;   // Return nil if the character is not found
 end;
 
-function strlen(const str1: PChar): size_t;
+(*function strlen(const str1: PChar): size_t;
 begin
   Result := 0;
   while str1[Result] <> #0 do
     Inc(Result);
 end;
-
+  *)
 function strchr(const str1: PChar; c: Char): PChar;
 var
   p: PChar;
@@ -689,17 +689,21 @@ begin
   Result := NULL;
 end;
 
-function strlen(const str1: PChar): SizeInt;
+function strlen(const str1: Pointer): SizeInt;
+var
+  p: PChar;
 begin
   if str1 = nil then
-  begin
-    Result := 0;
-    Exit;
-  end;
+    Exit(0);
 
+  p := PChar(str1);
   Result := 0;
-  while str1[Result] <> #0 do
+
+  while p^ <> #0 do
+  begin
     Inc(Result);
+    Inc(p);
+  end;
 end;
 
 function atoi(s: PChar): Integer;
@@ -711,14 +715,18 @@ function atof(s: PChar): Single;
 var
   s2: string;
   i: Integer;
+  Fmt: TFormatSettings;
 begin
   s2 := s;
+  Fmt := DefaultFormatSettings;  // Get system format settings
+
   for i := 1 to Length(s2) do
   begin
     if s2[i] in ['.', ','] then
-      s2[i] := SysUtils.DecimalSeparator;
+      s2[i] := Fmt.DecimalSeparator;  // Use FormatSettings.DecimalSeparator
   end;
-  Result := StrToFloatDef(s2, 0.0);
+
+  Result := StrToFloatDef(s2, 0.0, Fmt);  // Pass format settings to StrToFloatDef
 end;
 
 function sscanf(const s: PChar; const fmt: PChar;

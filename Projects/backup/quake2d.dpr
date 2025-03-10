@@ -47,7 +47,8 @@ uses
   VulkanUtils in '../vulkan/VulkanUtils.pas',
   VulkanRender in '../vulkan/VulkanRender.pas',
   kayte in '../kayte/kayte.pas',
-  kayteparser in ' ../kayte/kayteparser.pas',
+  //kayteparser in ' ../kayte/kayteparser.pas',
+  platformAsm in '../game/platformasm.pas',
 
   { Other units }
   qfiles    in '..\qcommon\qfiles.pas',
@@ -101,7 +102,7 @@ uses
   sv_world  in '..\server\sv_world.pas',
   DelphiTypes  in '..\qcommon\DelphiTypes.pas',
   q_shared_add in '..\game\q_shared_add.pas',
-  game_add     in '..\game\game_add.pas';
+  game_add     in '..\game\game_add.pas', Unit1;
 
 {$R *.res}
 

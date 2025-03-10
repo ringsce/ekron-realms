@@ -275,6 +275,14 @@
         <ComponentName Value="Form1"/>
         <ResourceBaseClass Value="Form"/>
       </Unit>
+      <Unit>
+        <Filename Value="../qcommon/gzio.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../mac/net_udp.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -282,7 +290,7 @@
     <SearchPaths>
       <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server;$(ProjOutDir)"/>
       <Libraries Value="../jedi"/>
-      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;../vulkan;.."/>
+      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;../vulkan;..;../mac"/>
       <UnitOutputDirectory Value="build"/>
       <ObjectPath Value="../jedi"/>
     </SearchPaths>
