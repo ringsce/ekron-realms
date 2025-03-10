@@ -7,8 +7,8 @@
       <Unit>
         <Filename Value="quake2d.dpr"/>
         <IsPartOfProject Value="True"/>
-        <TopLine Value="81"/>
-        <CursorPos X="46" Y="104"/>
+        <TopLine Value="57"/>
+        <CursorPos X="41" Y="78"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -16,7 +16,7 @@
         <Filename Value="../qcommon/qfiles.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="QFiles"/>
-        <EditorIndex Value="15"/>
+        <EditorIndex Value="17"/>
         <TopLine Value="495"/>
         <CursorPos X="30" Y="527"/>
         <UsageCount Value="211"/>
@@ -25,7 +25,7 @@
       <Unit>
         <Filename Value="../qcommon/crc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="22"/>
+        <EditorIndex Value="24"/>
         <CursorPos X="28" Y="2"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
@@ -33,7 +33,7 @@
       <Unit>
         <Filename Value="../qcommon/CPas.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="23"/>
+        <EditorIndex Value="25"/>
         <TopLine Value="190"/>
         <CursorPos Y="206"/>
         <UsageCount Value="211"/>
@@ -48,7 +48,7 @@
       <Unit>
         <Filename Value="../qcommon/CVar.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="9"/>
+        <EditorIndex Value="11"/>
         <TopLine Value="157"/>
         <CursorPos X="37" Y="174"/>
         <UsageCount Value="211"/>
@@ -57,7 +57,7 @@
       <Unit>
         <Filename Value="../qcommon/Files.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="7"/>
+        <EditorIndex Value="9"/>
         <TopLine Value="121"/>
         <CursorPos X="13" Y="133"/>
         <UsageCount Value="211"/>
@@ -85,7 +85,7 @@
       <Unit>
         <Filename Value="../qcommon/net_chan.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="18"/>
+        <EditorIndex Value="20"/>
         <TopLine Value="350"/>
         <CursorPos X="5" Y="383"/>
         <UsageCount Value="211"/>
@@ -94,8 +94,12 @@
       <Unit>
         <Filename Value="../qcommon/Delphi_cdecl_printf.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="-1"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="8"/>
+        <TopLine Value="369"/>
+        <CursorPos X="5" Y="390"/>
         <UsageCount Value="211"/>
+        <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../game/q_shared.pas"/>
@@ -121,7 +125,7 @@
       <Unit>
         <Filename Value="../client/cl_main.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="16"/>
+        <EditorIndex Value="18"/>
         <TopLine Value="135"/>
         <CursorPos X="31" Y="152"/>
         <UsageCount Value="211"/>
@@ -148,7 +152,7 @@
       <Unit>
         <Filename Value="../client/menu.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="10"/>
+        <EditorIndex Value="12"/>
         <TopLine Value="123"/>
         <CursorPos X="13" Y="130"/>
         <UsageCount Value="211"/>
@@ -193,7 +197,7 @@
       <Unit>
         <Filename Value="../client/keys.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="11"/>
+        <EditorIndex Value="13"/>
         <TopLine Value="202"/>
         <CursorPos X="10" Y="219"/>
         <UsageCount Value="211"/>
@@ -256,7 +260,7 @@
       <Unit>
         <Filename Value="../client/cl_view.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="19"/>
+        <EditorIndex Value="21"/>
         <TopLine Value="79"/>
         <CursorPos X="10" Y="90"/>
         <UsageCount Value="211"/>
@@ -283,7 +287,7 @@
       <Unit>
         <Filename Value="../client/cl_tent.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="20"/>
+        <EditorIndex Value="22"/>
         <TopLine Value="267"/>
         <CursorPos X="21" Y="214"/>
         <UsageCount Value="211"/>
@@ -373,7 +377,6 @@
       <Unit>
         <Filename Value="../server/sv_main.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="6"/>
         <TopLine Value="365"/>
         <CursorPos X="36" Y="376"/>
@@ -428,7 +431,7 @@
       <Unit>
         <Filename Value="../game/q_shared_add.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="14"/>
+        <EditorIndex Value="16"/>
         <TopLine Value="199"/>
         <CursorPos X="35" Y="216"/>
         <UsageCount Value="211"/>
@@ -473,7 +476,7 @@
       <Unit>
         <Filename Value="../launcher.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="13"/>
+        <EditorIndex Value="15"/>
         <CursorPos X="32" Y="28"/>
         <UsageCount Value="209"/>
         <Loaded Value="True"/>
@@ -493,7 +496,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DebuggerMain"/>
-        <EditorIndex Value="24"/>
+        <EditorIndex Value="26"/>
         <TopLine Value="47"/>
         <UsageCount Value="293"/>
         <Loaded Value="True"/>
@@ -509,7 +512,7 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/sys_mac.pas"/>
-        <EditorIndex Value="12"/>
+        <EditorIndex Value="14"/>
         <TopLine Value="41"/>
         <CursorPos Y="95"/>
         <UsageCount Value="143"/>
@@ -517,7 +520,7 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/vid_macos.pas"/>
-        <EditorIndex Value="17"/>
+        <EditorIndex Value="19"/>
         <TopLine Value="60"/>
         <CursorPos X="5" Y="77"/>
         <UsageCount Value="121"/>
@@ -529,11 +532,11 @@
         <EditorIndex Value="-1"/>
         <TopLine Value="11"/>
         <CursorPos X="14" Y="28"/>
-        <UsageCount Value="9"/>
+        <UsageCount Value="8"/>
       </Unit>
       <Unit>
         <Filename Value="../mac/snd_mac.pas"/>
-        <EditorIndex Value="21"/>
+        <EditorIndex Value="23"/>
         <TopLine Value="75"/>
         <CursorPos X="66" Y="76"/>
         <UsageCount Value="165"/>
@@ -550,8 +553,8 @@
       <Unit>
         <Filename Value="../qcommon/gzio.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="8"/>
-        <UsageCount Value="164"/>
+        <EditorIndex Value="10"/>
+        <UsageCount Value="169"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -560,7 +563,7 @@
         <EditorIndex Value="3"/>
         <TopLine Value="57"/>
         <CursorPos Y="78"/>
-        <UsageCount Value="164"/>
+        <UsageCount Value="168"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
@@ -568,42 +571,25 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="PlatformASM"/>
         <EditorIndex Value="1"/>
-        <UsageCount Value="153"/>
+        <UsageCount Value="158"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../mac/q_shmac.pas"/>
         <EditorIndex Value="4"/>
         <CursorPos X="5" Y="8"/>
-        <UsageCount Value="10"/>
+        <UsageCount Value="12"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../linux/q_shlinux.pas"/>
+        <EditorIndex Value="7"/>
+        <CursorPos X="5" Y="8"/>
+        <UsageCount Value="12"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
     <JumpHistory HistoryIndex="29">
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="768" Column="21" TopLine="751"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="774" Column="35" TopLine="757"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="776" Column="36" TopLine="759"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="781" Column="21" TopLine="764"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="788" Column="34" TopLine="771"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="792" Column="20" TopLine="775"/>
-      </Position>
       <Position>
         <Filename Value="../qcommon/CPas.pas"/>
         <Caret Line="802" Column="39" TopLine="785"/>
@@ -699,6 +685,30 @@
       <Position>
         <Filename Value="../server/sv_game.pas"/>
         <Caret Line="74" Column="37" TopLine="63"/>
+      </Position>
+      <Position>
+        <Filename Value="../server/sv_main.pas"/>
+        <Caret Line="376" Column="36" TopLine="365"/>
+      </Position>
+      <Position>
+        <Filename Value="../linux/q_shlinux.pas"/>
+        <Caret Line="8" Column="5"/>
+      </Position>
+      <Position>
+        <Filename Value="../qcommon/Delphi_cdecl_printf.pas"/>
+        <Caret Line="358" Column="60" TopLine="337"/>
+      </Position>
+      <Position>
+        <Filename Value="../qcommon/Delphi_cdecl_printf.pas"/>
+        <Caret Line="388" Column="19" TopLine="336"/>
+      </Position>
+      <Position>
+        <Filename Value="../qcommon/Delphi_cdecl_printf.pas"/>
+        <Caret Line="387" Column="56" TopLine="336"/>
+      </Position>
+      <Position>
+        <Filename Value="../qcommon/Delphi_cdecl_printf.pas"/>
+        <Caret Line="96" Column="27" TopLine="75"/>
       </Position>
     </JumpHistory>
     <RunParams>

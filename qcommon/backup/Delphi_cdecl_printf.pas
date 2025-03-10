@@ -11,6 +11,10 @@
 *)
 unit Delphi_cdecl_printf;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 interface
 
 uses
@@ -29,12 +33,15 @@ procedure PF_dprintf_cdecl(fmt: PChar); cdecl;
 implementation
 
 uses
+{$IFnDEF FPC}
+  vid_so,
+{$ELSE}
+{$ENDIF}
   sv_game,
   sv_send,
   {$IFDEF WIN32}
   vid_dll,
   {$ELSE}
-  vid_so,
   {$ENDIF}
   SysUtils;
 
