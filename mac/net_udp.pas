@@ -38,7 +38,7 @@ end;
 destructor TUDPConnection.Destroy;
 begin
   if FSocket >= 0 then
-    fpClose(FSocket);
+    fpShutdown(FSocket, 2); // 2 = SHUT_RDWR
   inherited Destroy;
 end;
 
@@ -47,23 +47,23 @@ var
   Addr: TInetSockAddr;
 begin
   Addr.sin_family := AF_INET;
-  Addr.sin_addr.s_addr := StrToNetAddr(Host);
+  Addr.sin_addr := StrToNetAddr(Host); // Fixed type issue
   Addr.sin_port := htons(Port);
 
-  Result := fpSendTo(FSocket, PChar(Data)^, Length(Data), 0, @Addr, SizeOf(Addr)) >= 0;
+  Result := fpSendTo(FSocket, PChar(Data), Length(Data), 0, @Addr, SizeOf(Addr)) >= 0;
 end;
 
 function TUDPConnection.Receive(var Data: string; Timeout: Integer = 1000): Boolean;
 var
   Addr: TInetSockAddr;
-  AddrLen: SockLen;
+  AddrLen: TSockLen; // Fixed type issue
   Buffer: array[0..1023] of Char;
   BytesReceived: Integer;
 begin
   fpSetSockOpt(FSocket, SOL_SOCKET, SO_RCVTIMEO, @Timeout, SizeOf(Timeout));
 
   AddrLen := SizeOf(Addr);
-  BytesReceived := fpRecvFrom(FSocket, Buffer, SizeOf(Buffer), 0, @Addr, @AddrLen);
+  BytesReceived := fpRecvFrom(FSocket, @Buffer, SizeOf(Buffer), 0, @Addr, @AddrLen); // Fixed pointer issue
 
   if BytesReceived > 0 then
   begin

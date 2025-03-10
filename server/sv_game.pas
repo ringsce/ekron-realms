@@ -71,7 +71,7 @@ uses
   {$IFDEF WIN32}
   sys_win,
   {$ELSE}
-  sys_linux,
+  sys_linux in '../linux/sys_linux',
   {$ENDIF}
   cl_scrn,
   q_shared,

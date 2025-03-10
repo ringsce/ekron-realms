@@ -128,9 +128,9 @@ uses
   sys_mac, cd_sdl, q_shmac, // Use macOS-specific system handling
   {$ENDIF}
 
-  {$IFDEF FPC}
+  (*{$IFDEF FPC}
   q_shlinux, // FPC-specific shared library handling for Linux/macOS
-  {$ENDIF}
+  {$ENDIF}*)
 
   CPas,
   SysUtils,

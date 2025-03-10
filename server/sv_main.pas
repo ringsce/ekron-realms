@@ -373,7 +373,7 @@ uses
   q_shwin,
   {$ELSE}
   net_udp,
-  q_shlinux,
+  q_shlinux in '../linux/q_shlinux',
   {$ENDIF}
   net_chan,
   sv_ccmds,
