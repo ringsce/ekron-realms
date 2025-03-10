@@ -129,7 +129,7 @@ uses
   {$ENDIF}
 
   {$IFDEF FPC}
-  _shlinux, // FPC-specific shared library handling for Linux/macOS
+  q_shlinux, // FPC-specific shared library handling for Linux/macOS
   {$ENDIF}
 
   CPas,

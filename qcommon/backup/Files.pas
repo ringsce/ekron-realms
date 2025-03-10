@@ -71,7 +71,7 @@ uses
   {$IFDEF LINUX}
   BaseUnix, Unix, UnixType,
   {$ENDIF}
-  CVar in 'path/to/CVar.pas';  // Adjust the path accordingly
+  CVar in 'CVar.pas';  // Adjust the path accordingly
 
 // From qcommon.h, line 687
 (*

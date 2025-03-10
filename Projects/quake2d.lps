@@ -33,7 +33,6 @@
       <Unit>
         <Filename Value="../qcommon/CPas.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="20"/>
         <TopLine Value="190"/>
         <CursorPos Y="206"/>
@@ -58,9 +57,10 @@
       <Unit>
         <Filename Value="../qcommon/Files.pas"/>
         <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="4"/>
-        <TopLine Value="122"/>
-        <CursorPos X="43" Y="176"/>
+        <TopLine Value="121"/>
+        <CursorPos X="4" Y="132"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -575,10 +575,6 @@
     <JumpHistory HistoryIndex="29">
       <Position>
         <Filename Value="../qcommon/CPas.pas"/>
-        <Caret Line="702" Column="18" TopLine="684"/>
-      </Position>
-      <Position>
-        <Filename Value="../qcommon/CPas.pas"/>
         <Caret Line="740" Column="14" TopLine="722"/>
       </Position>
       <Position>
@@ -692,6 +688,10 @@
       <Position>
         <Filename Value="../qcommon/CPas.pas"/>
         <Caret Line="708" TopLine="687"/>
+      </Position>
+      <Position>
+        <Filename Value="../qcommon/CPas.pas"/>
+        <Caret Line="206" TopLine="190"/>
       </Position>
     </JumpHistory>
     <RunParams>
