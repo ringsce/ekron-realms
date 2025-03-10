@@ -689,14 +689,14 @@ begin
   Result := NULL;
 end;
 
-function strlen(const str1: Pointer): SizeInt;
+function strlen(const str1: PAnsiChar): SizeInt;
 var
-  p: PChar;
+  p: PAnsiChar;
 begin
   if str1 = nil then
     Exit(0);
 
-  p := PChar(str1);
+  p := str1;
   Result := 0;
 
   while p^ <> #0 do

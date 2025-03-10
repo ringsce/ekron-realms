@@ -202,7 +202,7 @@ function strtok(str: PChar; const tok: PChar): PChar;
 
 function memset(buf: Pointer; c: Integer; len: size_t): Pointer;
 function strerror(nb_error: Integer): PChar;
-function strlen(const str1: Pointer): SizeInt;
+function strlen(const str1: PAnsiChar): SizeInt;
 
 function atoi(s: PChar): Integer;
 function atof(s: PChar): Single;
