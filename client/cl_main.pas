@@ -141,11 +141,11 @@ uses
 
   {$IFDEF LINUX}  // Linux-specific
   vid_so in '../linux/vid_so.pas',
-  in_linux,
-  q_shlinux,
-  sys_linux,
-  cd_sdl,
-  net_udp,
+  in_linux in '../linux/in_linux.pas',
+  q_shlinux in '../linux/q_shlinux.pas',
+  sys_linux in '../linux/sys_linux.pas',
+  cd_sdl in '../linux/cd_sdl.pas',
+  net_udp in '../linux/net_udp.pas',
   {$ENDIF}
 
   {$IFDEF DARWIN}  // macOS-specific
