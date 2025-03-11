@@ -25,7 +25,7 @@
       <Unit>
         <Filename Value="../qcommon/crc.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="24"/>
+        <EditorIndex Value="25"/>
         <CursorPos X="28" Y="2"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
@@ -33,7 +33,7 @@
       <Unit>
         <Filename Value="../qcommon/CPas.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="25"/>
+        <EditorIndex Value="26"/>
         <TopLine Value="190"/>
         <CursorPos Y="206"/>
         <UsageCount Value="211"/>
@@ -85,7 +85,7 @@
       <Unit>
         <Filename Value="../qcommon/net_chan.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="20"/>
+        <EditorIndex Value="21"/>
         <TopLine Value="350"/>
         <CursorPos X="5" Y="383"/>
         <UsageCount Value="211"/>
@@ -94,7 +94,6 @@
       <Unit>
         <Filename Value="../qcommon/Delphi_cdecl_printf.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
         <EditorIndex Value="8"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
@@ -125,7 +124,7 @@
         <IsPartOfProject Value="True"/>
         <EditorIndex Value="18"/>
         <TopLine Value="135"/>
-        <CursorPos X="31" Y="152"/>
+        <CursorPos X="16" Y="153"/>
         <UsageCount Value="211"/>
         <Loaded Value="True"/>
       </Unit>
@@ -258,7 +257,7 @@
       <Unit>
         <Filename Value="../client/cl_view.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="21"/>
+        <EditorIndex Value="22"/>
         <TopLine Value="79"/>
         <CursorPos X="10" Y="90"/>
         <UsageCount Value="211"/>
@@ -285,7 +284,7 @@
       <Unit>
         <Filename Value="../client/cl_tent.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="22"/>
+        <EditorIndex Value="23"/>
         <TopLine Value="267"/>
         <CursorPos X="21" Y="214"/>
         <UsageCount Value="211"/>
@@ -494,7 +493,7 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
         <UnitName Value="DebuggerMain"/>
-        <EditorIndex Value="26"/>
+        <EditorIndex Value="27"/>
         <TopLine Value="47"/>
         <UsageCount Value="293"/>
         <Loaded Value="True"/>
@@ -509,6 +508,30 @@
         <UsageCount Value="293"/>
       </Unit>
       <Unit>
+        <Filename Value="../qcommon/gzio.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="10"/>
+        <UsageCount Value="173"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../mac/net_udp.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="57"/>
+        <CursorPos Y="78"/>
+        <UsageCount Value="173"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../game/platformasm.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="PlatformASM"/>
+        <EditorIndex Value="1"/>
+        <UsageCount Value="162"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
         <Filename Value="../mac/sys_mac.pas"/>
         <EditorIndex Value="14"/>
         <TopLine Value="41"/>
@@ -518,7 +541,7 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/vid_macos.pas"/>
-        <EditorIndex Value="19"/>
+        <EditorIndex Value="20"/>
         <TopLine Value="60"/>
         <CursorPos X="5" Y="77"/>
         <UsageCount Value="121"/>
@@ -534,7 +557,7 @@
       </Unit>
       <Unit>
         <Filename Value="../mac/snd_mac.pas"/>
-        <EditorIndex Value="23"/>
+        <EditorIndex Value="24"/>
         <TopLine Value="75"/>
         <CursorPos X="66" Y="76"/>
         <UsageCount Value="165"/>
@@ -549,41 +572,34 @@
         <UsageCount Value="13"/>
       </Unit>
       <Unit>
-        <Filename Value="../qcommon/gzio.pas"/>
-        <IsPartOfProject Value="True"/>
-        <EditorIndex Value="10"/>
-        <UsageCount Value="170"/>
-        <Loaded Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../mac/net_udp.pas"/>
-        <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="57"/>
-        <CursorPos Y="78"/>
-        <UsageCount Value="170"/>
-        <Loaded Value="True"/>
-      </Unit>
-      <Unit>
-        <Filename Value="../game/platformasm.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="PlatformASM"/>
-        <EditorIndex Value="1"/>
-        <UsageCount Value="159"/>
-        <Loaded Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="../mac/q_shmac.pas"/>
         <EditorIndex Value="4"/>
         <CursorPos X="5" Y="8"/>
-        <UsageCount Value="13"/>
+        <UsageCount Value="14"/>
         <Loaded Value="True"/>
       </Unit>
       <Unit>
         <Filename Value="../linux/q_shlinux.pas"/>
         <EditorIndex Value="7"/>
         <CursorPos X="5" Y="8"/>
-        <UsageCount Value="13"/>
+        <UsageCount Value="14"/>
+        <Loaded Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../kayte/kayte.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="-1"/>
+        <WindowIndex Value="-1"/>
+        <TopLine Value="-1"/>
+        <CursorPos X="-1" Y="-1"/>
+        <UsageCount Value="23"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../linux/vid_so.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="19"/>
+        <CursorPos X="5" Y="8"/>
+        <UsageCount Value="11"/>
         <Loaded Value="True"/>
       </Unit>
     </Units>
