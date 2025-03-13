@@ -191,13 +191,29 @@ begin
   S := FormatString(AFormat, AParams);
   case ARoutine of
     1:                                  // VID_Printf
+      {$IFDEF AARCH64}
+      VID_Printf(APrint_Level, PChar(S));
+      {$ELSE}
       VID_Printf(APrint_Level, '%s', [S]);
+      {$ENDIF}
     2:                                  // VID_Error
+      {$IFDEF AARCH64}
+      VID_Error(APrint_Level, PChar(S));
+      {$ELSE}
       VID_Error(APrint_Level, '%s', [S]);
+      {$ENDIF}
     3:                                  // SV_BroadcastPrintf
+      {$IFDEF AARCH64}
+      SV_BroadcastPrintf(APrint_Level, PChar(S));
+      {$ELSE}
       SV_BroadcastPrintf(APrint_Level, '%s', [S]);
+      {$ENDIF}
     4:                                  // PF_centerprintf
+      {$IFDEF AARCH64}
+      PF_centerprintf(Pointer(APrint_Level), PChar(S));
+      {$ELSE}
       PF_centerprintf(Pointer(APrint_Level), '%s', [S]);
+      {$ENDIF}
   end;
 end;
 
