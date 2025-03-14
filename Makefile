@@ -29,7 +29,7 @@ endif
 
 # Directories
 PROJECTS_DIR = Projects
-GAME_SRC = $(PROJECTS_DIR)/quake2d.dpr
+GAME_SRC = $(PROJECTS_DIR)/realms.dpr
 LAUNCHER_SRC = launcher.pas
 
 # Targets
