@@ -67,14 +67,14 @@ uses
   {$ENDIF}
 
   {$IFDEF LINUX}
-  snd_sdl,
-  in_linux,
-  sys_linux,
+  snd_sdl in '../linux/snd_sdl.pas',
+  in_linux in '../linux/in_linux.pas',
+  sys_linux in '../linux/sys_linux.pas',
   {$ENDIF}
 
   {$IFDEF DARWIN}
   snd_mac in '../mac/snd_mac.pas',
-  //in_mac in '../mac/in_mac.pas',
+  in_mac in '../mac/in_mac.pas',
   {$ENDIF}
 
   cl_scrn,

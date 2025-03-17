@@ -33,10 +33,6 @@ interface
   is used for both the software and OpenGL rendering versions of the
   Quake refresh engine. }
 
-unit vid_macos;
-
-interface
-
 uses
   { Borland Standard Units (Windows only) }
   {$IFDEF MSWINDOWS}
@@ -71,8 +67,8 @@ uses
   {$ENDIF}
 
   {$IFDEF LINUX}
-  snd_sdl,
-  in_linux,
+  snd_sdl in '../linux/snd_sdl.pas',
+  in_linux in '../linux/in_linux.pas',
   sys_linux,
   {$ENDIF}
 
