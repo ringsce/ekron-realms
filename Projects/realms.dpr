@@ -49,6 +49,7 @@ uses
   kayte in '../kayte/kayte.pas',
   //kayteparser in ' ../kayte/kayteparser.pas',
   platformAsm in '../game/platformasm.pas',
+  launcher in 'launcher.pas',
 
   { Other units }
   qfiles    in '..\qcommon\qfiles.pas',

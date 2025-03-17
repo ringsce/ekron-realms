@@ -39,9 +39,9 @@ uses
   SysUtils,   // Core system utilities
   Math,       // Math functions
   Files,      // File system operations
-  Common,     // Common utilities
   cl_main,    // Game-specific main module
   vid_macos,  // macOS video handling
+  Common    in '../qcommon\Common.pas',
   q_shared;   // Shared definitions
 
 const
