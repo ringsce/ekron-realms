@@ -53,7 +53,7 @@ uses
   Common,
   cl_main,
   //conproc,
-  vid_macos,
+  //vid_macos,
   //q_shwin,
 
   q_shared;
