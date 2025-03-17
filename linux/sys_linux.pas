@@ -49,7 +49,7 @@ uses
   SysUtils,
   (*MMSystem, To be checked*)
   Math,
-  Files,
+  Files     in '..\qcommon\Files.pas',
   Common,
   cl_main,
   //conproc,
