@@ -183,37 +183,43 @@ begin
   end;
 end;
 
+procedure VID_Printf(Level: Cardinal; Msg: PChar); cdecl;
+procedure VID_Error(Level: Cardinal; Msg: PChar); cdecl;
+procedure SV_BroadcastPrintf(Level: Cardinal; Msg: PChar); cdecl;
+procedure PF_centerprintf(Target: Pointer; Msg: PChar); cdecl;
+procedure VID_Printf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
+procedure VID_Error_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
+procedure SV_BroadcastPrintf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
+procedure PF_centerprintf_safe(ent: edict_p; fmt: PChar; const Args: array of const); cdecl;
+procedure PF_cprintf_safe(ent: edict_p; level: Integer; fmt: PChar; const Args: array of const); cdecl;
+procedure PF_dprintf_safe(fmt: PChar; const Args: array of const); cdecl;
+
+procedure PF_dprintf_safe(fmt: PChar; const Args: array of const); cdecl;
+begin
+  PF_dprintf(PChar(Format(fmt, Args)));
+end;
+
+
+
 procedure Proc_OneParamAndString(ARoutine: Integer; APrint_Level: Cardinal;
   AFormat: PChar; AParams: Cardinal); cdecl;
 var
-  S: string;
+  S: AnsiString;
 begin
   S := FormatString(AFormat, AParams);
+
   case ARoutine of
-    1:                                  // VID_Printf
-      {$IFDEF AARCH64}
+    1: // VID_Printf
       VID_Printf(APrint_Level, PChar(S));
-      {$ELSE}
-      VID_Printf(APrint_Level, '%s', [S]);
-      {$ENDIF}
-    2:                                  // VID_Error
-      {$IFDEF AARCH64}
+
+    2: // VID_Error
       VID_Error(APrint_Level, PChar(S));
-      {$ELSE}
-      VID_Error(APrint_Level, '%s', [S]);
-      {$ENDIF}
-    3:                                  // SV_BroadcastPrintf
-      {$IFDEF AARCH64}
+
+    3: // SV_BroadcastPrintf
       SV_BroadcastPrintf(APrint_Level, PChar(S));
-      {$ELSE}
-      SV_BroadcastPrintf(APrint_Level, '%s', [S]);
-      {$ENDIF}
-    4:                                  // PF_centerprintf
-      {$IFDEF AARCH64}
+
+    4: // PF_centerprintf
       PF_centerprintf(Pointer(APrint_Level), PChar(S));
-      {$ELSE}
-      PF_centerprintf(Pointer(APrint_Level), '%s', [S]);
-      {$ENDIF}
   end;
 end;
 
@@ -229,100 +235,59 @@ begin
   end;
 end;
 
-procedure PF_dprintf_cdecl(fmt: PChar); cdecl;
-asm
-// ARM64 assembly
-  STP     X29, X30, [SP, #-16]!  // Save frame pointer and link register
-  MOV     X29, SP                 // Set up frame pointer
+procedure PF_dprintf_cdecl(fmt: PChar); cdecl; overload;
+var
+  dummyInt: LongInt;
+  fmtLength: LongWord;
+begin
+  fmtLength := 1; // Dummy value, could be StrLen(fmt) or similar
+  dummyInt := 0;
 
-  ADD     X0, X29, #16            // Point to first variable parameter
-  LDR     X1, [X29, #8]           // Load format string
-  MOV     X2, #1                  // Indicate PF_dprintf
-  BL      Proc_ZeroParamAndString // Call the VarArgs in Delphi routine
-
-  LDP     X29, X30, [SP], #16     // Restore frame pointer and link register
-  RET
+  // Correct parameter count and match declaration
+  Proc_ZeroParamAndString(dummyInt, fmt, fmtLength);
 end;
 
-procedure PF_cprintf_cdecl(ent: edict_p; level: integer; fmt: PChar); cdecl;
-asm
-// ARM64 assembly
-  STP     X29, X30, [SP, #-16]!  // Save frame pointer and link register
-  MOV     X29, SP                 // Set up frame pointer
 
-  ADD     X0, X29, #24            // Point to first variable parameter
-  LDR     X1, [X29, #16]          // Load format string
-  LDR     X2, [X29, #12]          // Load level
-  LDR     X3, [X29, #8]           // Load ent
-  MOV     X4, #1                  // Indicate PF_cprintf
-  BL      Proc_TwoParamAndString  // Call the VarArgs in Delphi routine
-
-  LDP     X29, X30, [SP], #16     // Restore frame pointer and link register
-  RET
+//procedure Proc_OneParamAndString(ent: edict_p; fmt: PChar; indicator: Integer); cdecl; overload;
+// Safe string formatting using array of const
+function FormatStringSafe(const AFormat: string; const Args: array of const): string;
+begin
+  try
+    Result := Format(AFormat, Args);
+  except
+    Result := '[Format Error]';
+  end;
 end;
 
-procedure PF_centerprintf_cdecl(ent: edict_p; fmt: PChar); cdecl;
-asm
-// ARM64 assembly
-  STP     X29, X30, [SP, #-16]!  // Save frame pointer and link register
-  MOV     X29, SP                 // Set up frame pointer
-
-  ADD     X0, X29, #16            // Point to first variable parameter
-  LDR     X1, [X29, #12]          // Load format string
-  LDR     X2, [X29, #8]           // Load ent
-  MOV     X3, #4                  // Indicate PF_centerprintf
-  BL      Proc_OneParamAndString  // Call the VarArgs in Delphi routine
-
-  LDP     X29, X30, [SP], #16     // Restore frame pointer and link register
-  RET
+// Implementation of each printf-style function
+procedure VID_Printf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
+begin
+  VID_Printf(Level, PChar(FormatStringSafe(fmt, Args)));
 end;
 
-procedure SV_BroadcastPrintf_cdecl(Level: Integer; AFormat: PChar); cdecl;
-asm
-// ARM64 assembly
-  STP     X29, X30, [SP, #-16]!  // Save frame pointer and link register
-  MOV     X29, SP                 // Set up frame pointer
-
-  ADD     X0, X29, #16            // Point to first variable parameter
-  LDR     X1, [X29, #12]          // Load format string
-  LDR     X2, [X29, #8]           // Load print_level
-  MOV     X3, #3                  // Indicate SV_BroadCastPrintf
-  BL      Proc_OneParamAndString  // Call the VarArgs in Delphi routine
-
-  LDP     X29, X30, [SP], #16     // Restore frame pointer and link register
-  RET
+procedure VID_Error_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
+begin
+  VID_Error(Level, PChar(FormatStringSafe(fmt, Args)));
 end;
 
-procedure VID_Printf_cdecl(APrint_Level: Integer; AFormat: PChar); cdecl;
-asm
-// ARM64 assembly
-  STP     X29, X30, [SP, #-16]!  // Save frame pointer and link register
-  MOV     X29, SP                 // Set up frame pointer
-
-  ADD     X0, X29, #16            // Point to first variable parameter
-  LDR     X1, [X29, #12]          // Load format string
-  LDR     X2, [X29, #8]           // Load print_level
-  MOV     X3, #1                  // Indicate VID_Printf
-  BL      Proc_OneParamAndString  // Call the VarArgs in Delphi routine
-
-  LDP     X29, X30, [SP], #16     // Restore frame pointer and link register
-  RET
+procedure SV_BroadcastPrintf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
+begin
+  SV_BroadcastPrintf(Level, PChar(FormatStringSafe(fmt, Args)));
 end;
 
-procedure VID_Error_cdecl(AError_Level: Integer; AFormat: PChar); cdecl;
-asm
-// ARM64 assembly
-  STP     X29, X30, [SP, #-16]!  // Save frame pointer and link register
-  MOV     X29, SP                 // Set up frame pointer
+procedure PF_centerprintf_safe(ent: edict_p; fmt: PChar; const Args: array of const); cdecl;
+begin
+  PF_centerprintf(ent, PChar(FormatStringSafe(fmt, Args)));
+end;
 
-  ADD     X0, X29, #16            // Point to first variable parameter
-  LDR     X1, [X29, #12]          // Load format string
-  LDR     X2, [X29, #8]           // Load print_level
-  MOV     X3, #2                  // Indicate VID_Error
-  BL      Proc_OneParamAndString  // Call the VarArgs in Delphi routine
+procedure PF_cprintf_safe(ent: edict_p; level: Integer; fmt: PChar; const Args: array of const); cdecl;
+begin
+  PF_cprintf(ent, level, PChar(FormatStringSafe(fmt, Args)));
+end;
 
-  LDP     X29, X30, [SP], #16     // Restore frame pointer and link register
-  RET
+procedure PF_dprintf_safe(fmt: PChar; const Args: array of const); cdecl;
+begin
+  PF_dprintf(PChar(FormatStringSafe(fmt, Args)));
 end;
 
 end.
