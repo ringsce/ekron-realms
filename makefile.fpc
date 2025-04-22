@@ -1,5 +1,5 @@
 [package]
-name=ekron_realms
+name=EkronRealms
 version=1.0
 
 [compiler]
@@ -10,7 +10,7 @@ options=-Mobjfpc -Scgi -gl -Xs -O2 -vewn
 target=darwin
 
 # Main program entry
-main=quake2d.lpr
+main=realms.lpr
 
 [install]
 # Output binary location
@@ -18,5 +18,5 @@ bindir=bin
 libdir=lib
 
 # Files to install
-files=my_project:$(bindir)/ekron_realms
+files=my_project:$(bindir)/EkronRealms
 

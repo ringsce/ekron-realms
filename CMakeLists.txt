@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.29.0)
-project(EkronRealmsFPS LANGUAGES CXX Pascal)
+project(EkronRealms LANGUAGES CXX Pascal)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -91,12 +91,12 @@ install(TARGETS ekron_realms
 
 # CPack configuration for macOS
 set(CPACK_GENERATOR "productbuild")  # Use "productbuild" for newer macOS versions
-set(CPACK_PACKAGE_NAME "EkronRealmsFPS")
+set(CPACK_PACKAGE_NAME "EkronRealms")
 set(CPACK_PACKAGE_VERSION "1.0.0")
 set(CPACK_PACKAGE_VENDOR "Your Organization")
 set(CPACK_PACKAGE_CONTACT "Your Name <your.email@example.com>")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A combined FreePascal and C++17 project")
-set(CPACK_PACKAGE_INSTALL_DIRECTORY "EkronRealmsFPS")
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "EkronRealms")
 
 # macOS-specific settings
 set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-macos-arm64")

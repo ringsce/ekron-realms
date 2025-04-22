@@ -29,15 +29,15 @@ endif
 
 # Directories
 PROJECTS_DIR = Projects
-GAME_SRC = $(PROJECTS_DIR)/realms.dpr
+GAME_SRC = $(PROJECTS_DIR)/realms.lpi
 LAUNCHER_SRC = launcher.pas
 
 # Targets
-all: quake2d launcher
+all: realms launcher
 
-# Compile Quake2D game
-quake2d:
-	$(FPC) $(FLAGS) $(LCL_PATHS) $(SYS_PATH) $(GAME_SRC) -o$(PROJECTS_DIR)/quake2d
+# Compile realms game
+realms:
+	$(FPC) $(FLAGS) $(LCL_PATHS) $(SYS_PATH) $(GAME_SRC) -o$(PROJECTS_DIR)/realms
 
 # Compile Launcher
 launcher:
@@ -52,10 +52,10 @@ check:
 
 # Cleanup
 clean:
-	rm -f $(PROJECTS_DIR)/quake2d $(PROJECT) *.o *.ppu *.a *.compiled *.log $(SYS_PATH)/*.o $(SYS_PATH)/*.ppu
+	rm -f $(PROJECTS_DIR)/realms $(PROJECT) *.o *.ppu *.a *.compiled *.log $(SYS_PATH)/*.o $(SYS_PATH)/*.ppu
 
 # Run Launcher
 run: launcher
 	./launcher
 
-.PHONY: all clean run quake2d launcher check
+.PHONY: all clean run realms launcher check

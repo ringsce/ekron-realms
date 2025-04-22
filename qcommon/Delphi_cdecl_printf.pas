@@ -19,7 +19,10 @@ interface
 
 uses
   GameUnit,
-  q_shared;
+  q_shared,
+  sv_game,
+  sv_send,
+  SysUtils;
 
 // From vid_dll.pas
 procedure VID_Printf_cdecl(APrint_Level: Integer; AFormat: PChar); cdecl;
@@ -36,9 +39,10 @@ uses
 {$IFnDEF FPC}
   vid_so,
 {$ELSE}
+sv_game,
+sv_send,
+
 {$ENDIF}
-  sv_game,
-  sv_send,
   {$IFDEF WIN32}
   vid_dll,
   {$ELSE}
