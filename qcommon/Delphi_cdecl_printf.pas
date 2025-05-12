@@ -9,20 +9,13 @@
      Code here is based on Michael Skovslund's example.
 
 *)
-unit Delphi_cdecl_printf;
-
-{$IFDEF FPC}
-  {$MODE Delphi}
-{$ENDIF}
+unit delphi_cdecl_printf;
 
 interface
 
 uses
   GameUnit,
-  q_shared,
-  sv_game,
-  sv_send,
-  SysUtils;
+  q_shared;
 
 // From vid_dll.pas
 procedure VID_Printf_cdecl(APrint_Level: Integer; AFormat: PChar); cdecl;
@@ -36,16 +29,12 @@ procedure PF_dprintf_cdecl(fmt: PChar); cdecl;
 implementation
 
 uses
-{$IFnDEF FPC}
-  vid_so,
-{$ELSE}
-sv_game,
-sv_send,
-
-{$ENDIF}
+  sv_game,
+  sv_send,
   {$IFDEF WIN32}
   vid_dll,
   {$ELSE}
+  vid_so,
   {$ENDIF}
   SysUtils;
 
@@ -187,43 +176,21 @@ begin
   end;
 end;
 
-procedure VID_Printf(Level: Cardinal; Msg: PChar); cdecl;
-procedure VID_Error(Level: Cardinal; Msg: PChar); cdecl;
-procedure SV_BroadcastPrintf(Level: Cardinal; Msg: PChar); cdecl;
-procedure PF_centerprintf(Target: Pointer; Msg: PChar); cdecl;
-procedure VID_Printf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
-procedure VID_Error_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
-procedure SV_BroadcastPrintf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
-procedure PF_centerprintf_safe(ent: edict_p; fmt: PChar; const Args: array of const); cdecl;
-procedure PF_cprintf_safe(ent: edict_p; level: Integer; fmt: PChar; const Args: array of const); cdecl;
-procedure PF_dprintf_safe(fmt: PChar; const Args: array of const); cdecl;
-
-procedure PF_dprintf_safe(fmt: PChar; const Args: array of const); cdecl;
-begin
-  PF_dprintf(PChar(Format(fmt, Args)));
-end;
-
-
-
 procedure Proc_OneParamAndString(ARoutine: Integer; APrint_Level: Cardinal;
   AFormat: PChar; AParams: Cardinal); cdecl;
 var
-  S: AnsiString;
+  S: string;
 begin
   S := FormatString(AFormat, AParams);
-
   case ARoutine of
-    1: // VID_Printf
-      VID_Printf(APrint_Level, PChar(S));
-
-    2: // VID_Error
-      VID_Error(APrint_Level, PChar(S));
-
-    3: // SV_BroadcastPrintf
-      SV_BroadcastPrintf(APrint_Level, PChar(S));
-
-    4: // PF_centerprintf
-      PF_centerprintf(Pointer(APrint_Level), PChar(S));
+    1:                                  // VID_Printf
+      VID_Printf(APrint_Level, '%s', [S]);
+    2:                                  // VID_Error
+      VID_Error(APrint_Level, '%s', [S]);
+    3:                                  // SV_BroadcastPrintf
+      SV_BroadcastPrintf(APrint_Level, '%s', [S]);
+    4:                                  // PF_centerprintf
+      PF_centerprintf(Pointer(APrint_Level), '%s', [S]);
   end;
 end;
 
@@ -239,59 +206,178 @@ begin
   end;
 end;
 
-procedure PF_dprintf_cdecl(fmt: PChar); cdecl; overload;
-var
-  dummyInt: LongInt;
-  fmtLength: LongWord;
-begin
-  fmtLength := 1; // Dummy value, could be StrLen(fmt) or similar
-  dummyInt := 0;
+procedure PF_dprintf_cdecl(fmt: PChar); cdecl;
+asm
+// ASM statement produces push ebp
+// Stack now: ebp
+//        +4: return adr.
+//        +8: AFormat
+//       +12: First param.
+  PUSH    EAX                 // Store register
+  PUSH    EBX                 // Store register
+  PUSH    ECX                 // Store register
+  PUSH    EDI                 // Store register
 
-  // Correct parameter count and match declaration
-  Proc_ZeroParamAndString(dummyInt, fmt, fmtLength);
+  MOV     EAX,EBP             // Get stack pointer
+  ADD     EAX,$0C             // Point to first variable parameter
+
+  PUSH    EAX                 // Store pointer to parameters
+  PUSH    DWORD PTR [EBP+$08]           // store format string
+  PUSH    $00000001           // Indicate SV_BroadCastPrintf
+  CALL    Proc_ZeroParamAndString       // use the VarArgs in delphi routine
+  ADD     ESP,$0C             // pop params off the stack
+
+  POP     EDI                 // restore register
+  POP     ECX                 // restore register
+  POP     EBX                 // restore register
+  POP     EAX                 // restore register
 end;
 
+procedure PF_cprintf_cdecl(ent: edict_p; level: integer; fmt: PChar); cdecl;
+asm
+// ASM statement produces push ebp
+// Stack now: ebp
+//        +4: return adr.
+//        +8: ent
+//       +12: level
+//       +16: AFormat
+//       +20: First param.
+  PUSH    EAX                 // Store register
+  PUSH    EBX                 // Store register
+  PUSH    ECX                 // Store register
+  PUSH    EDI                 // Store register
 
-//procedure Proc_OneParamAndString(ent: edict_p; fmt: PChar; indicator: Integer); cdecl; overload;
-// Safe string formatting using array of const
-function FormatStringSafe(const AFormat: string; const Args: array of const): string;
-begin
-  try
-    Result := Format(AFormat, Args);
-  except
-    Result := '[Format Error]';
-  end;
+  MOV     EAX,EBP             // Get stack pointer
+  ADD     EAX,$14             // Point to first variable parameter
+
+  PUSH    EAX                 // Store pointer to parameters
+  PUSH    DWORD PTR [EBP+$10]           // store format string
+  PUSH    DWORD PTR [EBP+$0C]           // store level
+  PUSH    DWORD PTR [EBP+$08]           // store ent
+  PUSH    $00000001           // Indicate PF_cprintf
+  CALL    Proc_TwoParamAndString       // use the VarArgs in delphi routine
+  ADD     ESP,$14             // pop params off the stack
+
+  POP     EDI                 // restore register
+  POP     ECX                 // restore register
+  POP     EBX                 // restore register
+  POP     EAX                 // restore register
 end;
 
-// Implementation of each printf-style function
-procedure VID_Printf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
-begin
-  VID_Printf(Level, PChar(FormatStringSafe(fmt, Args)));
+procedure PF_centerprintf_cdecl(ent: edict_p; fmt: PChar); cdecl;
+asm
+// ASM statement produces push ebp
+// Stack now: ebp
+//        +4: return adr.
+//        +8: ent
+//       +12: AFormat
+//       +16: First param.
+  PUSH    EAX                 // Store register
+  PUSH    EBX                 // Store register
+  PUSH    ECX                 // Store register
+  PUSH    EDI                 // Store register
+
+  MOV     EAX,EBP             // Get stack pointer
+  ADD     EAX,$10             // Point to first variable parameter
+
+  PUSH    EAX                 // Store pointer to parameters
+  PUSH    DWORD PTR [EBP+$0C]           // store format string
+  PUSH    DWORD PTR [EBP+$08]           // store ent
+  PUSH    $00000004           // Indicate SV_BroadCastPrintf
+  CALL    Proc_OneParamAndString       // use the VarArgs in delphi routine
+  ADD     ESP,$10             // pop params off the stack
+
+  POP     EDI                 // restore register
+  POP     ECX                 // restore register
+  POP     EBX                 // restore register
+  POP     EAX                 // restore register
 end;
 
-procedure VID_Error_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
-begin
-  VID_Error(Level, PChar(FormatStringSafe(fmt, Args)));
+procedure SV_BroadcastPrintf_cdecl(Level: Integer; AFormat: PChar); cdecl;
+asm
+// ASM statement produces push ebp
+// Stack now: ebp
+//        +4: return adr.
+//        +8: APrint_Level
+//       +12: AFormat
+//       +16: First param.
+  PUSH    EAX                 // Store register
+  PUSH    EBX                 // Store register
+  PUSH    ECX                 // Store register
+  PUSH    EDI                 // Store register
+
+  MOV     EAX,EBP             // Get stack pointer
+  ADD     EAX,$10             // Point to first variable parameter
+
+  PUSH    EAX                 // Store pointer to parameters
+  PUSH    DWORD PTR [EBP+$0C]           // store format string
+  PUSH    DWORD PTR [EBP+$08]           // store print_level
+  PUSH    $00000003           // Indicate SV_BroadCastPrintf
+  CALL    Proc_OneParamAndString       // use the VarArgs in delphi routine
+  ADD     ESP,$10             // pop params off the stack
+
+  POP     EDI                 // restore register
+  POP     ECX                 // restore register
+  POP     EBX                 // restore register
+  POP     EAX                 // restore register
 end;
 
-procedure SV_BroadcastPrintf_safe(Level: Integer; fmt: PChar; const Args: array of const); cdecl;
-begin
-  SV_BroadcastPrintf(Level, PChar(FormatStringSafe(fmt, Args)));
+procedure VID_Printf_cdecl(APrint_Level: Integer; AFormat: PChar); cdecl;
+asm
+// ASM statement produces push ebp
+// Stack now: ebp
+//        +4: return adr.
+//        +8: APrint_Level
+//       +12: AFormat
+//       +16: First param.
+  PUSH    EAX                 // Store register
+  PUSH    EBX                 // Store register
+  PUSH    ECX                 // Store register
+  PUSH    EDI                 // Store register
+
+  MOV     EAX,EBP             // Get stack pointer
+  ADD     EAX,$10             // Point to first variable parameter
+
+  PUSH    EAX                 // Store pointer to parameters
+  PUSH    DWORD PTR [EBP+$0C]           // store format string
+  PUSH    DWORD PTR [EBP+$08]           // store print_level
+  PUSH    $00000001           // Indicate VID_Printf
+  CALL    Proc_OneParamAndString       // use the VarArgs in delphi routine
+  ADD     ESP,$10             // pop params off the stack
+
+  POP     EDI                 // restore register
+  POP     ECX                 // restore register
+  POP     EBX                 // restore register
+  POP     EAX                 // restore register
 end;
 
-procedure PF_centerprintf_safe(ent: edict_p; fmt: PChar; const Args: array of const); cdecl;
-begin
-  PF_centerprintf(ent, PChar(FormatStringSafe(fmt, Args)));
-end;
+procedure VID_Error_cdecl(AError_Level: Integer; AFormat: PChar); cdecl;
+asm
+// ASM statement produces push ebp
+// Stack now: ebp
+//        +4: return adr.
+//        +8: APrint_Level
+//       +12: AFormat
+//       +16: First param.
+  PUSH    EAX                 // Store register
+  PUSH    EBX                 // Store register
+  PUSH    ECX                 // Store register
+  PUSH    EDI                 // Store register
 
-procedure PF_cprintf_safe(ent: edict_p; level: Integer; fmt: PChar; const Args: array of const); cdecl;
-begin
-  PF_cprintf(ent, level, PChar(FormatStringSafe(fmt, Args)));
-end;
+  MOV     EAX,EBP             // Get stack pointer
+  ADD     EAX,$10             // Point to first variable parameter
 
-procedure PF_dprintf_safe(fmt: PChar; const Args: array of const); cdecl;
-begin
-  PF_dprintf(PChar(FormatStringSafe(fmt, Args)));
+  PUSH    EAX                 // Store pointer to parameters
+  PUSH    DWORD PTR [EBP+$0C]           // store format string
+  PUSH    DWORD PTR [EBP+$08]           // store print_level
+  PUSH    $00000002           // Indicate VID_Error
+  CALL    Proc_OneParamAndString       // use the VarArgs in delphi routine
+  ADD     ESP,$10             // pop params off the stack
+
+  POP     EDI                 // restore register
+  POP     ECX                 // restore register
+  POP     EBX                 // restore register
+  POP     EAX                 // restore register
 end;
 
 end.
