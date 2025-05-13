@@ -1,0 +1,5 @@
+[
+  {"id": 1, "name": "Health Potion", "price": 50},
+  {"id": 2, "name": "Mana Potion", "price": 75},
+  {"id": 3, "name": "Sword of Fire", "price": 250}
+]
