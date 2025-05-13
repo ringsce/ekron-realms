@@ -1,4 +1,4 @@
-name: Build Quake2D
+name: Build realms
 
 on:
   push:
@@ -96,8 +96,8 @@ jobs:
       - name: Upload Raspberry Pi 3+ Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quake2d-rpi3
-          path: quake2d-rpi3.tar.gz
+          name: realms-rpi3
+          path: realms-rpi3.tar.gz
 
   build-odroid-c2:
     name: Build for Odroid C2 (ARM64)
