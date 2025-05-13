@@ -30,15 +30,15 @@ jobs:
       - name: Package Executable
         run: |
           mkdir -p release/linux-arm64
-          cp Projects/quake2d release/linux-arm64/
+          cp Projects/ekron release/linux-arm64/
           cp launcher release/linux-arm64/
-          tar -czvf quake2d-linux-arm64.tar.gz -C release/linux-arm64 .
+          tar -czvf realms-linux-arm64.tar.gz -C release/linux-arm64 .
 
       - name: Upload Linux ARM64 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quake2d-linux-arm64
-          path: quake2d-linux-arm64.tar.gz
+          name: realms-linux-arm64
+          path: realms-linux-arm64.tar.gz
 
   build-macos-arm64:
     name: Build for macOS Apple Silicon
@@ -59,15 +59,15 @@ jobs:
       - name: Package Executable
         run: |
           mkdir -p release/macos-arm64
-          cp Projects/quake2d release/macos-arm64/
+          cp Projects/ekron release/macos-arm64/
           cp launcher release/macos-arm64/
-          tar -czvf quake2d-macos-arm64.tar.gz -C release/macos-arm64 .
+          tar -czvf realms-macos-arm64.tar.gz -C release/macos-arm64 .
 
       - name: Upload macOS ARM64 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quake2d-macos-arm64
-          path: quake2d-macos-arm64.tar.gz
+          name: realms-macos-arm64
+          path: realms-macos-arm64.tar.gz
 
   build-rpi3:
     name: Build for Raspberry Pi 3+ (ARMv7)
@@ -89,9 +89,9 @@ jobs:
       - name: Package Executable
         run: |
           mkdir -p release/rpi3
-          cp Projects/quake2d release/rpi3/
+          cp Projects/ekron release/rpi3/
           cp launcher release/rpi3/
-          tar -czvf quake2d-rpi3.tar.gz -C release/rpi3 .
+          tar -czvf realms-rpi3.tar.gz -C release/rpi3 .
 
       - name: Upload Raspberry Pi 3+ Artifact
         uses: actions/upload-artifact@v4
@@ -119,13 +119,13 @@ jobs:
       - name: Package Executable
         run: |
           mkdir -p release/odroid-c2
-          cp Projects/quake2d release/odroid-c2/
+          cp Projects/ekron release/odroid-c2/
           cp launcher release/odroid-c2/
-          tar -czvf quake2d-odroid-c2.tar.gz -C release/odroid-c2 .
+          tar -czvf realms-odroid-c2.tar.gz -C release/odroid-c2 .
 
       - name: Upload Odroid C2 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: quake2d-odroid-c2
-          path: quake2d-odroid-c2.tar.gz
+          name: realms-odroid-c2
+          path: realms-odroid-c2.tar.gz
 
