@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  ekron-builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ekron_realms_cross
+    volumes:
+      - ./output:/app/output
+
