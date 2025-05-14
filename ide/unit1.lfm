@@ -7,8 +7,8 @@ object Form1: TForm1
   ClientHeight = 447
   ClientWidth = 947
   Menu = MainMenu1
+  LCLVersion = '4.99.0.0'
   OnCreate = FormCreate
-  LCLVersion = '3.0.0.3'
   inline SynEdit1: TSynEdit
     Left = 256
     Height = 398
@@ -476,6 +476,8 @@ object Form1: TForm1
       object SynGutterMarks1: TSynGutterMarks
         Width = 24
         MouseActions = <>
+        MaxExtraMarksColums = 0
+        Options = [sgmoDeDuplicateMarksOnOverflow]
       end
       object SynGutterLineNumber1: TSynGutterLineNumber
         Width = 13
@@ -525,7 +527,7 @@ object Form1: TForm1
     OnClick = ToolBar1Click
   end
   object SynCompletion1: TSynCompletion
-    Position = -1
+    Position = 0
     LinesInWindow = 6
     SelectedColor = clHighlight
     CaseSensitive = False

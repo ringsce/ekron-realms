@@ -1,4 +1,4 @@
-program ringsce;
+program realms_ide;
 
 {$mode objfpc}{$H+}
 
@@ -31,7 +31,7 @@ uses
 
 begin
   RequireDerivedFormResource:=True;
-  Application.Title:='ringsCE';
+  Application.Title:='Realms IDE';
   Application.Scaled:=True;
   Application.Initialize;
   Application.CreateForm(TForm1, Form1);

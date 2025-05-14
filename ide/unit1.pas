@@ -175,7 +175,7 @@ end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
-     Form1.Caption := 'ringsCE';
+     Form1.Caption := 'Realms IDE';
      // Create and show splash screen
      splScreen:=TsplScreen.create(Application);
      splScreen.show;

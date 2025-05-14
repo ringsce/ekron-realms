@@ -11,7 +11,7 @@
       <XPManifest>
         <DpiAware Value="True"/>
         <TextName Value="kreatyve.ringsce.ringsce"/>
-        <TextDesc Value="Demo RingscE"/>
+        <TextDesc Value="Realms IDE"/>
       </XPManifest>
       <Icon Value="0"/>
     </General>
