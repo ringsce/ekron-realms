@@ -7,12 +7,39 @@ on:
   pull_request:
     branches:
       - main
-  workflow_dispatch:  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
-  build-linux-arm64:
-    name: Build for Linux ARM64
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: linux-arm64
+            pkg_target: aarch64
+            tar_name: realms-linux-arm64.tar.gz
+            flags: ""
+          
+          - os: macos-14
+            arch: macos-arm64
+            pkg_target: darwin
+            tar_name: realms-macos-arm64.tar.gz
+            flags: ""
+          
+          - os: ubuntu-latest
+            arch: rpi3
+            pkg_target: arm
+            tar_name: realms-rpi3.tar.gz
+            flags: "-Tlinux -Parm"
+
+          - os: ubuntu-latest
+            arch: odroid-c2
+            pkg_target: aarch64
+            tar_name: realms-odroid-c2.tar.gz
+            flags: "-Tlinux -Paarch64"
+
+    name: Build for ${{ matrix.arch }}
     
     steps:
       - name: Checkout Repository
@@ -20,112 +47,27 @@ jobs:
 
       - name: Install Free Pascal and Dependencies
         run: |
-          sudo apt update
-          sudo apt install -y fpc lazarus
+          if [[ "$RUNNER_OS" == "Linux" ]]; then
+            sudo apt update
+            sudo apt install -y fpc lazarus
+          else
+            brew install fpc lazarus
+          fi
 
-      - name: Compile for Linux ARM64
+      - name: Compile Realms Engine
         run: |
-          make all
-          
-      - name: Package Executable
-        run: |
-          mkdir -p release/linux-arm64
-          cp Projects/ekron release/linux-arm64/
-          cp launcher release/linux-arm64/
-          tar -czvf realms-linux-arm64.tar.gz -C release/linux-arm64 .
+          mkdir -p bin/${{ matrix.arch }}
+          make clean || true
+          make all FLAGS="${{ matrix.flags }}"
+          cp launcher bin/${{ matrix.arch }}/
+          cp -r Projects bin/${{ matrix.arch }}/
 
-      - name: Upload Linux ARM64 Artifact
+      - name: Create tarball
+        run: |
+          tar -czvf ${{ matrix.tar_name }} -C bin/${{ matrix.arch }} .
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: realms-linux-arm64
-          path: realms-linux-arm64.tar.gz
-
-  build-macos-arm64:
-    name: Build for macOS Apple Silicon
-    runs-on: macos-14  # macOS with Apple Silicon support
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Free Pascal and Dependencies
-        run: |
-          brew install fpc lazarus
-
-      - name: Compile for macOS ARM64
-        run: |
-          make all
-          
-      - name: Package Executable
-        run: |
-          mkdir -p release/macos-arm64
-          cp Projects/ekron release/macos-arm64/
-          cp launcher release/macos-arm64/
-          tar -czvf realms-macos-arm64.tar.gz -C release/macos-arm64 .
-
-      - name: Upload macOS ARM64 Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: realms-macos-arm64
-          path: realms-macos-arm64.tar.gz
-
-  build-rpi3:
-    name: Build for Raspberry Pi 3+ (ARMv7)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Free Pascal and Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y fpc lazarus
-
-      - name: Compile for Raspberry Pi 3+ (ARMv7)
-        run: |
-          make all FLAGS="-Mobjfpc -Scgi -vewn -O2 -gl -Xs -k'-dead_strip' -Tlinux -Parm"
-
-      - name: Package Executable
-        run: |
-          mkdir -p release/rpi3
-          cp Projects/ekron release/rpi3/
-          cp launcher release/rpi3/
-          tar -czvf realms-rpi3.tar.gz -C release/rpi3 .
-
-      - name: Upload Raspberry Pi 3+ Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: realms-rpi3
-          path: realms-rpi3.tar.gz
-
-  build-odroid-c2:
-    name: Build for Odroid C2 (ARM64)
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Install Free Pascal and Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y fpc lazarus
-
-      - name: Compile for Odroid C2 (ARM64)
-        run: |
-          make all FLAGS="-Mobjfpc -Scgi -vewn -O2 -gl -Xs -k'-dead_strip' -Tlinux -Paarch64"
-
-      - name: Package Executable
-        run: |
-          mkdir -p release/odroid-c2
-          cp Projects/ekron release/odroid-c2/
-          cp launcher release/odroid-c2/
-          tar -czvf realms-odroid-c2.tar.gz -C release/odroid-c2 .
-
-      - name: Upload Odroid C2 Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: realms-odroid-c2
-          path: realms-odroid-c2.tar.gz
-
+          name: ${{ matrix.arch }}
+          path: ${{ matrix.tar_name }}
