@@ -1,0 +1,56 @@
+name: Build realms
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        platform: [linux-arm64, macos-arm64, rpi3, odroid-c2]
+    name: Build ${{ matrix.platform }}
+    runs-on: ${{ matrix.platform == 'macos-arm64' && 'macos-14' || 'ubuntu-latest' }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Dependencies (Linux)
+        if: ${{ runner.os == 'Linux' }}
+        run: |
+          sudo apt update
+          sudo apt install -y fpc cmake
+
+      - name: Install Dependencies (macOS)
+        if: ${{ runner.os == 'macOS' }}
+        run: |
+          brew install fpc cmake
+
+      - name: Build with CMake
+        run: |
+          mkdir -p build
+          case "${{ matrix.platform }}" in
+            linux-arm64)
+              cmake -B build -DFPC_FLAGS="-Tlinux -Paarch64"
+              ;;
+            rpi3)
+              cmake -B build -DFPC_FLAGS="-Tlinux -Parm"
+              ;;
+            odroid-c2)
+              cmake -B build -DFPC_FLAGS="-Tlinux -Paarch64"
+              ;;
+            macos-arm64)
+              cmake -B build -DFPC_FLAGS="-Tdarwin -Paarch64"
+              ;;
+          esac
+          cmake --build build
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: realms-${{ matrix.platform }}
+          path: build/realms-${{ matrix.platform }}.tar.gz
