@@ -69,9 +69,9 @@ interface
 
 uses
   {$IFDEF LINUX}
-  BaseUnix, Unix, UnixType,
+  BaseUnix, Unix, UnixType;
   {$ENDIF}
-  CVar in 'CVar.pas';  // Adjust the path accordingly
+  //CVar in 'CVar.pas';  // Adjust the path accordingly
 
 // From qcommon.h, line 687
 (*
@@ -81,6 +81,8 @@ FILESYSTEM
 
 ==============================================================
 *)
+
+implementation
 
 procedure FS_InitFilesystem; cdecl;
 procedure FS_SetGamedir(dir: PChar); cdecl;

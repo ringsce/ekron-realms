@@ -53,7 +53,11 @@ uses
   Windows,
   {$ENDIF}
   SysUtils,
-  Q_Shared;
+  Q_Shared,
+  cmd       in '..\qcommon\cmd.pas',
+  Files,
+  CPas;
+
 
 (*
 ==========================================================
@@ -65,6 +69,9 @@ CVARS (console variables)
 type
   cvar_p = Q_Shared.cvar_p;
   cvar_t = Q_Shared.cvar_t;
+  TCmdFunction = procedure; cdecl;
+
+  implementation
 
   // From "QShared.h" line 297
   //todo: Clootie: This should be removed when Q_Shared will be stabilized
@@ -168,13 +175,6 @@ var
   // this is set each time a CVAR_USERINFO variable is changed
   // so that the client knows to send it to the server
 
-implementation
-
-uses
-  cmd       in '..\qcommon\cmd.pas',
-  Common,
-  Files,
-  CPas;
 
 (*
 ============
@@ -577,6 +577,10 @@ Handles variable inspection and changing from the console
 ============
 *)
 
+function Cmd_Argc: Integer; cdecl; external;
+ function Cmd_Argv(index: Integer): PChar; cdecl;
+
+
 function Cvar_Command: qboolean;
 var
   v: cvar_p;
@@ -759,10 +763,22 @@ Reads in all archived cvars
 ============
 *)
 
+procedure Cmd_AddCommand(name: PChar; func: TCmdFunction); cdecl;
+
+procedure Cvar_Set_f; cdecl;
+begin
+  // implementation
+end;
+
+procedure Cvar_List_f; cdecl;
+begin
+  // implementation
+end;
+
 procedure Cvar_Init;
 begin
-  Cmd_AddCommand('set', Cvar_Set_f);
-  Cmd_AddCommand('cvarlist', Cvar_List_f);
+  Cmd_AddCommand('set', @Cvar_Set_f);
+  Cmd_AddCommand('cvarlist', @Cvar_List_f);
 end;
 
 end.

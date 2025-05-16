@@ -31,74 +31,52 @@ implementation
 uses
   sv_game,
   sv_send,
-  {$IFDEF WIN32}
-  vid_dll,
-  {$ELSE}
-  vid_so,
+  SysUtils,
+  {$IF Defined(WINDOWS)}
+    vid_dll,
+  {$ELSEIF Defined(DARWIN)}
+    vid_so,  // Use vid_so for macOS dynamic libraries
+  {$ELSEIF Defined(UNIX)}
+    vid_so;
   {$ENDIF}
-  SysUtils;
 
 function ScanFormatText(AText: string; var APos: Integer; var ALen: Integer): Integer;
-var
-  Len: Integer;
-  State: Integer;
-  EndPos: Integer;
-begin
-  Result := 0;
-  State := 0;
-  Len := Length(AText);
-  EndPos := APos;
-  ALen := 0;
-  while (APos <= Len) and (Result = 0) do
+  var
+    Len: Integer;
+    State: Integer;
+    EndPos: Integer;
   begin
-    case State of
-      0:                                // looking for '%'.
-        if AText[APos] = '%' then
-        begin
-          State := 1;
-        end;
-      1:                                // looking for identifier
-        begin
-          case AText[APos] of
-            'i':                        // decimal in C but not for delphi, so this must be patched by caller.
-              Result := 1;
-            'd':                        // decimal
-              Result := 1;
-            'u':                        // unsigned decimal
-              Result := 2;
-            'e':                        // floating point
-              Result := 3;
-            'f':                        // fixed, floting point.
-              Result := 3;
-            'g':                        // floating point (floor)
-              Result := 3;
-            'n':                        // floating point
-              Result := 3;
-            'm':                        // money, floating point
-              Result := 3;
-            'p':                        // pointer
-              Result := 4;
-            's':                        // string (PChar)
-              Result := 5;
-            'x':                        // integer convert to hex
-              Result := 1;
-            '0'..'9',                   // format specifiers (optional)
-            '.', ':', '*', '-': ;       // they must be skipped so we can identify the type
-          else
-            begin
-              // not a know identifier so skip it
-              State := 0;               // start looking for new "%"
-            end;
-          end;
-        end;
-    end;
-    if Result <> 0 then
+    Result := 0;
+    State := 0;
+    Len := Length(AText);
+    EndPos := APos;
+    ALen := 0;
+
+    while (APos <= Len) and (Result = 0) do
     begin
-      ALen := (APos - EndPos) + 1;
+      case State of
+        0: // looking for '%'
+          if AText[APos] = '%' then
+            State := 1;
+        1: // looking for identifier or specifiers
+          case AText[APos] of
+            'd', 'i', 'x': Result := 1;
+            'u': Result := 2;
+            'e', 'f', 'g', 'n', 'm': Result := 3;
+            'p': Result := 4;
+            's': Result := 5;
+            '0'..'9', '.', ':', '*', '-': ; // skip format flags
+          else
+            State := 0; // reset state if not a valid specifier
+          end;
+      end;
+
+      if Result <> 0 then
+        ALen := (APos - EndPos) + 1
+      else
+        Inc(APos);
     end;
-    Inc(APos);
   end;
-end;
 
 function FormatString(AFormat: PChar; AParams: Cardinal): string;
 var
