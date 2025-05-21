@@ -82,7 +82,6 @@ FILESYSTEM
 ==============================================================
 *)
 
-implementation
 
 procedure FS_InitFilesystem; cdecl;
 procedure FS_SetGamedir(dir: PChar); cdecl;

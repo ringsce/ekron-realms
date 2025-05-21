@@ -79,7 +79,7 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="../qcommon/Delphi_cdecl_printf.pas"/>
+        <Filename Value="../qcommon/delphi_cdecl_printf.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
@@ -331,6 +331,11 @@
       <Unit>
         <Filename Value="../mac/MoltenVK.pas"/>
         <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../server/realmsstats.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="RealmsStats"/>
       </Unit>
     </Units>
   </ProjectOptions>
