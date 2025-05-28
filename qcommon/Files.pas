@@ -62,26 +62,15 @@ unit Files;
   {$MODE Delphi}
 {$ENDIF}
 
-// define this to dissalow any data but the demo pak file
-//{$DEFINE NO_ADDONS}
-
 interface
 
 uses
   {$IFDEF LINUX}
   BaseUnix, Unix, UnixType;
   {$ENDIF}
-  //CVar in 'CVar.pas';  // Adjust the path accordingly
+  CVar in '../qcommon/CVar.pas';  // Adjust path if needed
 
-// From qcommon.h, line 687
-(*
-==============================================================
-
-FILESYSTEM
-
-==============================================================
-*)
-
+// Declare all functions and procedures here
 
 procedure FS_InitFilesystem; cdecl;
 procedure FS_SetGamedir(dir: PChar); cdecl;
@@ -89,32 +78,78 @@ function FS_Gamedir: PChar; cdecl;
 function FS_NextPath(prevpath: PChar): PChar; cdecl;
 procedure FS_ExecAutoexec; cdecl;
 
-function FS_FOpenFile(filename: PChar; var file_: integer): Integer; cdecl;
-procedure FS_FCloseFile(var file_: integer); cdecl;
-// note: this can't be called from another DLL, due to MS libc issues
+function FS_FOpenFile(filename: PChar; var file_: Integer): Integer; cdecl;
+procedure FS_FCloseFile(var file_: Integer); cdecl;
 
 function FS_LoadFile(path: PChar; buffer: PPointer): Integer; cdecl;
-// a null buffer will just return the file length without loading
-// a -1 length is not present
-
-procedure FS_Read(buffer: Pointer; len: Integer; var file_: integer); cdecl;
-// properly handles partial reads
-
+procedure FS_Read(buffer: Pointer; len: Integer; var file_: Integer); cdecl;
 procedure FS_FreeFile(buffer: Pointer); cdecl;
-
 procedure FS_CreatePath(path: PChar); cdecl;
 
 function Developer_searchpath(who: Integer): Integer; cdecl;
-
-function FS_ListFiles(findname: PChar; var numfiles: Integer; musthave, canthave: Cardinal): PPCharArray;
-
-var
-  file_from_pak: Integer = 0;
-  fs_basedir: cvar_p;
-  fs_cddir: cvar_p;
-  fs_gamedirvar: cvar_p;
+function FS_ListFiles(findname: PChar; var numfiles: Integer; musthave, canthave: Cardinal): PPCharArray; cdecl;
 
 implementation
+
+// Stub implementations to avoid linker errors — replace with real code
+
+procedure FS_InitFilesystem; cdecl;
+begin
+end;
+
+procedure FS_SetGamedir(dir: PChar); cdecl;
+begin
+end;
+
+function FS_Gamedir: PChar; cdecl;
+begin
+  Result := nil;
+end;
+
+function FS_NextPath(prevpath: PChar): PChar; cdecl;
+begin
+  Result := nil;
+end;
+
+procedure FS_ExecAutoexec; cdecl;
+begin
+end;
+
+function FS_FOpenFile(filename: PChar; var file_: Integer): Integer; cdecl;
+begin
+  Result := -1;
+end;
+
+procedure FS_FCloseFile(var file_: Integer); cdecl;
+begin
+end;
+
+function FS_LoadFile(path: PChar; buffer: PPointer): Integer; cdecl;
+begin
+  Result := -1;
+end;
+
+procedure FS_Read(buffer: Pointer; len: Integer; var file_: Integer); cdecl;
+begin
+end;
+
+procedure FS_FreeFile(buffer: Pointer); cdecl;
+begin
+end;
+
+procedure FS_CreatePath(path: PChar); cdecl;
+begin
+end;
+
+function Developer_searchpath(who: Integer): Integer; cdecl;
+begin
+  Result := 0;
+end;
+
+function FS_ListFiles(findname: PChar; var numfiles: Integer; musthave, canthave: Cardinal): PPCharArray; cdecl;
+begin
+  Result := nil;
+end;
 
 uses
   {$IFDEF MSWINDOWS}
@@ -195,6 +230,11 @@ type
 var
   fs_links: filelink_p;
   fs_gamedir_: array[0..MAX_OSPATH - 1] of Char;
+  file_from_pak: Integer = 0;
+  fs_basedir: cvar_p;
+  fs_cddir: cvar_p;
+  fs_gamedirvar: cvar_p;
+
 
 type
   searchpath_p = ^searchpath_t;

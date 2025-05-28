@@ -5,15 +5,32 @@ PROJECT = ekron_realms
 FPC = fpc
 FLAGS = -Mobjfpc -Scgi -vewn -O2 -gl -Xs -k"-dead_strip"
 
-# macOS-specific settings
-ifeq ($(shell uname -s), Darwin)
+# Detect platform
+UNAME_S := $(shell uname -s)
+
+ifeq ($(UNAME_S), Darwin)
     ARCH = aarch64-darwin
-    LCL_PATHS = -Fu/usr/local/share/lazarus/lcl/units/$(ARCH) \
-                -Fu/usr/local/share/lazarus/lcl/units/$(ARCH)/cocoa \
-                -Fu/usr/local/share/lazarus/packager/units/$(ARCH)
-    SYS_PATH = -Fu./mac  # macOS-specific units
+
+    # Adjust these to match your fpcupdeluxe install path
+    LAZARUS_BASE := $(HOME)/fpcupdeluxe/lazarus
+
+    # Lazarus LCL and package paths
+    LCL_PATHS = \
+        -Fu$(LAZARUS_BASE)/lcl/units/$(ARCH) \
+        -Fu$(LAZARUS_BASE)/lcl/units/$(ARCH)/cocoa \
+        -Fu$(LAZARUS_BASE)/packager/units/$(ARCH)
+
+    # System/units for your local project
+    SYS_PATH = -Fu./mac  # Custom macOS-specific Pascal units
+
+    # Optional networking unit
     NET_UNIT = net_udp
 endif
+
+# Compiler flags
+FPC := $(HOME)/fpcupdeluxe/fpc/bin/$(ARCH)/fpc
+FPC_FLAGS := -Mobjfpc -Scghi -O2 $(LCL_PATHS) $(SYS_PATH)
+
 
 # Linux ARM64 settings
 ifeq ($(shell uname -m), aarch64)

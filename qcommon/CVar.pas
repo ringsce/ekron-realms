@@ -48,15 +48,38 @@ unit CVar;
 
 interface
 
+// memory management
+function Z_Malloc(size: Integer): Pointer; cdecl; external;
+procedure Z_Free(ptr: Pointer); cdecl; external;
+
+// string operations
+function CopyString(str: PChar): PChar; cdecl; external;
+
+// file system
+procedure FS_SetGamedir(dir: PChar); cdecl; external;
+procedure FS_ExecAutoexec; cdecl; external;
+
+// console
+procedure Com_Printf(fmt: PChar; args: array of const); cdecl; external;
+function Com_ServerState: Integer; cdecl; external;
+
+
+implementation
+
 uses
   {$IFDEF WIN32}
   Windows,
   {$ENDIF}
   SysUtils,
   Q_Shared,
-  cmd       in '..\qcommon\cmd.pas',
-  Files,
-  CPas;
+  CPas,
+  cmd in '..\qcommon\cmd.pas';
+  Memory,    // Z_Malloc, Z_Free
+  Strings;   // CopyString, if defined in a string utility unit
+
+// your implementation code here...
+
+function Cvar_Get(var_name, var_value: PChar; flags: Integer): cvar_p;
 
 
 (*
