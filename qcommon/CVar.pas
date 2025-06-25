@@ -92,9 +92,9 @@ type
   CVAR_SERVERINFO = $0002;
 
 { --- external engine helpers (one declaration each) ----------------- }
-//function Z_Malloc(size: SizeInt): Pointer; cdecl; external; // Added overload
+function Z_Malloc(size: SizeInt): Pointer; cdecl; external; // Added overload
 function atof(p: pcchar): Single; cdecl; external;
-//procedure Com_Printf(const fmt: pcchar; args: array of const); cdecl; external; // Added overload
+procedure Com_Printf(const fmt: pcchar; args: array of const); cdecl; external; // Added overload
 function Cmd_Argc: Integer; cdecl; external;
 function Cmd_Argv(index: Integer): pcchar; cdecl; external;
 
