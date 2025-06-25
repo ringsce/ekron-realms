@@ -164,8 +164,8 @@ function Cvar_FindVar(p: pcchar): cvar_p;
         Exit;
       end;
 
-    var_ := Z_Malloc(SizeOf(cvar_t));
-    FillByte(var^, SizeOf(cvar_t), 0);
+    var_ := Z_Malloc(SizeOf(Tcvar_t));
+    FillByte(var^, SizeOf(Tcvar_t), 0);
 
     var_^.name     := CopyString(var_name);
     var_^.string_  := CopyString(var_value);
@@ -180,7 +180,7 @@ function Cvar_FindVar(p: pcchar): cvar_p;
     Result := var_;
   end;
 
-/* ─────────────────────────────────────────────────────────────── */
+(* ─────────────────────────────────────────────────────────────── *)
 
 function Cmd_Argc: Integer; cdecl; external;
 function Cmd_Argv(index: Integer): PChar; cdecl;
