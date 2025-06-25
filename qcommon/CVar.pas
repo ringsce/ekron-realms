@@ -49,7 +49,6 @@ unit CVar;
 interface
 
 // memory management
-function Z_Malloc(size: Integer): Pointer; cdecl; external;
 procedure Z_Free(ptr: Pointer); cdecl; external;
 
 // string operations
@@ -60,7 +59,6 @@ procedure FS_SetGamedir(dir: PChar); cdecl; external;
 procedure FS_ExecAutoexec; cdecl; external;
 
 // console
-procedure Com_Printf(fmt: PChar; args: array of const); cdecl; external;
 function Com_ServerState: Integer; cdecl; external;
 
 implementation
@@ -76,18 +74,25 @@ uses
   Strings;   // CopyString, if defined in a string utility unit
 
 type
-    pcchar = ^Char; // Or PChar, if that's what your environment uses for C-style strings
-  cvar_p = ^cvar_t;
-  cvar_t = record
+  // 1. Declare the pointer type first, referring to the (yet-to-be-defined) record
+  cvar_p = ^Tcvar_t; // Use Tcvar_t here, matching your record name
+
+  // 2. Now, fully define the record type.
+  //    It can now correctly refer to cvar_p because cvar_p has been declared.
+  Tcvar_t = record
     name: PChar;
-    string_: PChar;
+    string_: PChar; // Good to use descriptive names, 'string_' avoids conflict with 'string' keyword
     value: Single;
     flags: Integer;
     modified: Boolean;
-    next: cvar_p;
+    next: cvar_p; // This is now valid because cvar_p is known
   end;
 
-  const
+  // 3. Define pcchar last, as it doesn't have a forward reference issue here
+  pcchar = PChar; // PChar is generally the correct type for C-style strings in Delphi/Free Pascal
+                  // ^Char also works but PChar has more built-in string handling support
+
+const
   CVAR_USERINFO   = $0001;
   CVAR_SERVERINFO = $0002;
 
@@ -105,35 +110,29 @@ function Cvar_FindVar(p: pcchar): cvar_p;
 function Cvar_Get(var_name, var_value: pcchar; flags: Integer): cvar_p;
 
 var
-  cvar_vars: cvar_p = nil;      { global linked list }
+     cvar_vars: cvar_p = nil;      { global linked list }
 
-/*───────────────────────────────────────────────────────────────*/
-
-  function CopyString(const S: pcchar): pcchar;
-  begin
+(*───────────────────────────────────────────────────────────────*)
+function CopyString(const S: pcchar): pcchar;
+begin
     Result := StrNew(S);
-  end;
+end;
 
-  function Cvar_InfoValidate(p: pcchar): Boolean;  { stub }
-  begin
-    Result := True;  { TODO: real validation rules }
-  end;
+function Cvar_FindVar(p: pcchar): cvar_p;
+ var
+   cur: cvar_p;
+ begin
+   cur := cvar_vars; // cvar_vars is now visible because we're in the implementation section
+   while cur <> nil do
+   begin
+     if StrComp(cur^.name, p) = 0 then
+       Exit(cur);
+     cur := cur^.next;
+   end;
+   Result := nil;
+ end;
 
-  function Cvar_FindVar(p: pcchar): cvar_p;        { stub }
-  var
-    cur: cvar_p;
-  begin
-    cur := cvar_vars;
-    while cur <> nil do
-    begin
-      if StrComp(cur^.name, p) = 0 then
-        Exit(cur);
-      cur := cur^.next;
-    end;
-    Result := nil;
-  end;
-
-  /*──────────────────────── Cvar_Get ────────────────────────────*/
+  (*──────────────────────── Cvar_Get ────────────────────────────*)
 
   function Cvar_Get(var_name, var_value: pcchar; flags: Integer): cvar_p;
   var
