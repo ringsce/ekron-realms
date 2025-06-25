@@ -63,9 +63,7 @@ procedure FS_ExecAutoexec; cdecl; external;
 procedure Com_Printf(fmt: PChar; args: array of const); cdecl; external;
 function Com_ServerState: Integer; cdecl; external;
 
-
 implementation
-
 uses
   {$IFDEF WIN32}
   Windows,
@@ -73,13 +71,120 @@ uses
   SysUtils,
   Q_Shared,
   CPas,
-  cmd in '..\qcommon\cmd.pas';
+  cmd in '..\qcommon\cmd.pas',
   Memory,    // Z_Malloc, Z_Free
   Strings;   // CopyString, if defined in a string utility unit
 
-// your implementation code here...
+type
+    pcchar = ^Char; // Or PChar, if that's what your environment uses for C-style strings
+  cvar_p = ^cvar_t;
+  cvar_t = record
+    name: PChar;
+    string_: PChar;
+    value: Single;
+    flags: Integer;
+    modified: Boolean;
+    next: cvar_p;
+  end;
 
-function Cvar_Get(var_name, var_value: PChar; flags: Integer): cvar_p;
+  const
+  CVAR_USERINFO   = $0001;
+  CVAR_SERVERINFO = $0002;
+
+{ --- external engine helpers (one declaration each) ----------------- }
+//function Z_Malloc(size: SizeInt): Pointer; cdecl; external; // Added overload
+function atof(p: pcchar): Single; cdecl; external;
+//procedure Com_Printf(const fmt: pcchar; args: array of const); cdecl; external; // Added overload
+function Cmd_Argc: Integer; cdecl; external;
+function Cmd_Argv(index: Integer): pcchar; cdecl; external;
+
+
+{ --- helpers implemented inside this unit --------------------------- }
+function Cvar_InfoValidate(p: pcchar): Boolean;
+function Cvar_FindVar(p: pcchar): cvar_p;
+function Cvar_Get(var_name, var_value: pcchar; flags: Integer): cvar_p;
+
+var
+  cvar_vars: cvar_p = nil;      { global linked list }
+
+/*───────────────────────────────────────────────────────────────*/
+
+  function CopyString(const S: pcchar): pcchar;
+  begin
+    Result := StrNew(S);
+  end;
+
+  function Cvar_InfoValidate(p: pcchar): Boolean;  { stub }
+  begin
+    Result := True;  { TODO: real validation rules }
+  end;
+
+  function Cvar_FindVar(p: pcchar): cvar_p;        { stub }
+  var
+    cur: cvar_p;
+  begin
+    cur := cvar_vars;
+    while cur <> nil do
+    begin
+      if StrComp(cur^.name, p) = 0 then
+        Exit(cur);
+      cur := cur^.next;
+    end;
+    Result := nil;
+  end;
+
+  /*──────────────────────── Cvar_Get ────────────────────────────*/
+
+  function Cvar_Get(var_name, var_value: pcchar; flags: Integer): cvar_p;
+  var
+    var_: cvar_p;
+  begin
+    Result := nil;
+
+    if (flags and (CVAR_USERINFO or CVAR_SERVERINFO)) <> 0 then
+      if not Cvar_InfoValidate(var_name) then
+      begin
+        Com_Printf('invalid info cvar name'#10, []);
+        Exit;
+      end;
+
+    var_ := Cvar_FindVar(var_name);
+    if Assigned(var_) then
+    begin
+      var_^.flags := var_^.flags or flags;
+      Result := var_;
+      Exit;
+    end;
+
+    if var_value = nil then Exit;
+
+    if (flags and (CVAR_USERINFO or CVAR_SERVERINFO)) <> 0 then
+      if not Cvar_InfoValidate(var_value) then
+      begin
+        Com_Printf('invalid info cvar value'#10, []);
+        Exit;
+      end;
+
+    var_ := Z_Malloc(SizeOf(cvar_t));
+    FillByte(var^, SizeOf(cvar_t), 0);
+
+    var_^.name     := CopyString(var_name);
+    var_^.string_  := CopyString(var_value);
+    var_^.value    := atof(var_^.string_);
+    var_^.modified := True;
+    var_^.flags    := flags;
+
+    { link into list }
+    var_^.next := cvar_vars;
+    cvar_vars  := var_;
+
+    Result := var_;
+  end;
+
+/* ─────────────────────────────────────────────────────────────── */
+
+function Cmd_Argc: Integer; cdecl; external;
+function Cmd_Argv(index: Integer): PChar; cdecl;
 
 
 (*
@@ -93,8 +198,6 @@ type
   cvar_p = Q_Shared.cvar_p;
   cvar_t = Q_Shared.cvar_t;
   TCmdFunction = procedure; cdecl;
-
-  implementation
 
   // From "QShared.h" line 297
   //todo: Clootie: This should be removed when Q_Shared will be stabilized
@@ -600,8 +703,6 @@ Handles variable inspection and changing from the console
 ============
 *)
 
-function Cmd_Argc: Integer; cdecl; external;
- function Cmd_Argv(index: Integer): PChar; cdecl;
 
 
 function Cvar_Command: qboolean;

@@ -65,6 +65,11 @@ unit Files;
 interface
 
 uses
+  SysUtils,
+  q_Shared,
+  qfiles,
+  Cmd,
+  Common,
   {$IFDEF LINUX}
   BaseUnix, Unix, UnixType;
   {$ENDIF}
@@ -168,12 +173,8 @@ uses
   q_shlinux, // FPC-specific shared library handling for Linux/macOS
   {$ENDIF}*)
 
-  CPas,
-  SysUtils,
-  q_Shared,
-  qfiles,
-  Cmd,
-  Common;
+  CPas;
+
 
 // if a packfile directory differs from this, it is assumed to be hacked
 const
