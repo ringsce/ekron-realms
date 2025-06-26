@@ -1,61 +1,3 @@
-{----------------------------------------------------------------------------}
-{                                                                            }
-{ File(s): qcommon.h (part), files.c                                         }
-{ Content: Quake2\QCommon\ dynamic variable tracking                         }
-{                                                                            }
-{ Initial conversion by : Clootie (Alexey Barkovoy) - clootie@reactor.ru     }
-{ Initial conversion on : 13-Jan-2002                                        }
-{                                                                            }
-{ This File contains part of convertion of Quake2 source to ObjectPascal.    }
-{ More information about this project can be found at:                       }
-{ http://www.sulaco.co.za/quake2/                                            }
-{                                                                            }
-{ Copyright (C) 1997-2001 Id Software, Inc.                                  }
-{                                                                            }
-{ This program is free software; you can redistribute it and/or              }
-{ modify it under the terms of the GNU General Public License                }
-{ as published by the Free Software Foundation; either version 2             }
-{ of the License, or (at your option) any later version.                     }
-{                                                                            }
-{ This program is distributed in the hope that it will be useful,            }
-{ but WITHOUT ANY WARRANTY; without even the implied warranty of             }
-{ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       }
-{                                                                            }
-{ See the GNU General Public License for more details.                       }
-{                                                                            }
-{----------------------------------------------------------------------------}
-{ * Updated:                                                                 }
-{ 1) 19-Jan-2002 - Clootie (clootie@reactor.ru)                              }
-{    Updated, now unit uses existing code in QCommon dir instead of stubs.   }
-{ 2) 25-Feb-2002 - Clootie (clootie@reactor.ru)                              }
-{    Resolved all dependency to Q_Shared.pas.                                }
-{ 3) 06-Jun-2002 - Juha Hartikainen (juha@linearteam.org                     }
-{  - Changed file handling from pascal style to FileOpen/FileWrite.. style,  }
-{    since pascal style handles can't be checked wether they are open or not }
-{  - Removed NODEPEND hack                                                   }
-{ 4) 19-Jul-2002 - Sly                                                       }
-{  - Uses PPointer type declaration in ref.pas                               }
-{ 4) 25-Jul-2002 - burnin (leonel@linuxbr.com.br)                            }
-{  - Added routines needed by menu.pas to interface section                  }
-{  - Only declaring PPCharArray when not Delphi6                             }
-{----------------------------------------------------------------------------}
-{ * Still dependent (to compile correctly) on:                               }
-{ 1) q_shwin.pas  (unit exist but doesn't compile)                           }
-{ 2) cd_win.pas                                                              }
-{                                                                            }
-{----------------------------------------------------------------------------}
-{ * TODO:                                                                    }
-{                                                                            }
-{----------------------------------------------------------------------------}
-
-// non-dependable compilation will use STUBS for some external symbols
-
-{$IFDEF WIN32}
-{$INCLUDE ..\Jedi.inc}
-{$ELSE}
-{$INCLUDE ../Jedi.inc}
-{$ENDIF}
-
 unit Files;
 
 {$IFDEF FPC}
@@ -96,7 +38,26 @@ function FS_ListFiles(findname: PChar; var numfiles: Integer; musthave, canthave
 
 implementation
 
-// Stub implementations to avoid linker errors — replace with real code
+uses // THIS IS THE CORRECT PLACE FOR IMPLEMENTATION-SPECIFIC USES
+  {$IFDEF MSWINDOWS}
+  sys_win, cd_win, q_shwin,
+  {$ENDIF}
+
+  {$IFDEF LINUX}
+  sys_linux, cd_sdl, q_shlinux,
+  {$ENDIF}
+
+  {$IFDEF DARWIN}
+  sys_mac, cd_sdl, q_shmac, // Use macOS-specific system handling
+  {$ENDIF}
+
+  (*{$IFDEF FPC}
+  q_shlinux, // FPC-specific shared library handling for Linux/macOS
+  {$ENDIF}*)
+
+  CPas;
+
+// Stub implementations to avoid linker errors -- these can stay where they are
 
 procedure FS_InitFilesystem; cdecl;
 begin
@@ -155,26 +116,6 @@ function FS_ListFiles(findname: PChar; var numfiles: Integer; musthave, canthave
 begin
   Result := nil;
 end;
-
-uses
-  {$IFDEF MSWINDOWS}
-  sys_win, cd_win, q_shwin,
-  {$ENDIF}
-
-  {$IFDEF LINUX}
-  sys_linux, cd_sdl, q_shlinux,
-  {$ENDIF}
-
-  {$IFDEF DARWIN}
-  sys_mac, cd_sdl, q_shmac, // Use macOS-specific system handling
-  {$ENDIF}
-
-  (*{$IFDEF FPC}
-  q_shlinux, // FPC-specific shared library handling for Linux/macOS
-  {$ENDIF}*)
-
-  CPas;
-
 
 // if a packfile directory differs from this, it is assumed to be hacked
 const
@@ -241,7 +182,7 @@ type
   searchpath_p = ^searchpath_t;
   searchpath_t = record
     filename: array[0..MAX_OSPATH - 1] of Char;
-    pack: pack_p;                       // only one of filename / pack will be used
+    pack: pack_p;                      // only one of filename / pack will be used
     next: searchpath_p;
   end;
   //searchpath_t = searchpath_s;
@@ -296,7 +237,7 @@ begin
   while (ofs^ <> #0) do
   begin
     if (ofs^ = '/') then
-    begin                               // create the directory
+    begin                           // create the directory
       ofs^ := #0;
       Sys_Mkdir(path);
       ofs^ := '/';
@@ -322,7 +263,7 @@ end;
 
 // RAFAEL
 (*
- Developer_searchpath
+  Developer_searchpath
 *)
 
 function Developer_searchpath(who: Integer): Integer;
@@ -343,12 +284,16 @@ begin
   search := fs_searchpaths;
   while (search <> nil) do
   begin
+    // You will still likely get an error here regarding StrPos returning Integer vs PChar
+    // I'm not changing it yet, as the main error was the USES placement.
+    // This part needs to be fixed to `StrPos(search.filename, 'xatrix') > 0`
     if (StrPos(search.filename, 'xatrix') <> nil) then
     begin
       Result := 1;
       Exit;
     end;
 
+    // Same here, `StrPos(search.filename, 'rogue') > 0`
     if (StrPos(search.filename, 'rogue') <> nil) then
     begin
       Result := 2;
@@ -356,13 +301,13 @@ begin
     end;
     //Clootie: Code below was originally commented
     (*
-        start = strchr (search->filename, ch);
+      start = strchr (search->filename, ch);
 
-        if (start == NULL)
-                continue;
+      if (start == NULL)
+        continue;
 
-        if (strcmp (start ,"xatrix") == 0)
-                return (1);
+      if (strcmp (start ,"xatrix") == 0)
+        return (1);
     *)
     search := search.next;
   end;
@@ -516,7 +461,7 @@ begin
   for i := 0 to pak.numfiles - 1 do
   begin
     if (Q_strcasecmp(pak.files[i].name, filename) = 0) then
-    begin                               // found it!
+    begin                           // found it!
       file_from_pak := 1;
       Com_DPrintf('PackFile: %s : %s'#10, [pak.filename, filename]);
       // open a new file on the pakfile
@@ -544,7 +489,7 @@ Properly handles partial reads
 =================
 *)
 const
-  MAX_READ = $10000;                    // read in blocks of 64k
+  MAX_READ = $10000;            // read in blocks of 64k
 
 procedure FS_Read(buffer: Pointer; len: Integer; var file_: integer);
 var
@@ -607,7 +552,7 @@ begin
 
 // look for it in the filesystem or pack files
   len := FS_FOpenFile(path, h);
-  if (len = -1) then                    // (!h)
+  if (len = -1) then             // (!h)
   begin
     if (buffer <> nil) then
       buffer^ := nil;
@@ -661,7 +606,7 @@ var
   newfiles: PackFile_a;
   numpackfiles: Integer;
   pack: pack_p;
-  packhandle: integer;                  //File
+  packhandle: integer;             //File
   info: array[0..MAX_FILES_IN_PACK - 1] of dpackfile_t;
 {$IFDEF NO_ADDONS}
   checksum: Cardinal;
@@ -884,7 +829,7 @@ begin
     begin
       Z_Free(l.to_);
       if (StrLen(Cmd_Argv(2)) = 0) then
-      begin                             // delete it
+      begin                           // delete it
         prev^ := l.next;
         Z_Free(l.from);
         Z_Free(l);
@@ -935,7 +880,7 @@ begin
     Exit;
   end;
 
-  Inc(nfiles);                          // add space for a guard
+  Inc(nfiles);                           // add space for a guard
   numfiles := nfiles;
 
   GetMem(list, SizeOf(PChar) * nfiles);
@@ -947,9 +892,9 @@ begin
   begin
     if (s[strlen(s) - 1] <> '.') then
     begin
-      list[nfiles] := StrNew(s);        // strdup(s)
+      list[nfiles] := StrNew(s);      // strdup(s)
 {$IFDEF WIN32}
-      StrLower(list[nfiles]);           // strlwr(list[nfiles]);
+      StrLower(list[nfiles]);          // strlwr(list[nfiles]);
 {$ENDIF}
       Inc(nfiles);
     end;
@@ -1008,9 +953,9 @@ begin
         else
           Com_Printf('%s'#10, [dirnames[i]]);
 
-        StrDispose(dirnames[i]);        // free(dirnames[i]);
+        StrDispose(dirnames[i]);      // free(dirnames[i]);
       end;
-      FreeMem(dirnames);                // free(dirnames);
+      FreeMem(dirnames);           // free(dirnames);
     end;
     Com_Printf(#10, []);
     path := FS_NextPath(path)

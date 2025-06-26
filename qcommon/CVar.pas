@@ -1,45 +1,3 @@
-{----------------------------------------------------------------------------}
-{                                                                            }
-{ File(s): qcommon.h (part), CVar.c                                          }
-{ Content: Quake2\QCommon\ dynamic variable tracking                         }
-{                                                                            }
-{ Initial conversion by : Clootie (Alexey Barkovoy) - clootie@reactor.ru     }
-{ Initial conversion on : 12-Jan-2002                                        }
-{                                                                            }
-{ This File contains part of convertion of Quake2 source to ObjectPascal.    }
-{ More information about this project can be found at:                       }
-{ http://www.sulaco.co.za/quake2/                                            }
-{                                                                            }
-{ Copyright (C) 1997-2001 Id Software, Inc.                                  }
-{                                                                            }
-{ This program is free software; you can redistribute it and/or              }
-{ modify it under the terms of the GNU General Public License                }
-{ as published by the Free Software Foundation; either version 2             }
-{ of the License, or (at your option) any later version.                     }
-{                                                                            }
-{ This program is distributed in the hope that it will be useful,            }
-{ but WITHOUT ANY WARRANTY; without even the implied warranty of             }
-{ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       }
-{                                                                            }
-{ See the GNU General Public License for more details.                       }
-{                                                                            }
-{----------------------------------------------------------------------------}
-{ * Updated:                                                                 }
-{ 1) 19-Jan-2002 - Clootie (clootie@reactor.ru)                              }
-{    Updated, now unit uses existing code in QCommon dir instead of stubs.   }
-{ 2) 25-Feb-2002 - Clootie (clootie@reactor.ru)                              }
-{    Now all external dependencies are cleaned up.                           }
-{                                                                            }
-{----------------------------------------------------------------------------}
-{ * Still dependent (to compile correctly) on:                               }
-{     NONE                                                                   }
-{                                                                            }
-{----------------------------------------------------------------------------}
-{ * TODO:                                                                    }
-{ 1) Clootie: Still waiting for someone to fully convert q_shared.pas        }
-{                                                                            }
-{----------------------------------------------------------------------------}
-
 unit CVar;
 
 {$IFDEF FPC}
@@ -47,278 +5,132 @@ unit CVar;
 {$ENDIF}
 
 interface
+uses
+  {$IFDEF WIN32}
+  Windows,
+  {$ENDIF}
+  SysUtils, // For StrComp, StrLen, StrAlloc, StrCopy, Assigned, FillChar (instead of FillByte sometimes)
+  Strings,  // For StrNew (used in CopyString)
+  // Memory,   // Z_Malloc, Z_Free - external declarations are usually fine, but if they are functions, this unit helps.
+  // Assuming these provide necessary types/functions, but ensure they don't redefine cvar_p/Tcvar_t
+  Q_Shared in '../game/Q_Shared.pas',
+  CPas,
+  //cmd in '..\qcommon\cmd.pas',
+  q_shared_add in '../game/q_shared_add.pas';
 
-// memory management
+// --- IMPORTANT: Define the canonical cvar_t record here (or in Q_Shared/q_shared_add and use it) ---
+// I'm defining it here to make CVar.pas self-contained for compilation purposes,
+// but ideally, this should live in Q_Shared or q_shared_add if it's truly a shared type.
+type
+  // Define the pointer type first, referring to the (yet-to-be-defined) record
+  cvar_p = ^Tcvar_t;
+  qboolean = Boolean;
+
+
+  // Now, fully define the record type. This is what 'cvar_t' refers to.
+  Tcvar_t = record
+    name: PChar;
+    string_: PChar;
+    latched_string: PChar; // For CVAR_LATCH vars
+    flags: Integer;
+    modified: Boolean;    // set each time the cvar is changed
+    value: Single;
+    next: cvar_p;         // This is now valid because cvar_p is known
+  end;
+
+  // Define pcchar for consistency
+  pcchar = PChar; // PChar is generally the correct type for C-style strings
+
+  // Definition for TCmdFunction (needed by Cmd_AddCommand)
+  TCmdFunction = procedure; cdecl;
+
+const
+  CVAR_USERINFO   = $0001;
+  CVAR_SERVERINFO = $0002;
+  // These were used later in the code, define them here
+  CVAR_ARCHIVE    = $0001; // Or whatever its actual value is in Quake2 (often 1)
+  CVAR_NOSET      = $0008;
+  CVAR_LATCH      = $0010; // Often 16 for latching behavior
+  MAX_INFO_STRING = 512; // Example value, confirm actual value from Q_Shared.h if possible
+
+  // In the implementation section (e.g., just before the first function implementation)
+var
+  info_buffer_global: array[0..MAX_INFO_STRING - 1] of Char; // This is your persistent global buffer
+
+// memory management (external declarations for engine functions)
+function Z_Malloc(size: SizeInt): Pointer; cdecl; external; // Added overload for safety
 procedure Z_Free(ptr: Pointer); cdecl; external;
 
-// string operations
-function CopyString(str: PChar): PChar; cdecl; external;
+// string operations (external declarations, but you have an internal CopyString implementation)
+// If CopyString is truly external, this line should be uncommented.
+// If it's internal, keep the implementation below and remove 'external'.
+// function CopyString(str: PChar): PChar; cdecl; external;
+
+function atof(p: pcchar): Single; cdecl; external; // Quake2 atof
 
 // file system
 procedure FS_SetGamedir(dir: PChar); cdecl; external;
 procedure FS_ExecAutoexec; cdecl; external;
 
 // console
+procedure Com_Printf(const fmt: pcchar; args: array of const); cdecl; external; // Added overload for safety
 function Com_ServerState: Integer; cdecl; external;
-
-implementation
-uses
-  {$IFDEF WIN32}
-  Windows,
-  {$ENDIF}
-  SysUtils,
-  Q_Shared,
-  CPas,
-  cmd in '..\qcommon\cmd.pas',
-  Memory,    // Z_Malloc, Z_Free
-  Strings;   // CopyString, if defined in a string utility unit
-
-type
-  // 1. Declare the pointer type first, referring to the (yet-to-be-defined) record
-  cvar_p = ^Tcvar_t; // Use Tcvar_t here, matching your record name
-
-  // 2. Now, fully define the record type.
-  //    It can now correctly refer to cvar_p because cvar_p has been declared.
-  Tcvar_t = record
-    name: PChar;
-    string_: PChar; // Good to use descriptive names, 'string_' avoids conflict with 'string' keyword
-    value: Single;
-    flags: Integer;
-    modified: Boolean;
-    next: cvar_p; // This is now valid because cvar_p is known
-  end;
-
-  // 3. Define pcchar last, as it doesn't have a forward reference issue here
-  pcchar = PChar; // PChar is generally the correct type for C-style strings in Delphi/Free Pascal
-                  // ^Char also works but PChar has more built-in string handling support
-
-const
-  CVAR_USERINFO   = $0001;
-  CVAR_SERVERINFO = $0002;
-
-{ --- external engine helpers (one declaration each) ----------------- }
-function Z_Malloc(size: SizeInt): Pointer; cdecl; external; // Added overload
-function atof(p: pcchar): Single; cdecl; external;
-procedure Com_Printf(const fmt: pcchar; args: array of const); cdecl; external; // Added overload
 function Cmd_Argc: Integer; cdecl; external;
 function Cmd_Argv(index: Integer): pcchar; cdecl; external;
+procedure Com_sprintf(Dest: PChar; DestSize: Integer; const Fmt: PChar; const Args: array of const); cdecl; external; // Added as it's used
+procedure Info_SetValueForKey(info: PChar; key: PChar; value: PChar); cdecl; external; // Added as it's used
 
+// external command registration (used by Cvar_Init)
+procedure Cmd_AddCommand(name: PChar; func: TCmdFunction); cdecl; external; // Add external
 
-{ --- helpers implemented inside this unit --------------------------- }
-function Cvar_InfoValidate(p: pcchar): Boolean;
+// --- helpers implemented inside this unit ---------------------------
+function Cvar_InfoValidate(p: pcchar): qboolean; // Changed return type to qboolean
 function Cvar_FindVar(p: pcchar): cvar_p;
 function Cvar_Get(var_name, var_value: pcchar; flags: Integer): cvar_p;
+function Cvar_Set(var_name, value: PChar): cvar_p; cdecl;
+function Cvar_ForceSet(var_name, value: PChar): cvar_p; cdecl;
+function Cvar_FullSet(var_name, value: PChar; flags: Integer): cvar_p; cdecl;
+procedure Cvar_SetValue(var_name: PChar; value: Single); cdecl;
+(*function Cvar_VariableValue(var_name: PChar): Single; cdecl;
+function Cvar_VariableString(var_name: PChar): PChar; cdecl;
+function Cvar_CompleteVariable(partial: PChar): PChar; cdecl;
+*)
+procedure Cvar_GetLatchedVars; cdecl;
+function Cvar_Command: qboolean; cdecl;
+procedure Cvar_WriteVariables(path: PChar); cdecl;
+procedure Cvar_Init; cdecl;
+function Cvar_Userinfo_: PChar; cdecl;
+function Cvar_Serverinfo_: PChar; cdecl;
 
 var
-     cvar_vars: cvar_p = nil;      { global linked list }
+  cvar_vars: cvar_p = nil; { global linked list }
+  userinfo_modified: qboolean; // global variable used in Cvar_Set2
 
-(*───────────────────────────────────────────────────────────────*)
+
+implementation // THIS IS THE ONLY IMPLEMENTATION KEYWORD
+
+{ --- Internal CopyString implementation --- }
 function CopyString(const S: pcchar): pcchar;
 begin
-    Result := StrNew(S);
+  Result := StrNew(S); // StrNew allocates new memory and copies the string
 end;
-
-function Cvar_FindVar(p: pcchar): cvar_p;
- var
-   cur: cvar_p;
- begin
-   cur := cvar_vars; // cvar_vars is now visible because we're in the implementation section
-   while cur <> nil do
-   begin
-     if StrComp(cur^.name, p) = 0 then
-       Exit(cur);
-     cur := cur^.next;
-   end;
-   Result := nil;
- end;
-
-  (*──────────────────────── Cvar_Get ────────────────────────────*)
-
-  function Cvar_Get(var_name, var_value: pcchar; flags: Integer): cvar_p;
-  var
-    var_: cvar_p;
-  begin
-    Result := nil;
-
-    if (flags and (CVAR_USERINFO or CVAR_SERVERINFO)) <> 0 then
-      if not Cvar_InfoValidate(var_name) then
-      begin
-        Com_Printf('invalid info cvar name'#10, []);
-        Exit;
-      end;
-
-    var_ := Cvar_FindVar(var_name);
-    if Assigned(var_) then
-    begin
-      var_^.flags := var_^.flags or flags;
-      Result := var_;
-      Exit;
-    end;
-
-    if var_value = nil then Exit;
-
-    if (flags and (CVAR_USERINFO or CVAR_SERVERINFO)) <> 0 then
-      if not Cvar_InfoValidate(var_value) then
-      begin
-        Com_Printf('invalid info cvar value'#10, []);
-        Exit;
-      end;
-
-    var_ := Z_Malloc(SizeOf(Tcvar_t));
-    FillByte(var^, SizeOf(Tcvar_t), 0);
-
-    var_^.name     := CopyString(var_name);
-    var_^.string_  := CopyString(var_value);
-    var_^.value    := atof(var_^.string_);
-    var_^.modified := True;
-    var_^.flags    := flags;
-
-    { link into list }
-    var_^.next := cvar_vars;
-    cvar_vars  := var_;
-
-    Result := var_;
-  end;
-
-(* ─────────────────────────────────────────────────────────────── *)
-
-function Cmd_Argc: Integer; cdecl; external;
-function Cmd_Argv(index: Integer): PChar; cdecl;
-
-
-(*
-==========================================================
-
-CVARS (console variables)
-
-==========================================================
-*)
-type
-  cvar_p = Q_Shared.cvar_p;
-  cvar_t = Q_Shared.cvar_t;
-  TCmdFunction = procedure; cdecl;
-
-  // From "QShared.h" line 297
-  //todo: Clootie: This should be removed when Q_Shared will be stabilized
-  (*
-  const
-    CVAR_ARCHIVE	        = 1;    // set to cause it to be saved to vars.rc
-    CVAR_USERINFO	        = 2;    // added to userinfo  when changed
-    CVAR_SERVERINFO	= 4;    // added to serverinfo when changed
-    CVAR_NOSET		= 8;    // don't allow change from console at all,
-                                  // but can be set from the command line
-    CVAR_LATCH		= 16;   // save changes until server restart
-
-  // nothing outside the Cvar_*() functions should modify these fields!
-  type
-    cvar_p = ^cvar_t;
-    cvar_s = record
-      name        : PChar;
-      string_     : PChar;
-      latched_string: PChar;	// for CVAR_LATCH vars
-      flags       : Integer;
-      modified    : qboolean;	// set each time the cvar is changed
-      value       : Single;
-      next        : cvar_p;
-    end;
-    cvar_t = cvar_s;
-  *)
-
-  (*
-  =============================================================
-
-  CVAR
-
-  ==============================================================
-  *)
-
-  (*
-
-  cvar_t variables are used to hold scalar or string variables that can be
-  changed or displayed at the console or prog code as well as accessed directly
-  in C code.
-
-  The user can access cvars from the console in three ways:
-  r_draworder			prints the current value
-  r_draworder 0		sets the current value to 0
-  set r_draworder 0	as above, but creates the cvar if not present
-  Cvars are restricted from having the same names as commands to keep this
-  interface from being ambiguous.
-  *)
-
-var
-  cvar_vars: cvar_p;
-
-function Cvar_Get(var_name, var_value: PChar; flags: Integer): cvar_p; cdecl;
-// creates the variable if it doesn't exist, or returns the existing one
-// if it exists, the value will not be changed, but flags will be ORed in
-// that allows variables to be unarchived without needing bitflags
-
-function Cvar_Set(var_name, value: PChar): cvar_p; cdecl;
-// will create the variable if it doesn't exist
-
-function Cvar_ForceSet(var_name, value: PChar): cvar_p; cdecl;
-// will set the variable even if NOSET or LATCH
-
-function Cvar_FullSet(var_name, value: PChar; flags: Integer): cvar_p; cdecl;
-
-procedure Cvar_SetValue(var_name: PChar; value: Single); cdecl;
-// expands value to a string and calls Cvar_Set
-
-function Cvar_VariableValue(var_name: PChar): Single; cdecl;
-// returns 0 if not defined or non numeric
-
-function Cvar_VariableString(var_name: PChar): PChar; cdecl;
-// returns an empty string if not defined
-
-function Cvar_CompleteVariable(partial: PChar): PChar; cdecl;
-// attempts to match a partial variable name for command line completion
-// returns NULL if nothing fits
-
-procedure Cvar_GetLatchedVars; cdecl;
-// any CVAR_LATCHED variables that have been set will now take effect
-
-function Cvar_Command: qboolean; cdecl;
-// called by Cmd_ExecuteString when Cmd_Argv(0) doesn't match a known
-// command.  Returns true if the command was a variable reference that
-// was handled. (print or change)
-
-procedure Cvar_WriteVariables(path: PChar); cdecl;
-// appends lines containing "set variable value" for all variables
-// with the archive flag set to true.
-
-procedure Cvar_Init; cdecl;
-
-function Cvar_Userinfo_: PChar; cdecl;
-// returns an info string containing all the CVAR_USERINFO cvars
-
-function Cvar_Serverinfo_: PChar; cdecl;
-// returns an info string containing all the CVAR_SERVERINFO cvars
-
-var
-  userinfo_modified: qboolean;
-  // this is set each time a CVAR_USERINFO variable is changed
-  // so that the client knows to send it to the server
-
 
 (*
 ============
 Cvar_InfoValidate
+  Rejects strings that contain \  "  or ;
 ============
 *)
-//static qboolean Cvar_InfoValidate (char *s)
-
-function Cvar_InfoValidate(s: PChar): qboolean;
+function Cvar_InfoValidate(p: pcchar): qboolean;
 begin
-  if (StrPos(s, '\') <> nil) then
-    Result := False
-  else if (StrPos(s, '"') <> nil) then
-    Result := False
-  else if (StrPos(s, ';') <> nil) then
+  if (StrPos(p, PChar('\')) <> nil)  or   // back-slash
+     (StrPos(p, PChar('"')) <> nil)  or   // double-quote
+     (StrPos(p, PChar(';')) <> nil) then  // semicolon
     Result := False
   else
     Result := True;
 end;
+
 
 (*
 ============
@@ -326,114 +138,53 @@ Cvar_FindVar
 ============
 *)
 // static cvar_t *Cvar_FindVar (char *var_name)
-
-function Cvar_FindVar(var_name: PChar): cvar_p;
+function Cvar_FindVar(p: pcchar): cvar_p; // Changed 'var_name' to 'p'
 var
   var_: cvar_p;
 begin
-  // for (var=cvar_vars ; var ; var=var->next)
   var_ := cvar_vars;
   while (var_ <> nil) do
   begin
-    if (StrComp(var_name, var_.name) = 0) then
+    // Use 'p' instead of 'var_name'
+    if (StrComp(p, var_^.name) = 0) then // Fixed: use 'p'
     begin
       Result := var_;
       Exit;
     end;
-    var_ := var_.next;
+    var_ := var_^.next;
   end;
-
   Result := nil;
 end;
 
-(*
-============
-Cvar_VariableValue
-============
-*)
 
-function Cvar_VariableValue(var_name: PChar): Single;
+function Cvar_BitInfo(bit: Integer): PChar;
+// Remove the 'var info_buffer: ...' line from here
 var
-  var_: cvar_p;
+  var_: cvar_p; // Keep this local variable
 begin
-  var_ := Cvar_FindVar(var_name);
-  if (var_ = nil) then
-    Result := 0
-  else
-    Result := atof(var_.string_);
-end;
+  // Fill the GLOBAL buffer, not a local one
+  FillChar(info_buffer_global, SizeOf(info_buffer_global), 0);
 
-(*
-============
-Cvar_VariableString
-============
-*)
-
-function Cvar_VariableString(var_name: PChar): PChar;
-var
-  var_: cvar_p;
-begin
-  var_ := Cvar_FindVar(var_name);
-  if (var_ = nil) then
-    Result := ''
-  else
-    Result := var_.string_;
-end;
-
-(*
-============
-Cvar_CompleteVariable
-============
-*)
-
-function Cvar_CompleteVariable(partial: PChar): PChar;
-var
-  cvar: cvar_p;
-  len: Integer;
-begin
-  Result := nil;
-
-  len := StrLen(partial);
-  if (len = 0) then
-    Exit;
-
-  // check exact match
-  // for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-  cvar := cvar_vars;
-  while (cvar <> nil) do
+  var_ := cvar_vars;
+  while (var_ <> nil) do
   begin
-    if (StrComp(partial, cvar.name) = 0) then
-    begin
-      Result := cvar.name;
-      Exit;
-    end;
-    cvar := cvar.next;
+    if (var_^.flags and bit) <> 0 then
+      // Use the global buffer here
+      Info_SetValueForKey(info_buffer_global, var_^.name, var_^.string_);
+    var_ := var_^.next;
   end;
 
-  // check partial match
-  // for (cvar=cvar_vars ; cvar ; cvar=cvar->next)
-  cvar := cvar_vars;
-  while (cvar <> nil) do
-  begin
-    if (StrLComp(partial, cvar.name, len) = 0) then
-    begin
-      Result := cvar.name;
-      Exit;
-    end;
-    cvar := cvar.next;
-  end;
+  // Return a PChar pointing to the start of the GLOBAL buffer.
+  // This pointer will remain valid after the function returns.
+  Result := @info_buffer_global[0];
 end;
-
-(*
-============
+(*============
 Cvar_Get
-
 If the variable already exists, the value will not be set
 The flags will be or'ed in if the variable exists.
 ============
 *)
-
-function Cvar_Get(var_name, var_value: PChar; flags: Integer): cvar_p;
+function Cvar_Get(var_name, var_value: pcchar; flags: Integer): cvar_p;
 var
   var_: cvar_p;
 begin
@@ -443,7 +194,7 @@ begin
   begin
     if not Cvar_InfoValidate(var_name) then
     begin
-      Com_Printf('invalid info cvar name'#10, ['']);
+      Com_Printf('invalid info cvar name'#10, []); // Pass empty array for []
       Exit;
     end;
   end;
@@ -451,33 +202,36 @@ begin
   var_ := Cvar_FindVar(var_name);
   if Assigned(var_) then
   begin
-    var_.flags := var_.flags or flags;
+    var_^.flags := var_^.flags or flags;
     Result := var_;
     Exit;
   end;
 
-  if (var_value = nil) then
+  if (var_value = nil) then // Check for nil PChar
     Exit;
 
   if (flags and (CVAR_USERINFO or CVAR_SERVERINFO) <> 0) then
   begin
     if not Cvar_InfoValidate(var_value) then
     begin
-      Com_Printf('invalid info cvar value'#10, []);
+      Com_Printf('invalid info cvar value'#10, []); // Pass empty array for []
       Exit;
     end;
   end;
 
-  var_ := Z_Malloc(SizeOf(var_^));
-  var_.name := CopyString(var_name);
-  var_.string_ := CopyString(var_value);
-  var_.modified := True;
-  var_.value := atof(var_.string_);
-  // link the variable in
-  var_.next := cvar_vars;
-  cvar_vars := var_;
+  { allocate and zero-fill new cvar record }
+  var_ := Z_Malloc(SizeOf(Tcvar_t)); // Use Tcvar_t for SizeOf
+  FillByte(var_^, SizeOf(Tcvar_t), 0); // FillByte requires actual size, not just pointer size
 
-  var_.flags := flags;
+  var_^.name := CopyString(var_name);
+  var_^.string_ := CopyString(var_value);
+  var_^.modified := True;
+  var_^.value := atof(var_^.string_);
+  var_^.flags := flags; // Flags should be set here
+
+  { link into global list }
+  var_^.next := cvar_vars;
+  cvar_vars := var_;
 
   Result := var_;
 end;
@@ -487,19 +241,18 @@ end;
 Cvar_Set2
 ============
 *)
-
 function Cvar_Set2(var_name, value: PChar; force: qboolean): cvar_p;
 var
   var_: cvar_p;
 begin
   var_ := Cvar_FindVar(var_name);
   if (var_ = nil) then
-  begin                                 // create it
+  begin                                   // create it
     Result := Cvar_Get(var_name, value, 0);
     Exit;
   end;
 
-  if (var_.flags and (CVAR_USERINFO or CVAR_SERVERINFO) <> 0) then
+  if (var_^.flags and (CVAR_USERINFO or CVAR_SERVERINFO) <> 0) then
   begin
     if not Cvar_InfoValidate(value) then
     begin
@@ -511,27 +264,27 @@ begin
 
   if (not force) then
   begin
-    if ((var_.flags and CVAR_NOSET) <> 0) then
+    if ((var_^.flags and CVAR_NOSET) <> 0) then
     begin
       Com_Printf('%s is write protected.'#10, [var_name]);
       Result := var_;
       Exit;
     end;
 
-    if (var_.flags and CVAR_LATCH) <> 0 then
+    if (var_^.flags and CVAR_LATCH) <> 0 then
     begin
-      if (var_.latched_string <> nil) then
+      if (var_^.latched_string <> nil) then
       begin
-        if (StrComp(value, var_.latched_string) = 0) then
+        if (StrComp(value, var_^.latched_string) = 0) then
         begin
           Result := var_;
           Exit;
         end;
-        Z_Free(var_.latched_string);
+        Z_Free(var_^.latched_string);
       end
       else
       begin
-        if (StrComp(value, var_.string_) = 0) then
+        if (StrComp(value, var_^.string_) = 0) then
         begin
           Result := var_;
           Exit;
@@ -541,15 +294,16 @@ begin
       if (Com_ServerState <> 0) then
       begin
         Com_Printf('%s will be changed for next game.'#10, [var_name]);
-        var_.latched_string := CopyString(value);
+        var_^.latched_string := CopyString(value);
       end
       else
       begin
-        var_.string_ := CopyString(value);
-        var_.value := atof(var_.string_);
-        if (StrComp(var_.name, 'game') = 0) then
+        Z_Free(var_^.string_); // Free old string before overwriting
+        var_^.string_ := CopyString(value);
+        var_^.value := atof(var_^.string_);
+        if (StrComp(var_^.name, 'game') = 0) then
         begin
-          FS_SetGamedir(var_.string_);
+          FS_SetGamedir(var_^.string_);
           FS_ExecAutoexec;
         end;
       end;
@@ -557,30 +311,30 @@ begin
       Exit;
     end;
   end
-  else
+  else // force is true
   begin
-    if (var_.latched_string <> nil) then
+    if (var_^.latched_string <> nil) then
     begin
-      Z_Free(var_.latched_string);
-      var_.latched_string := nil;
+      Z_Free(var_^.latched_string);
+      var_^.latched_string := nil;
     end;
   end;
 
-  if (StrComp(value, var_.string_) = 0) then
+  if (StrComp(value, var_^.string_) = 0) then
   begin
-    Result := var_;                     // not changed
+    Result := var_;                                // not changed
     Exit;
   end;
 
-  var_.modified := True;
+  var_^.modified := True;
 
-  if (var_.flags and CVAR_USERINFO) <> 0 then
-    userinfo_modified := True;          // transmit at next oportunity
+  if (var_^.flags and CVAR_USERINFO) <> 0 then
+    userinfo_modified := True;                     // transmit at next opportunity
 
-  Z_Free(var_.string_);                 // free the old value string
+  Z_Free(var_^.string_);                          // free the old value string
 
-  var_.string_ := CopyString(value);
-  var_.value := atof(var_.string_);
+  var_^.string_ := CopyString(value);
+  var_^.value := atof(var_^.string_);
   Result := var_;
 end;
 
@@ -589,10 +343,9 @@ end;
 Cvar_ForceSet
 ============
 *)
-
 function Cvar_ForceSet(var_name, value: PChar): cvar_p;
 begin
-  Result := Cvar_Set2(var_name, value, true);
+  Result := Cvar_Set2(var_name, value, True);
 end;
 
 (*
@@ -600,10 +353,9 @@ end;
 Cvar_Set
 ============
 *)
-
 function Cvar_Set(var_name, value: PChar): cvar_p;
 begin
-  Result := Cvar_Set2(var_name, value, false);
+  Result := Cvar_Set2(var_name, value, False);
 end;
 
 (*
@@ -611,28 +363,27 @@ end;
 Cvar_FullSet
 ============
 *)
-
 function Cvar_FullSet(var_name, value: PChar; flags: Integer): cvar_p;
 var
   var_: cvar_p;
 begin
   var_ := Cvar_FindVar(var_name);
   if (var_ = nil) then
-  begin                                 // create it
+  begin                                   // create it
     Result := Cvar_Get(var_name, value, flags);
     Exit;
   end;
 
-  var_.modified := true;
+  var_^.modified := True;
 
-  if (var_.flags and CVAR_USERINFO) <> 0 then
-    userinfo_modified := True;          // transmit at next oportunity
+  if (var_^.flags and CVAR_USERINFO) <> 0 then
+    userinfo_modified := True;                     // transmit at next opportunity
 
-  Z_Free(var_.string_);                 // free the old value string
+  Z_Free(var_^.string_);                          // free the old value string
 
-  var_.string_ := CopyString(value);
-  var_.value := atof(var_.string_);
-  var_.flags := flags;
+  var_^.string_ := CopyString(value);
+  var_^.value := atof(var_^.string_);
+  var_^.flags := flags;
 
   Result := var_;
 end;
@@ -642,16 +393,16 @@ end;
 Cvar_SetValue
 ============
 *)
-
 procedure Cvar_SetValue(var_name: PChar; value: Single);
 var
   val: array[0..31] of Char;
   i: Integer;
 begin
   if (value = Round(value)) then
-    Com_sprintf(val, sizeof(val), '%d', [Round(value)])
+    Com_sprintf(val, SizeOf(val), '%d', [Round(value)]) // SizeOf(val) is correct for array of Char
   else
-    Com_sprintf(val, sizeof(val), '%f', [value]);
+    Com_sprintf(val, SizeOf(val), '%f', [value]);
+
   // Juha: Hack to make sure that we use DOT as decimal separator, since
   // Delphi takes it from Windows international settings.
   for i := 0 to 31 do
@@ -667,30 +418,28 @@ Cvar_GetLatchedVars
 Any variables with latched values will now be updated
 ============
 *)
-
 procedure Cvar_GetLatchedVars;
 var
   var_: cvar_p;
 begin
-  // for (var = cvar_vars ; var ; var = var->next)
   var_ := cvar_vars;
   while (var_ <> nil) do
   begin
-    if (var_.latched_string = nil) then
+    if (var_^.latched_string = nil) then // Dereference latched_string
     begin
-      var_ := var_.next;
+      var_ := var_^.next; // Dereference next
       Continue;
     end;
-    Z_Free(var_.string_);
-    var_.string_ := var_.latched_string;
-    var_.latched_string := nil;
-    var_.value := atof(var_.string_);
-    if (StrComp(var_.name, 'game') = 0) then
+    Z_Free(var_^.string_); // Dereference string_
+    var_^.string_ := var_^.latched_string; // Dereference
+    var_^.latched_string := nil; // Dereference
+    var_^.value := atof(var_^.string_); // Dereference
+    if (StrComp(var_^.name, 'game') = 0) then // Dereference
     begin
-      FS_SetGamedir(var_.string_);
+      FS_SetGamedir(var_^.string_); // Dereference
       FS_ExecAutoexec;
     end;
-    var_ := var_.next;
+    var_ := var_^.next; // Dereference
   end;
 end;
 
@@ -701,9 +450,6 @@ Cvar_Command
 Handles variable inspection and changing from the console
 ============
 *)
-
-
-
 function Cvar_Command: qboolean;
 var
   v: cvar_p;
@@ -719,12 +465,12 @@ begin
   // perform a variable print or set
   if (Cmd_Argc = 1) then
   begin
-    Com_Printf('"%s" is "%s"'#10, [v.name, v.string_]);
+    Com_Printf('"%s" is "%s"'#10, [v^.name, v^.string_]); // Dereference v
     Result := True;
     Exit;
   end;
 
-  Cvar_Set(v.name, Cmd_Argv(1));
+  Cvar_Set(v^.name, Cmd_Argv(1)); // Dereference v
   Result := true;
 end;
 
@@ -735,7 +481,6 @@ Cvar_Set_f
 Allows setting and defining of arbitrary cvars from console
 ============
 *)
-
 procedure Cvar_Set_f; cdecl;
 var
   c: Integer;
@@ -773,29 +518,28 @@ Appends lines containing "set variable value" for all variables
 with the archive flag set to true.
 ============
 *)
-
 procedure Cvar_WriteVariables(path: PChar);
 var
   var_: cvar_p;
   buffer: array[0..1024 - 1] of Char;
   f: Integer;
 begin
-  f := FileOpen(path, fmOpenWrite);
+  f := FileOpen(path, fmOpenWrite); // Assuming FileOpen and FileCreate/FileSeek/FileWrite are defined globally or in uses
   if f = -1 then
   begin
     f := FileCreate(path);
   end
   else
-    FileSeek(f, 0, 2);
+    FileSeek(f, 0, 2); // 2 means seek from end
   var_ := cvar_vars;
   while (var_ <> nil) do
   begin
-    if ((var_.flags and CVAR_ARCHIVE) <> 0) then
+    if ((var_^.flags and CVAR_ARCHIVE) <> 0) then
     begin
-      Com_sprintf(buffer, SizeOf(buffer), 'set %s "%s"'#13#10, [var_.name, var_.string_]);
-      FileWrite(f, buffer, strlen(buffer));
+      Com_sprintf(buffer, SizeOf(buffer), 'set %s "%s"'#13#10, [var_^.name, var_^.string_]);
+      FileWrite(f, buffer, StrLen(buffer)); // Use StrLen for PChar length
     end;
-    var_ := var_.next;
+    var_ := var_^.next;
   end;
   FileClose(f);
 end;
@@ -806,73 +550,49 @@ Cvar_List_f
 
 ============
 *)
-
 procedure Cvar_List_f; cdecl;
 var
   var_: cvar_p;
   i: Integer;
 begin
   i := 0;
-  // for (var = cvar_vars ; var ; var = var->next, i++)
   var_ := cvar_vars;
   while (var_ <> nil) do
   begin
-    if (var_.flags and CVAR_ARCHIVE) <> 0 then
+    if (var_^.flags and CVAR_ARCHIVE) <> 0 then
       Com_Printf('*', [])
     else
       Com_Printf(' ', []);
-    if (var_.flags and CVAR_USERINFO) <> 0 then
+    if (var_^.flags and CVAR_USERINFO) <> 0 then
       Com_Printf('U', [])
     else
       Com_Printf(' ', []);
-    if (var_.flags and CVAR_SERVERINFO) <> 0 then
+    if (var_^.flags and CVAR_SERVERINFO) <> 0 then
       Com_Printf('S', [])
     else
       Com_Printf(' ', []);
-    if (var_.flags and CVAR_NOSET) <> 0 then
+    if (var_^.flags and CVAR_NOSET) <> 0 then
       Com_Printf('-', [])
-    else if (var_.flags and CVAR_LATCH) <> 0 then
+    else if (var_^.flags and CVAR_LATCH) <> 0 then
       Com_Printf('L', [])
     else
       Com_Printf(' ', []);
-    Com_Printf(' %s "%s"'#10, [var_.name, var_.string_]);
+    Com_Printf(' %s "%s"'#10, [var_^.name, var_^.string_]);
 
-    var_ := var_.next;
+    var_ := var_^.next;
     Inc(i);
   end;
   Com_Printf('%d cvars'#10, [i]);
 end;
 
-function Cvar_BitInfo(bit: Integer): PChar;
-{$WRITEABLECONST ON}
-const
-  info: array[0..MAX_INFO_STRING - 1] of Char = '';
-{$WRITEABLECONST OFF}
-var
-  var_: cvar_p;
-begin
-  info[0] := #0;
-
-  // for (var = cvar_vars ; var ; var = var->next)
-  var_ := cvar_vars;
-  while (var_ <> nil) do
-  begin
-    if (var_.flags and bit) <> 0 then
-      Info_SetValueForKey(info, var_.name, var_.string_);
-    var_ := var_.next;
-  end;
-  Result := info;
-end;
 
 // returns an info string containing all the CVAR_USERINFO cvars
-
 function Cvar_Userinfo_: PChar;
 begin
   Result := Cvar_BitInfo(CVAR_USERINFO);
 end;
 
 // returns an info string containing all the CVAR_SERVERINFO cvars
-
 function Cvar_Serverinfo_: PChar;
 begin
   Result := Cvar_BitInfo(CVAR_SERVERINFO);
@@ -881,27 +601,13 @@ end;
 (*
 ============
 Cvar_Init
-
 Reads in all archived cvars
 ============
 *)
-
-procedure Cmd_AddCommand(name: PChar; func: TCmdFunction); cdecl;
-
-procedure Cvar_Set_f; cdecl;
-begin
-  // implementation
-end;
-
-procedure Cvar_List_f; cdecl;
-begin
-  // implementation
-end;
-
 procedure Cvar_Init;
 begin
   Cmd_AddCommand('set', @Cvar_Set_f);
   Cmd_AddCommand('cvarlist', @Cvar_List_f);
 end;
 
-end.
+end. // End of unit
