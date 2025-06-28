@@ -106,12 +106,17 @@ then a packet only needs to be delivered if there is something in the
 unacknowledged reliable
 *}
 
+type
+  qboolean = LongBool;  // one canonical alias
+
+
 var
   curtime: Integer;
   //curtime := Sys_Milliseconds; // Assuming Sys_Milliseconds returns the current time
-net_from: netadr_t;
+  net_from: netadr_t;
   net_message: sizebuf_t;
   net_message_buffer: array[0..MAX_MSGLEN - 1] of Byte;
+  g_send: sizebuf_t; // Declare 'send' globally if it's used across functions
 
 procedure Netchan_Init;
 procedure Netchan_Setup(sock: netsrc_t; chan: netchan_p; adr: netadr_t; qport: Integer);
@@ -318,8 +323,25 @@ begin
   if chan.message.overflowed then
   begin
     chan.fatal_error := True;
-    Com_Printf('%s:Outgoing message overflow'#10, [NET_AdrToString(chan.remote_address)]);
-    Exit;
+    //Com_Printf('%s:Outgoing message overflow'#10, [NET_AdrToString(chan.remote_address)]);
+    // Old:
+    // Com_Printf('send %4d : s=%d reliable=%d ack=%d rack=%d'#10, [...]
+    // New:
+    Com_Printf(PChar('send %4d : s=%d reliable=%d ack=%d rack=%d'#10),
+      [send.cursize,
+      chan.outgoing_sequence - 1,
+      chan.reliable_sequence,
+      chan.incoming_sequence,
+      chan.incoming_reliable_sequence]);
+
+    // Old:
+    // Com_Printf('send %4d : s=%d ack=%d rack=%d'#10, [...]
+    // New:
+    Com_Printf(PChar('send %4d : s=%d ack=%d rack=%d'#10),
+      [send.cursize,
+      chan.outgoing_sequence - 1,
+      chan.incoming_sequence,
+      chan.incoming_reliable_sequence]);Exit;
   end;
 
   send_reliable := Netchan_NeedReliable(chan);
@@ -381,6 +403,7 @@ begin
           chan.incoming_reliable_sequence]);
   end;
 end;
+
 {*
 =================
 Netchan_Process
@@ -435,12 +458,23 @@ begin
   if (sequence <= chan.incoming_sequence) then
   begin
     if (showdrop.value <> 0) then
-      Com_Printf('%s:Out of order packet %d at %d'#10,
-        [NET_AdrToString(chan.remote_address),
-        sequence,
-          chan.incoming_sequence]);
-    Result := False;
-    Exit;
+      // Old:
+  // Com_Printf('send %4d : s=%d reliable=%d ack=%d rack=%d'#10, [...]
+  // New:
+  Com_Printf(PChar('send %4d : s=%d reliable=%d ack=%d rack=%d'#10),
+    [chan.outgoing_sequence - 1,
+    chan.reliable_sequence,
+    chan.incoming_sequence,
+    chan.incoming_reliable_sequence]);
+
+  // Old:
+  // Com_Printf('send %4d : s=%d ack=%d rack=%d'#10, [...]
+  // New:
+  Com_Printf(PChar('send %4d : s=%d ack=%d rack=%d'#10),
+    [chan.outgoing_sequence - 1,
+    chan.incoming_sequence,
+    chan.incoming_reliable_sequence]);  Result := False;
+      Exit;
   end;
 
   //
@@ -450,11 +484,24 @@ begin
   if (chan.dropped > 0) then
   begin
     if (showdrop.value <> 0) then
-      Com_Printf('%s:Dropped %d packets at %d'#10,
-        [NET_AdrToString(chan.remote_address),
-        chan.dropped,
-          sequence]);
-  end;
+    // Old:
+    // Com_Printf('send %4d : s=%d reliable=%d ack=%d rack=%d'#10, [...]
+    // New:
+    Com_Printf(PChar('send %4d : s=%d reliable=%d ack=%d rack=%d'#10),
+      [
+      chan.outgoing_sequence - 1,
+      chan.reliable_sequence,
+      chan.incoming_sequence,
+      chan.incoming_reliable_sequence]);
+
+    // Old:
+    // Com_Printf('send %4d : s=%d ack=%d rack=%d'#10, [...]
+    // New:
+    Com_Printf(PChar('send %4d : s=%d ack=%d rack=%d'#10),
+      [
+      chan.outgoing_sequence - 1,
+      chan.incoming_sequence,
+      chan.incoming_reliable_sequence]);end;
 
   //
   // if the current outgoing reliable message has been acknowledged

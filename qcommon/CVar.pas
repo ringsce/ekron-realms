@@ -91,8 +91,8 @@ function Cvar_Set(var_name, value: PChar): cvar_p; cdecl;
 function Cvar_ForceSet(var_name, value: PChar): cvar_p; cdecl;
 function Cvar_FullSet(var_name, value: PChar; flags: Integer): cvar_p; cdecl;
 procedure Cvar_SetValue(var_name: PChar; value: Single); cdecl;
-(*function Cvar_VariableValue(var_name: PChar): Single; cdecl;
-function Cvar_VariableString(var_name: PChar): PChar; cdecl;
+function Cvar_VariableValue(var_name: PChar): Single; cdecl;
+(*function Cvar_VariableString(var_name: PChar): PChar; cdecl;
 function Cvar_CompleteVariable(partial: PChar): PChar; cdecl;
 *)
 procedure Cvar_GetLatchedVars; cdecl;
@@ -441,6 +441,20 @@ begin
     end;
     var_ := var_^.next; // Dereference
   end;
+end;
+
+(*
+========
+Cvar_VariableValue *)
+function Cvar_VariableValue(var_name: PChar): Single; cdecl;
+var
+  var_: cvar_p;
+begin
+  var_ := Cvar_FindVar(var_name);
+  if Assigned(var_) then
+    Result := var_.value
+  else
+    Result := 0;
 end;
 
 (*

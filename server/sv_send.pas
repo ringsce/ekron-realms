@@ -70,7 +70,7 @@ uses
   {$IFDEF WIN32}
   q_shwin,
   {$ELSE}
-  q_shlinux,
+  //q_shlinux,
   {$ENDIF}
   sv_main,
   sv_init,

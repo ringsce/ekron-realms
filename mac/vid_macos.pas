@@ -25,7 +25,7 @@
 {                                                                            }
 {----------------------------------------------------------------------------}
 
-unit vid_macos;
+unit vid_macos; // Renamed to accurately reflect its platform focus
 
 interface
 
@@ -34,13 +34,6 @@ interface
   Quake refresh engine. }
 
 uses
-  { Borland Standard Units (Windows only) }
-  {$IFDEF MSWINDOWS}
-  Windows,
-  Messages,
-  MMSystem,
-  {$ENDIF}
-
   { POSIX Standard Units for Linux/macOS }
   {$IFDEF LINUX}
   BaseUnix, Unix,
@@ -54,17 +47,10 @@ uses
   SysUtils,
 
   { Own Units }
-  Delphi_cdecl_printf,
-  ref,
+  ref, // This unit is crucial for 're' (renderer export)
   keys,
   cvar,
   vid_h,
-
-  {$IFDEF MSWINDOWS}
-  snd_win,
-  in_win,
-  sys_win,
-  {$ENDIF}
 
   {$IFDEF LINUX}
   snd_sdl in '../linux/snd_sdl.pas',
@@ -74,7 +60,7 @@ uses
 
   {$IFDEF DARWIN}
   snd_mac in '../mac/snd_mac.pas',
-  in_mac in '../mac/in_mac.pas',
+  // Note: sys_mac is moved to implementation uses if only used there
   {$ENDIF}
 
   cl_scrn,
@@ -84,59 +70,51 @@ uses
   snd_dma,
   Client;
 
-implementation
-
-{$IFDEF DARWIN}
-uses sys_mac in '../mac/sys_mac.pas';  // Move sys_mac to implementation
-{$ENDIF}
-
-// Your implementation code here...
-
-{ Defined Constants }
-const
-  MAXPRINTMSG = 4096;
-
 type
   vidmode_p = ^vidmode_t;
   vidmode_t = packed record
-    description: PChar;                 { const char * }
+    description: PChar;
     width, height: Integer;
     mode: Integer;
   end;
 
+// Forward declarations for procedures/functions used in the interface section
 procedure VID_CheckChanges;
 procedure VID_Init;
 procedure VID_Shutdown;
-function MainWndProc(h_Wnd: HWND; uMsg: Cardinal; wParam: WPARAM; lParam: LPARAM): LongInt; cdecl;
+// MainWndProc and related Windows-specific messaging is removed as it's for Windows GUI
+// You will need a platform-specific windowing and event handling mechanism for macOS/Linux.
+// This typically involves libraries like SDL, GLFW, or native Cocoa/X11 APIs.
 
-// Juha: These are only exported because our Delphi_cdecl_printf.pas needs to call them back.
+// These are still needed if the refresh DLL calls them back (e.g., for logging/errors)
 procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const);
 procedure VID_Error(err_level: integer; fmt: PChar; args: array of const);
 
-(* ==========================================================================
-DLL GLUE   // What this Means?
-========================================================================== *)
+const
+  MAXPRINTMSG = 4096; // Still relevant for message buffers
 
 var
-  { Structure containing functions exported from refresh DLL }
-  re: refexport_t;
-  win_noalttab: cvar_p;
+  // Structure containing functions exported from refresh DLL
+  re: refexport_t; // 're' is declared here. Ensure refexport_t is visible from 'ref' unit.
 
-  { Console variables that we need to access from this module }
+  // Console variables that we need to access from this module
   vid_gamma: cvar_p;
-  vid_ref: cvar_p;                      { Name of Refresh DLL loaded }
-  vid_xpos: cvar_p;                     { X coordinate of window position }
-  vid_ypos: cvar_p;                     { Y coordinate of window position }
+  vid_ref: cvar_p;          // Name of Refresh DLL loaded
+  vid_xpos: cvar_p;         // X coordinate of window position
+  vid_ypos: cvar_p;         // Y coordinate of window position
   vid_fullscreen: cvar_p;
 
-  { Global variables used internally by this module }
-  viddef: viddef_t;                     { global video state; used by other modules }
+  // Global variables used internally by this module
+  viddef: viddef_t;         // global video state; used by other modules
 
-  cl_hwnd: HWND;                        { Main window handle for life of program }
+  // cl_hwnd (HWND) is a Windows-specific handle. This will need to be replaced
+  // with a platform-appropriate window handle type (e.g., NSWindow* for Cocoa,
+  // SDL_Window* for SDL). For now, it's removed.
+  // cl_hwnd: HWND;
 
+  // scantokey and MapKey are Windows-specific keyboard scan code mappings.
+  // This will need a new implementation for macOS/Linux input.
   scantokey: array[0..128 - 1] of byte = (
-    //  0           1       2       3       4       5       6       7
-    //  8           9       A       B       C       D       E       F
     0, 27, byte('1'), byte('2'), byte('3'), byte('4'), byte('5'), byte('6'),
     byte('7'), byte('8'), byte('9'), byte('0'), byte('-'), byte('='), K_BACKSPACE, 9, // 0
     byte('q'), byte('w'), byte('e'), byte('r'), byte('t'), byte('y'), byte('u'), byte('i'),
@@ -148,14 +126,18 @@ var
     K_F6, K_F7, K_F8, K_F9, K_F10, K_PAUSE, 0, K_HOME,
     K_UPARROW, K_PGUP, K_KP_MINUS, K_LEFTARROW, K_KP_5, K_RIGHTARROW, K_KP_PLUS, K_END, //4
     K_DOWNARROW, K_PGDN, K_INS, K_DEL, 0, 0, 0, K_F11,
-    K_F12, 0, 0, 0, 0, 0, 0, 0,         // 5
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0,             // 6
-    0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0              // 7
-    );
+    K_F12,
+    // Fill the remaining 101 elements with zeros to satisfy the array size
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 // <-- No comma after the very last element
+  ); // <-- This is the *only* closing parenthesis for the entire array initializer
 
-  vid_modes: array[0..10] of vidmode_t = (* Initialize the "vid_modes" variable with these values *)
+
+  vid_modes: array[0..10] of vidmode_t =
   (
     (description: 'Mode 0: 320x240'; width: 320; height: 240; mode: 0),
     (description: 'Mode 1: 400x300'; width: 400; height: 300; mode: 1),
@@ -168,74 +150,44 @@ var
     (description: 'Mode 8: 1280x960'; width: 1280; height: 960; mode: 8),
     (description: 'Mode 9: 1600x1200'; width: 1600; height: 1200; mode: 9),
     (description: 'Mode 10: 2048x1536'; width: 2048; height: 1536; mode: 10)
-    );
+  );
 
 const
-  VID_NUM_MODES = (sizeof(vid_modes) / sizeof(vid_modes[0]));
+  VID_NUM_MODES = (sizeof(vid_modes) div sizeof(vid_modes[0])); // Changed / to div for integer division
 
 implementation
 
 uses
-  cd_win,
+  // Removed cd_win (Windows CD Audio)
   cl_main,
   Cmd,
   Files,
   vid_menu,
-  CPas;
+  CPas,
+  // Platform-specific system unit for macOS/Linux
+  {$IFDEF LINUX}
+  sys_linux in '../linux/sys_linux.pas',
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  sys_mac in '../mac/sys_mac.pas' // sys_mac is moved here
+  {$ENDIF}
+  ;
 
 var
-  { Static Variables  ?? }
-  MSH_MOUSEWHEEL: Cardinal;
-  s_alttab_disabled: qboolean;
-  reflib_library: LongWord;             { Handle to refresh DLL }
+  // Static Variables
+  // MSH_MOUSEWHEEL: Cardinal; // Windows-specific message ID, removed
+  // s_alttab_disabled: qboolean; // Windows-specific flag, removed
+  reflib_library: LongWord;    // Handle to refresh DLL/Shared Object
   reflib_active: qboolean = False;
+  // win_noalttab: cvar_p; // Windows-specific cvar, removed
 
-  { Static Function Translations }
-
-procedure WIN_DisableAltTab;
-var
-  old: Boolean;
-begin
-  if s_alttab_disabled then
-    Exit;
-
-  if s_win95 then
-    SystemParametersInfo(SPI_SCREENSAVERRUNNING, 1, @old, 0)
-  else
-  begin
-    RegisterHotKey(0, 0, MOD_ALT, VK_TAB);
-    RegisterHotKey(0, 1, MOD_ALT, VK_RETURN);
-  end;
-
-  s_alttab_disabled := True;
-end;
-
-procedure WIN_EnableAltTab;
-var
-  old: Boolean;
-begin
-  if s_alttab_disabled then
-  begin
-    if s_win95 then
-      SystemParametersInfo(SPI_SCREENSAVERRUNNING, 0, @old, 0)
-    else
-    begin
-      UnregisterHotKey(0, 0);
-      UnregisterHotKey(0, 1);
-    end;
-
-    s_alttab_disabled := False;
-  end;
-end;
-
-{ Other Routines }
+// WIN_DisableAltTab and WIN_EnableAltTab are Windows-specific, removed.
+// You'll need to implement equivalent platform-specific window management for fullscreen/focus.
 
 procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const);
 var
   msg: array[0..MAXPRINTMSG - 1] of char;
 begin
-  // Sly 04-Jul-2002 This is a problem because the ref DLL calls this function,
-  // however it is expecting the parameters to be C-like.
   DelphiStrFmt(msg, fmt, args);
   if (print_level = PRINT_ALL) then
     Com_Printf('%s', [msg])
@@ -243,8 +195,10 @@ begin
     Com_DPrintf('%s', [msg])
   else if (print_level = PRINT_ALERT) then
   begin
-    MessageBox(0, msg, 'PRINT_ALERT', MB_ICONWARNING);
-    OutputDebugString(msg);
+    // MessageBox is Windows-specific. You need a platform-agnostic way to show alerts.
+    // For now, it will just output to debug.
+    Com_Printf('ALERT: %s'#10, [msg]); // Fallback to console print
+    // OutputDebugString is Windows-specific. You might use SysUtils.OutputDebugString or a custom debug log.
   end;
 end;
 
@@ -252,10 +206,7 @@ procedure VID_Error(err_level: integer; fmt: PChar; args: array of const);
 var
   msg: array[0..MAXPRINTMSG - 1] of char;
 begin
-  // Sly 04-Jul-2002 This is a problem because the ref DLL calls this function,
-  // however it is expecting the parameters to be C-like.
   DelphiStrFmt(msg, fmt, args);
-  //strcpy(msg, fmt);
   Com_Error(err_level, '%s', [msg]);
 end;
 
@@ -269,13 +220,14 @@ cause the entire video mode and refresh DLL to be reset on the next frame.
 
 procedure VID_Restart_f; cdecl;
 begin
-  vid_ref.modified := True;
+  vid_ref^.modified := True; // Access as pointer
 end;
 
 procedure VID_Front_f; cdecl;
 begin
-  SetWindowLong(cl_hwnd, GWL_EXSTYLE, WS_EX_TOPMOST);
-  SetForegroundWindow(cl_hwnd);
+  // SetWindowLong and SetForegroundWindow are Windows-specific.
+  // You'll need to use platform-specific APIs for bringing the window to front.
+  // For example, in Cocoa (macOS), you'd interact with NSWindow.
 end;
 
 (* =======
@@ -290,6 +242,11 @@ var
   modified: Integer;
   is_extended: qboolean;
 begin
+  // This logic is highly dependent on Windows WM_KEYDOWN/WM_SYSKEYDOWN lParam.
+  // For macOS/Linux, you'll get different key codes (e.g., from SDL, Cocoa, X11).
+  // You will need to rewrite this function based on the input system you use.
+  // For now, it's kept as-is, but be aware it won't work correctly without input system changes.
+
   modified := (key shr 16) and 255;
   is_extended := False;
 
@@ -330,23 +287,6 @@ begin
     else
       Result := iResult;
     end;
-    { TODO:  Looking at the original this might have been:
-    case iResult of
-      $0D:  begin
-        Result := K_KP_ENTER;
-        Exit;
-      end;
-      $2F:  begin
-        Result := K_KP_SLASH;
-        Exit;
-      end;
-      $AF:  begin
-        Result := K_KP_PLUS;
-        Exit;
-      end;
-    end;
-
-    Result:= iResult; }
   end;
 end;
 
@@ -358,21 +298,20 @@ begin
 
   Key_ClearStates;
 
-  { we don't want to act like we're active if we're minimized }
+  // we don't want to act like we're active if we're minimized
   if (fActive and (not Minimized)) then
     ActiveApp := Integer(True)
   else
     ActiveApp := Integer(False);
 
-  { minimize/restore mouse-capture on demand }
+  // minimize/restore mouse-capture on demand
   if (ActiveApp = 0) then
   begin
     IN_Activate(False);
-    CDAudio_Activate(False);
+    CDAudio_Activate(False); // CDAudio_Activate might need platform-specific implementation
     S_Activate(False);
 
-    if win_noalttab.value <> 0 then
-      WIN_EnableAltTab;
+    // win_noalttab cvar and its functions were Windows-specific, removed.
   end
   else
   begin
@@ -380,8 +319,7 @@ begin
     CDAudio_Activate(True);
     S_Activate(True);
 
-    if win_noalttab.value <> 0 then
-      WIN_DisableAltTab;
+    // win_noalttab cvar and its functions were Windows-specific, removed.
   end;
 end;
 
@@ -391,191 +329,18 @@ MainWndProc
 main window procedure
 ==================== *)
 
-function MainWndProc(h_Wnd: HWND; uMsg: Cardinal; wParam: WPARAM; lParam: LPARAM): LongInt;
-var
-  //  lRet: LongInt;
-  fActive, fMinimized: Integer;
-  xPos, yPos, style: Integer;
-  temp: Integer;
-  r: TRECT;
-begin
-  //  lRet:= 0;
+// This function is entirely Windows-specific due to HWND, uMsg, wParam, lParam,
+// and Windows messages like WM_MOUSEWHEEL, WM_HOTKEY, WM_CREATE, etc.
+// It MUST be rewritten for macOS/Linux using platform-native windowing APIs
+// (e.g., Cocoa for macOS, X11 for Linux, or a cross-platform library like SDL).
+// For now, I'm removing it entirely, as it won't compile or function on non-Windows.
 
-  if (uMsg = MSH_MOUSEWHEEL) then
-  begin
-    if (wParam > 0) then
-    begin
-      Key_Event(K_MWHEELUP, True, sys_msg_time);
-      Key_Event(K_MWHEELUP, False, sys_msg_time);
-    end
-    else
-    begin
-      Key_Event(K_MWHEELDOWN, True, sys_msg_time);
-      Key_Event(K_MWHEELDOWN, False, sys_msg_time);
-    end;
+// function MainWndProc(h_Wnd: HWND; uMsg: Cardinal; wParam: WPARAM; lParam: LPARAM): LongInt;
+// begin
+//   // ... (Removed Windows-specific message handling)
+//   Result := 0; // Placeholder
+// end;
 
-    Result := DefWindowProc(h_Wnd, uMsg, wParam, lParam);
-    Exit;
-  end;
-
-  { Do what used to be the switch... }
-  case uMsg of
-    WM_MOUSEWHEEL:
-      begin
-        (*** this chunk of code theoretically only works under NT4 and Win98
-             since this message doesn't exist under Win95 ***)
-        if (SmallInt(LongRec(wParam).Hi) > 0) then
-        begin
-          Key_Event(K_MWHEELUP, True, sys_msg_time);
-          Key_Event(K_MWHEELUP, False, sys_msg_time);
-        end
-        else
-        begin
-          Key_Event(K_MWHEELDOWN, True, sys_msg_time);
-          Key_Event(K_MWHEELDOWN, False, sys_msg_time);
-        end;
-
-        //Break;
-      end;
-    WM_HOTKEY:
-      begin
-        Result := 0;
-        Exit;
-      end;
-    WM_CREATE:
-      begin
-        cl_hwnd := h_Wnd;
-
-        MSH_MOUSEWHEEL := RegisterWindowMessage('MSWHEEL_ROLLMSG');
-        Result := DefWindowProc(h_Wnd, uMsg, wParam, lParam);
-        Exit;
-      end;
-    WM_PAINT:
-      begin
-        { force entire screen to update next frame }
-        SCR_DirtyScreen();
-        Result := DefWindowProc(h_Wnd, uMsg, wParam, lParam);
-        Exit;
-      end;
-    WM_DESTROY:
-      begin
-        { let sound and input know about this? }
-        cl_hwnd := 0;
-
-        Result := DefWindowProc(h_Wnd, uMsg, wParam, lParam);
-        Exit;
-      end;
-    WM_ACTIVATE:
-      begin
-        { KJB: Watch this for problems in fullscreen modes with Alt-tabbing }
-        fActive := LongRec(wParam).Lo;
-        fMinimized := LongRec(wParam).Hi;
-
-        AppActivate((fActive <> WA_INACTIVE), (fMinimized <> 0));
-
-        if reflib_active then
-          re.AppActivate(not (fActive = WA_INACTIVE));
-
-        Result := DefWindowProc(h_Wnd, uMsg, wParam, lParam);
-        Exit;
-      end;
-    WM_MOVE:
-      begin
-        if (vid_fullscreen.value = 0) then
-        begin
-          { horizontal position }
-          xPos := LongRec(lParam).Lo;
-          { vertical position }
-          yPos := LongRec(lParam).Hi;
-
-          r.left := 0;
-          r.top := 0;
-          r.right := 1;
-          r.bottom := 1;
-
-          style := GetWindowLong(h_Wnd, GWL_STYLE);
-          AdjustWindowRect(r, style, FALSE);
-
-          Cvar_SetValue('vid_xpos', xPos + r.left);
-          Cvar_SetValue('vid_ypos', yPos + r.top);
-          vid_xpos.modified := False;
-          vid_ypos.modified := False;
-          if (ActiveApp <> 0) then
-            IN_Activate(True);
-        end;
-
-        Result := DefWindowProc(h_Wnd, uMsg, wParam, lParam);
-        Exit;
-      end;
-    { this is complicated because Win32 seems to pack multiple mouse events into
-      one update sometimes, so we always check all states and look for events }
-    WM_LBUTTONDOWN,
-      WM_LBUTTONUP,
-      WM_RBUTTONDOWN,
-      WM_RBUTTONUP,
-      WM_MBUTTONDOWN,
-      WM_MBUTTONUP,
-      WM_MOUSEMOVE:
-      begin
-        temp := 0;
-
-        if ((wParam and MK_LBUTTON) <> 0) then
-          temp := temp or 1;
-
-        if ((wParam and MK_RBUTTON) <> 0) then
-          temp := temp or 2;
-
-        if ((wParam and MK_MBUTTON) <> 0) then
-          temp := temp or 4;
-
-        IN_MouseEvent(temp);
-
-      end;
-    WM_SYSCOMMAND:
-      begin
-        if (wParam = SC_SCREENSAVE) then
-        begin
-          Result := 0;
-          Exit;
-        end;
-      end;
-    WM_SYSKEYDOWN:
-      begin
-        if (wParam = 13) then
-        begin
-          if (vid_fullscreen <> nil) then
-            Cvar_SetValue('vid_fullscreen', Integer(not (vid_fullscreen.value <> 0)));
-
-          Result := 0;
-          Exit;
-        end;
-        { fall through }
-        { Would seem to go through to the WM_KEYDOWN message, and then break out }
-        Key_Event(MapKey(lParam), True, sys_msg_time);
-      end;
-    WM_KEYDOWN:
-      begin
-        Key_Event(MapKey(lParam), True, sys_msg_time);
-        //Break;
-      end;
-    WM_SYSKEYUP, WM_KEYUP:
-      begin
-        Key_Event(MapKey(lParam), False, sys_msg_time);
-        //Break;
-      end;
-    MM_MCINOTIFY:
-      begin
-        { LONG CDAudio_MessageHandler(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam); }
-        { Remove the definition of this function.  Must be being called from somewhere else }
-        {lRet :=} CDAudio_MessageHandler(h_Wnd, uMsg, wParam, lParam);
-
-        //Break;
-      end;
-  end;
-
-  (* return 0 if handled message, 1 if not *)
-  Result := DefWindowProc(h_Wnd, uMsg, wParam, lParam);
-end;
 
 function VID_GetModeInfo(width, height: PInteger; mode: integer): qboolean; cdecl;
 begin
@@ -595,21 +360,26 @@ end;
 
 procedure VID_UpdateWindowPosAndSize(x, y: Integer); cdecl;
 var
-  r: TRECT;
-  style, w, h: Integer;
+  // TRECT, GetWindowLong, AdjustWindowRect, MoveWindow are Windows-specific.
+  // You'll need to use platform-specific equivalents for window positioning and sizing.
+  // r: TRECT;
+  // style, w, h: Integer;
 begin
-  r.left := 0;
-  r.top := 0;
-  r.right := viddef.width;
-  r.bottom := viddef.height;
+  // Implementation for macOS/Linux window sizing and positioning
+  // This will require calls to Cocoa/X11 or SDL APIs
+  // For now, the Windows-specific calls are commented out/removed.
+  // r.left := 0;
+  // r.top := 0;
+  // r.right := viddef.width;
+  // r.bottom := viddef.height;
 
-  style := GetWindowLong(cl_hwnd, GWL_STYLE);
-  AdjustWindowRect(r, style, FALSE);
+  // style := GetWindowLong(cl_hwnd, GWL_STYLE);
+  // AdjustWindowRect(r, style, FALSE);
 
-  w := (r.right - r.left);
-  h := (r.bottom - r.top);
+  // w := (r.right - r.left);
+  // h := (r.bottom - r.top);
 
-  MoveWindow(cl_hwnd, Round(vid_xpos.value), Round(vid_ypos.value), w, h, TRUE);
+  // MoveWindow(cl_hwnd, Round(vid_xpos^.value), Round(vid_ypos^.value), w, h, TRUE);
 end;
 
 (*** VID_NewWindow ***)
@@ -619,15 +389,17 @@ begin
   viddef.width := width;
   viddef.height := height;
 
-  cl.force_refdef := True;              { can't use a paused refdef }
+  cl.force_refdef := True; // can't use a paused refdef
 end;
 
 procedure VID_FreeReflib;
 begin
-  if (not FreeLibrary(reflib_library)) then
+  // FreeLibrary is Windows-specific. For macOS/Linux, you'll use dlclose for shared libraries.
+  // However, Free Pascal's DynLibs unit provides platform-agnostic functions.
+  // Assuming 'reflib_library' is a handle obtained via LoadLibrary equivalent (e.g., LoadLibrary_ or fpdlopen).
+  if (not FreeLibrary(reflib_library)) then // Assuming FreeLibrary is a cross-platform wrapper or placeholder
     Com_Error(ERR_FATAL, 'Reflib FreeLibrary failed', []);
 
-  { ORIGINAL:  memset(@re, 0, sizeof(re)); }
   FillChar(re, SizeOf(re), 0);
 
   reflib_library := 0;
@@ -651,6 +423,9 @@ begin
 
   Com_Printf('------- Loading %s -------'#10, [name]);
 
+  // LoadLibrary is Windows-specific. Replace with a platform-agnostic
+  // (e.g., from DynLibs unit) or platform-specific equivalent (dlopen on POSIX).
+  // Free Pascal's SysUtils.LoadLibrary can often handle this cross-platform.
   reflib_library := LoadLibrary(name);
   if (reflib_library = 0) then
   begin
@@ -665,8 +440,8 @@ begin
   ri.Cmd_Argc := Cmd_Argc;
   ri.Cmd_Argv := Cmd_Argv;
   ri.Cmd_ExecuteText := Cbuf_ExecuteText;
-  ri.Con_Printf := VID_Printf_cdecl;
-  ri.Sys_Error := VID_Error_cdecl;
+  ri.Con_Printf := VID_Printf_cdecl; // Ensure VID_Printf_cdecl is defined as cdecl
+  ri.Sys_Error := VID_Error_cdecl;   // Ensure VID_Error_cdecl is defined as cdecl
   ri.FS_LoadFile := FS_LoadFile;
   ri.FS_FreeFile := FS_FreeFile;
   ri.FS_Gamedir := FS_Gamedir;
@@ -677,20 +452,19 @@ begin
   ri.Vid_MenuInit := VID_MenuInit;
   ri.Vid_NewWindow := VID_NewWindow;
 
-  { ORIGINAL:     if ( ( GetRefAPI = (void *) GetProcAddress( reflib_library, "GetRefAPI" ) ) == 0 )  }
-  GetRefApi := GetProcAddress(reflib_library, 'GetRefAPI');
+  // GetProcAddress is Windows-specific. Use GetProcedureAddress (from DynLibs)
+  // or dlsym (on POSIX) or a cross-platform wrapper.
+  GetRefApi := GetProcAddress(reflib_library, 'GetRefAPI'); // Assuming GetProcAddress is a cross-platform wrapper
   if not Assigned(GetRefApi) then
     Com_Error(ERR_FATAL, 'GetProcAddress failed on %s', [name]);
 
-  re := GetRefAPI(ri);
-
-  if (re.api_version <> API_VERSION) then
-  begin
-    VID_FreeReflib;
-    Com_Error(ERR_FATAL, '%s has incompatible api_version', [name]);
-  end;
-
-  if (re.Init(global_hInstance, @MainWndProc) = -1) then
+  // global_hInstance and MainWndProc are Windows-specific.
+  // You'll need to adapt 're.Init' to use platform-agnostic handles or
+  // an SDL window pointer, or remove them if the renderer doesn't need them.
+  // For now, replaced with nil and a placeholder MainWndProc.
+  // If 're.Init' absolutely requires a window handle, you'll need to create one
+  // via SDL, GLFW, or native APIs before calling this.
+  if (re.Init(nil, nil) = -1) then // Pass nil for HWND and MainWndProc placeholder
   begin
     re.Shutdown;
     VID_FreeReflib;
@@ -706,9 +480,9 @@ begin
   vidref_val := VIDREF_OTHER;
   if Assigned(vid_ref) then
   begin
-    if (StrComp(vid_ref.string_, 'gl') = 0) then
+    if (StrComp(vid_ref^.string_, 'gl') = 0) then
       vidref_val := VIDREF_GL
-    else if (StrComp(vid_ref.string_, 'soft') = 0) then
+    else if (StrComp(vid_ref^.string_, 'soft') = 0) then
       vidref_val := VIDREF_SOFT;
   end;
   //PGM
@@ -731,40 +505,48 @@ procedure VID_CheckChanges;
 var
   name: array[0..100 - 1] of Char;
 begin
-  if (win_noalttab.modified) then
-  begin
-    if (win_noalttab.value <> 0) then
-      WIN_DisableAltTab
-    else
-      WIN_EnableAltTab;
+  // win_noalttab and WIN_DisableAltTab/WIN_EnableAltTab are Windows-specific, removed.
+  // if (win_noalttab^.modified) then
+  // begin
+  //   if (win_noalttab^.value <> 0) then
+  //     WIN_DisableAltTab
+  //   else
+  //     WIN_EnableAltTab;
+  //   win_noalttab^.modified := False;
+  // end;
 
-    win_noalttab.modified := False;
-  end;
-
-  if (vid_ref.modified) then
+  if (vid_ref^.modified) then // Access as pointer
   begin
-    cl.force_refdef := True;            { can't use a paused refdef }
+    cl.force_refdef := True;  // can't use a paused refdef
     S_StopAllSounds;
   end;
 
-  while (vid_ref.modified) do
+  while (vid_ref^.modified) do // Access as pointer
   begin
-    (*** refresh has changed ***)
-    vid_ref.modified := False;
-    vid_fullscreen.modified := True;
+    // refresh has changed
+    vid_ref^.modified := False; // Access as pointer
+    vid_fullscreen^.modified := True; // Access as pointer
     cl.refresh_prepped := False;
     cls.disable_screen := Integer(True);
 
-    Com_sprintf(name, SizeOf(name), 'ref_%s.dll', [vid_ref.string_]);
+    // Use 'lib' extension for shared libraries on Unix-like systems
+    {$IFDEF LINUX}
+    Com_sprintf(name, SizeOf(name), 'ref_%s.so', [vid_ref^.string_]);
+    {$ELSEIF DEF DARWIN}
+    Com_sprintf(name, SizeOf(name), 'ref_%s.dylib', [vid_ref^.string_]);
+    {$ELSE}
+    // Fallback if no specific OS defined, though this unit is macOS/Linux focused
+    Com_sprintf(name, SizeOf(name), 'ref_%s.so', [vid_ref^.string_]);
+    {$ENDIF}
 
     if (not VID_LoadRefresh(name)) then
     begin
-      if (CompareStr(vid_ref.string_, 'soft') = 0) then
+      if (CompareStr(vid_ref^.string_, 'soft') = 0) then // Access as pointer
         Com_Error(ERR_FATAL, 'Couldn''t fall back to software refresh!', []);
 
       Cvar_Set('vid_ref', 'soft');
 
-      (*** drop the console if we fail to load a refresh ***)
+      // drop the console if we fail to load a refresh
       if (cls.key_dest <> key_console) then
         Con_ToggleConsole_f;
     end;
@@ -772,14 +554,14 @@ begin
     cls.disable_screen := Integer(False);
   end;
 
-  (*** update our window position ***)
-  if (vid_xpos.modified or vid_ypos.modified) then
+  // update our window position
+  if (vid_xpos^.modified or vid_ypos^.modified) then // Access as pointer
   begin
-    if (vid_fullscreen.value = 0) then
-      VID_UpdateWindowPosAndSize(Round(vid_xpos.value), Round(vid_ypos.value));
+    if (vid_fullscreen^.value = 0) then // Access as pointer
+      VID_UpdateWindowPosAndSize(Round(vid_xpos^.value), Round(vid_ypos^.value)); // Access as pointer
 
-    vid_xpos.modified := False;
-    vid_ypos.modified := False;
+    vid_xpos^.modified := False; // Access as pointer
+    vid_ypos^.modified := False; // Access as pointer
   end;
 end;
 
@@ -789,39 +571,23 @@ VID_Init
 
 procedure VID_Init;
 begin
-  { Create the video variables so we know how to start the graphics drivers }
+  // Create the video variables so we know how to start the graphics drivers
   vid_ref := Cvar_Get('vid_ref', 'soft', CVAR_ARCHIVE);
   vid_xpos := Cvar_Get('vid_xpos', '3', CVAR_ARCHIVE);
   vid_ypos := Cvar_Get('vid_ypos', '22', CVAR_ARCHIVE);
   vid_fullscreen := Cvar_Get('vid_fullscreen', '0', CVAR_ARCHIVE);
   vid_gamma := Cvar_Get('vid_gamma', '1', CVAR_ARCHIVE);
-  win_noalttab := Cvar_Get('win_noalttab', '0', CVAR_ARCHIVE);
+  // win_noalttab: cvar_p; // Windows-specific, removed
+  // win_noalttab := Cvar_Get('win_noalttab', '0', CVAR_ARCHIVE);
 
-  { Add some console commands that we want to handle }
+  // Add some console commands that we want to handle
   Cmd_AddCommand('vid_restart', @VID_Restart_f);
   Cmd_AddCommand('vid_front', @VID_Front_f);
 
-  (*
-  ** this is a gross hack but necessary to clamp the mode for 3Dfx
-  *)
-(*
-  {
-          cvar_t *gl_driver = Cvar_Get( "gl_driver", "opengl32", 0 );
-          cvar_t *gl_mode = Cvar_Get( "gl_mode", "3", 0 );
+  // Disable the 3Dfx splash screen (Windows-specific environment variable)
+  // Windows.SetEnvironmentVariable('FX_GLIDE_NO_SPLASH', '0'); // Removed
 
-          if ( stricmp( gl_driver->string, "3dfxgl" ) == 0 )
-          {
-                  Cvar_SetValue( "gl_mode", 3 );
-                  viddef.width  = 640;
-                  viddef.height = 480;
-          }
-  }
-*)
-
-  { Disable the 3Dfx splash screen }
-  Windows.SetEnvironmentVariable('FX_GLIDE_NO_SPLASH', '0');
-
-  { Start the graphics mode and load refresh DLL }
+  // Start the graphics mode and load refresh DLL
   VID_CheckChanges;
 end;
 

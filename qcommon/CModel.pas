@@ -52,10 +52,19 @@ uses
   Windows,
   {$ENDIF}
   q_shared,
-  SysUtils;
+  SysUtils, CVar;
 
+type
+  pcmodel_t = ^cmodel_t;   // alias, if not already present
+  qboolean  = Boolean;     // engine’s bool
+const
+  BASEDIRNAME = 'baseq2'; // Standard Pascal string literal
+  const COM_DEBUG: PChar = 'some_string';
+  // OR if COM_DEBUG is an array:
+  // COM_DEBUG: array[0..Length('com_debug')] of Char = 'com_debug'#0;
 
-function CM_LoadMap(name: PChar; clientload: qboolean; var checksum: Cardinal): cmodel_p;
+    {‑‑ Interface ‑‑}
+function CM_LoadMap(name: PChar;clientload: qboolean; var checksum: LongWord): pcmodel_t; cdecl;
 function CM_InlineModel(name: PChar): cmodel_p; // *1, *2, etc
 
 function CM_NumClusters: Integer;
@@ -89,12 +98,11 @@ function CM_LeafContents(leafnum: Integer): Integer;
 function CM_LeafCluster(leafnum: Integer): Integer;
 function CM_LeafArea(leafnum: Integer): Integer;
 
-procedure CM_SetAreaPortalState(portalnum: Integer; open: qboolean); cdecl;
+procedure CM_SetAreaPortalState(portalnum: LongInt; open: qboolean); cdecl;
 function CM_AreasConnected(area1, area2: Integer): qboolean; cdecl;
 
 function CM_WriteAreaBits(buffer: PByte; area: Integer): Integer;
-function CM_HeadnodeVisible(nodenum: Integer; visbits: PByteArray): qboolean;
-
+function CM_HeadnodeVisible(nodenum: LongInt; visbits: PByteArray): Boolean;
 procedure CM_WritePortalState(var file_: integer);
 procedure CM_ReadPortalState(var file_: integer);
 
@@ -109,7 +117,6 @@ implementation
 uses
   Common,
   CPas,
-  CVar,
   Files,
   MD4;
 
@@ -655,15 +662,11 @@ begin
   Move(Pointer(Cardinal(cmod_base) + l^.fileofs)^, map_entitystring, l^.filelen);
 end;
 
-(*
-==================
-CM_LoadMap
-
-Loads in the map and all submodels
-==================
-*)
-
-function CM_LoadMap(name: PChar; clientload: qboolean; var checksum: Cardinal): cmodel_p;
+// In your implementation section, this is how CM_LoadMap's header should look
+//function CM_LoadMap(name: PChar; clientload: Boolean; var checksum: LongWord): ^cmodel_t;
+function CM_LoadMap(name: PChar;
+                    clientload: qboolean;   // ← now qboolean
+                    var checksum: LongWord): pcmodel_t; cdecl;
 var
   buf: PCardinal;
   i: Integer;
@@ -671,21 +674,21 @@ var
   length: Integer;
 {$IFDEF COMPILER6_UP}{$WRITEABLECONST ON}{$ENDIF}
 const
-  last_checksum: Cardinal = 0;
+  last_checksum: Cardinal = 0; // This is a local constant, its type is independent of checksum parameter
 {$IFDEF COMPILER6_UP}{$WRITEABLECONST OFF}{$ENDIF}
 begin
   map_noareas := Cvar_Get('map_noareas', '0', 0);
 
   if (strcmp(map_name, name) = 0) and
-    (clientload or (Cvar_VariableValue('flushmap') = 0)) then
-  begin
-    checksum := last_checksum;
+   (clientload or (Cvar_VariableValue('flushmap') = 0.0)) then // Explicit float comparison
+   begin
+    checksum := last_checksum; // Assigns Cardinal to LongWord, which is compatible
     if not clientload then
     begin
       FillChar(portalopen, SizeOf(portalopen), 0);
       FloodAreaConnections;
     end;
-    Result := @map_cmodels[0];          // still have the right version
+    Result := @map_cmodels[0];
     Exit;
   end;
 
@@ -705,7 +708,7 @@ begin
     numclusters := 1;
     numareas := 1;
     checksum := 0;
-    Result := @map_cmodels[0];          // cinematic servers won't have anything at all
+    Result := @map_cmodels[0];
     Exit;
   end;
 
@@ -717,7 +720,7 @@ begin
     Com_Error(ERR_DROP, 'Couldn''t load %s', [name]);
 
   last_checksum := LittleLong(Com_BlockChecksum(buf, length));
-  checksum := last_checksum;
+  checksum := last_checksum; // Assigns Cardinal to LongWord, compatible
 
   header := dheader_p(buf)^;
   for i := 0 to (SizeOf(dheader_t) div 4) - 1 do
@@ -1793,11 +1796,11 @@ begin
   end;
 end;
 
-procedure CM_SetAreaPortalState(portalnum: Integer; open: qboolean);
+// in implementation – must repeat cdecl
+procedure CM_SetAreaPortalState(portalnum: LongInt; open: qboolean); cdecl;
 begin
-  if (portalnum > numareaportals) then
+  if portalnum > numareaportals then
     Com_Error(ERR_DROP, 'areaportal > numareaportals', []);
-
   portalopen[portalnum] := open;
   FloodAreaConnections;
 end;

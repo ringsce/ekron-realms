@@ -32,34 +32,73 @@ interface
 uses
   client,
   ref,
-  {$IFDEF WIN32}
-  Windows,
-  vid_dll,
-  {$ELSE}
-    {$IFDEF LINUX}
-    // Linux-specific units
-    vid_so,
-    sys_linux,
-    {$ELSE}
-      {$IFDEF DARWIN}
-      // macOS-specific units
-      //vid_so,
-      MacOSAll,  // Replace with the actual macOS unit if available
-      {$ELSE}
-      // Default/fallback units if needed
-      vid_so,
-      {$ENDIF}
-    {$ENDIF}
+
+  {──────────── platform‑specific ────────────}
+  {$IFDEF MSWINDOWS}
+    Windows,
+    vid_dll,
   {$ENDIF}
-  Cpas,
+
+  {$IFDEF LINUX}
+    sys_linux,
+    vid_so,
+  {$ENDIF}
+
+  {$IFDEF DARWIN}
+    MacOSAll,        // macOS API
+    vid_macos,          // .dylib renderer
+  {$ENDIF}
+
+  {──────────── common units ────────────────}
+  CPas,
   Math,
   Common,
   q_shared,
   snd_dma,
   snd_loc;
 
+{──────────── renderer entry point ──────────}
+{$IF defined(MSWINDOWS)}
+const
+  RENDERER_LIB = 'ref_gl.dll';      // or 'ref_soft.dll'
+{$ELSEIF defined(LINUX)}
+const
+  RENDERER_LIB = 'ref_gl.so';
+{$ELSEIF defined(DARWIN)}
+const
+  RENDERER_LIB = 'ref_gl.dylib';
+{$ELSE}
+const
+  RENDERER_LIB = 'ref_gl.so';       // sensible fallback
+{$ENDIF}
+
+type
+  refimport_t = record … end;       // (declare fully elsewhere)
+  refexport_t = record
+    RegisterModel : function(const name:PChar):Pointer; cdecl;
+    RegisterPic   : function(const name:PChar):Pointer; cdecl;
+    { … other callbacks … }
+  end;
+
+function GetRefAPI(const ri: refimport_t): refexport_t; cdecl;
+  external RENDERER_LIB;
+
+var
+  re : refexport_t;   // global renderer interface
+
+
 type
   ExpType_t = (ex_free, ex_explosion, ex_misc, ex_flash, ex_mflash, ex_poly, ex_poly2);
+
+  // these two records MUST match the C structs in ref.h
+  refimport_t  = record
+    // ...fill in if you need import callbacks...
+  end;
+  refexport_t  = record
+    RegisterModel   : function (const name: PChar): Pointer; cdecl;
+    RegisterPic     : function (const name: PChar): Pointer; cdecl;
+    // ... all the other function pointers ...
+  end;
 
   explosion_p = ^explosion_t;
   explosion_t = record
@@ -78,6 +117,8 @@ const
 
 var
   cl_explosions: array[0..MAX_EXPLOSIONS - 1] of explosion_t;
+  re: refexport_t; // or whatever type your rendering export is
+
 
 const
   MAX_BEAMS = 32;
@@ -145,6 +186,7 @@ procedure CL_SmokeAndFlash(const Origin: vec3_t);
 procedure CL_RegisterTEntSounds;
 procedure CL_ParseTEnt;
 
+
 implementation
 
 uses
@@ -211,6 +253,8 @@ CL_RegisterTEntModels
 
 procedure CL_RegisterTEntModels;
 begin
+  re := GetRefAPI();
+
   cl_mod_explode := re.RegisterModel('models/objects/explode/tris.md2');
   cl_mod_smoke := re.RegisterModel('models/objects/smoke/tris.md2');
   cl_mod_flash := re.RegisterModel('models/objects/flash/tris.md2');
