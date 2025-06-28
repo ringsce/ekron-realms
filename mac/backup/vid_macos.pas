@@ -91,7 +91,52 @@ procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const);
 procedure VID_Error(err_level: integer; fmt: PChar; args: array of const);
 
 const
-  MAXPRINTMSG = 4096; // Still relevant for message buffers
+  MAXPRINTMSG = 4096;
+
+  {──── 128‑entry PC/USB scan‑code → Quake key map ────}
+  scantokey: array[0..127] of Byte = (
+    { 00‑0F }
+     0, 27,  Ord('1'), Ord('2'), Ord('3'), Ord('4'), Ord('5'), Ord('6'),
+    Ord('7'), Ord('8'), Ord('9'), Ord('0'), Ord('-'), Ord('='), K_BACKSPACE, 9,
+    { 10‑1F }
+    Ord('q'), Ord('w'), Ord('e'), Ord('r'), Ord('t'), Ord('y'), Ord('u'), Ord('i'),
+    Ord('o'), Ord('p'), Ord('['), Ord(']'), 13, K_CTRL,  Ord('a'), Ord('s'),
+    { 20‑2F }
+    Ord('d'), Ord('f'), Ord('g'), Ord('h'), Ord('j'), Ord('k'), Ord('l'), Ord(';'),
+    Ord(''''),Ord('`'), K_SHIFT, Ord('\'), Ord('z'), Ord('x'), Ord('c'), Ord('v'),
+    { 30‑3F }
+    Ord('b'), Ord('n'), Ord('m'), Ord(','), Ord('.'), Ord('/'), K_SHIFT, Ord('*'),
+    K_ALT,  Ord(' '), 0, K_F1, K_F2, K_F3, K_F4, K_F5,
+    { 40‑4F }
+    K_F6, K_F7, K_F8, K_F9, K_F10, K_PAUSE, 0, K_HOME,
+    K_UPARROW, K_PGUP, K_KP_MINUS, K_LEFTARROW, K_KP_5, K_RIGHTARROW, K_KP_PLUS, K_END,
+    { 50‑5F }
+    K_DOWNARROW, K_PGDN, K_INS, K_DEL, 0, 0, 0, K_F11,
+    K_F12, 0, 0, 0, 0, 0, 0, 0,
+    { 60‑6F }
+     0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0,
+    { 70‑7F }
+     0, 0, 0, 0, 0, 0, 0, 0,
+     0, 0, 0, 0, 0, 0, 0, 0
+  );
+
+  vid_modes: array[0..10] of vidmode_t =
+  (
+    (description: 'Mode 0: 320x240'; width: 320; height: 240; mode: 0),
+    (description: 'Mode 1: 400x300'; width: 400; height: 300; mode: 1),
+    (description: 'Mode 2: 512x384'; width: 512; height: 384; mode: 2),
+    (description: 'Mode 3: 640x480'; width: 640; height: 480; mode: 3),
+    (description: 'Mode 4: 800x600'; width: 800; height: 600; mode: 4),
+    (description: 'Mode 5: 960x720'; width: 960; height: 720; mode: 5),
+    (description: 'Mode 6: 1024x768'; width: 1024; height: 768; mode: 6),
+    (description: 'Mode 7: 1152x864'; width: 1152; height: 864; mode: 7),
+    (description: 'Mode 8: 1280x960'; width: 1280; height: 960; mode: 8),
+    (description: 'Mode 9: 1600x1200'; width: 1600; height: 1200; mode: 9),
+    (description: 'Mode 10: 2048x1536'; width: 2048; height: 1536; mode: 10)
+  );
+
+
 
 var
   // Structure containing functions exported from refresh DLL
@@ -112,45 +157,8 @@ var
   // SDL_Window* for SDL). For now, it's removed.
   // cl_hwnd: HWND;
 
-  // scantokey and MapKey are Windows-specific keyboard scan code mappings.
-  // This will need a new implementation for macOS/Linux input.
-  scantokey: array[0..128 - 1] of byte = (
-    0, 27, byte('1'), byte('2'), byte('3'), byte('4'), byte('5'), byte('6'),
-    byte('7'), byte('8'), byte('9'), byte('0'), byte('-'), byte('='), K_BACKSPACE, 9, // 0
-    byte('q'), byte('w'), byte('e'), byte('r'), byte('t'), byte('y'), byte('u'), byte('i'),
-    byte('o'), byte('p'), byte('['), byte(']'), 13, K_CTRL, byte('a'), byte('s'), // 1
-    byte('d'), byte('f'), byte('g'), byte('h'), byte('j'), byte('k'), byte('l'), byte(';'),
-    byte(''''), byte('`'), K_SHIFT, byte('\'), byte('z'), byte('x'), byte('c'), byte('v'), // 2
-    byte('b'), byte('n'), byte('m'), byte(','), byte('.'), byte('/'), K_SHIFT, byte('*'),
-    K_ALT, byte(' '), 0, K_F1, K_F2, K_F3, K_F4, K_F5, // 3
-    K_F6, K_F7, K_F8, K_F9, K_F10, K_PAUSE, 0, K_HOME,
-    K_UPARROW, K_PGUP, K_KP_MINUS, K_LEFTARROW, K_KP_5, K_RIGHTARROW, K_KP_PLUS, K_END, //4
-    K_DOWNARROW, K_PGDN, K_INS, K_DEL, 0, 0, 0, K_F11,
-    K_F12,
-    // Fill the remaining 101 elements with zeros to satisfy the array size
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 // <-- No comma after the very last element
-  ); // <-- This is the *only* closing parenthesis for the entire array initializer
-    *)
 
-  vid_modes: array[0..10] of vidmode_t =
-  (
-    (description: 'Mode 0: 320x240'; width: 320; height: 240; mode: 0),
-    (description: 'Mode 1: 400x300'; width: 400; height: 300; mode: 1),
-    (description: 'Mode 2: 512x384'; width: 512; height: 384; mode: 2),
-    (description: 'Mode 3: 640x480'; width: 640; height: 480; mode: 3),
-    (description: 'Mode 4: 800x600'; width: 800; height: 600; mode: 4),
-    (description: 'Mode 5: 960x720'; width: 960; height: 720; mode: 5),
-    (description: 'Mode 6: 1024x768'; width: 1024; height: 768; mode: 6),
-    (description: 'Mode 7: 1152x864'; width: 1152; height: 864; mode: 7),
-    (description: 'Mode 8: 1280x960'; width: 1280; height: 960; mode: 8),
-    (description: 'Mode 9: 1600x1200'; width: 1600; height: 1200; mode: 9),
-    (description: 'Mode 10: 2048x1536'; width: 2048; height: 1536; mode: 10)
-  );
+
 
 const
   VID_NUM_MODES = (sizeof(vid_modes) div sizeof(vid_modes[0])); // Changed / to div for integer division
