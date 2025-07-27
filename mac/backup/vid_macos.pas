@@ -1,31 +1,6 @@
-{----------------------------------------------------------------------------}
-{                                                                            }
-{ File(s): vid_dll.c                                                         }
-{ Content:                                                                   }
-{                                                                            }
-{ Initial conversion by : Scott Price                                        }
-{ Initial conversion on : 12-Jan-2002                                        }
-{                                                                            }
-{ This File contains part of convertion of Quake2 source to ObjectPascal.    }
-{ More information about this project can be found at:                       }
-{ http://www.sulaco.co.za/quake2/                                            }
-{                                                                            }
-{ Copyright (C) 1997-2001 Id Software, Inc.                                  }
-{                                                                            }
-{ This program is free software; you can redistribute it and/or              }
-{ modify it under the terms of the GNU General Public License                }
-{ as published by the Free Software Foundation; either version 2             }
-{ of the License, or (at your option) any later version.                     }
-{                                                                            }
-{ This program is distributed in the hope that it will be useful,            }
-{ but WITHOUT ANY WARRANTY; without even the implied warranty of             }
-{ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       }
-{                                                                            }
-{ See the GNU General Public License for more details.                       }
-{                                                                            }
-{----------------------------------------------------------------------------}
+unit vid_macos;
 
-unit vid_macos; // Renamed to accurately reflect its platform focus
+{$mode objfpc}{$H+} // objfpc mode for classes, {$H+} for strings as AnsiString by default
 
 interface
 
@@ -34,41 +9,33 @@ interface
   Quake refresh engine. }
 
 uses
-  { POSIX Standard Units for Linux/macOS }
-  {$IFDEF LINUX}
-  BaseUnix, Unix,
-  {$ENDIF}
+  SysUtils, // Needed for LoadPackage, GetProcAddress
+  SDL2,     // **Crucial: Added SDL2 for cross-platform windowing, input, etc.**
 
-  {$IFDEF DARWIN}
-  MacOSAll,
-  {$ENDIF}
-
-  { Common Pascal Units }
-  SysUtils,
-
-  { Own Units }
-  ref, // This unit is crucial for 're' (renderer export)
+  // Own Quake Units
+  ref,      // This unit is crucial for 're' (renderer export)
   keys,
   cvar,
   vid_h,
-
-  {$IFDEF LINUX}
-  snd_sdl in '../linux/snd_sdl.pas',
-  in_linux in '../linux/in_linux.pas',
-  sys_linux in '../linux/sys_linux.pas',
-  {$ENDIF}
-
-  {$IFDEF DARWIN}
-  snd_mac in '../mac/snd_mac.pas',
-  // Note: sys_mac is moved to implementation uses if only used there
-  {$ENDIF}
-
+  Client,   // Provides ActiveApp (ensure ActiveApp is in Client.pas interface var section)
   cl_scrn,
   Common,
   q_shared,
   Console,
-  snd_dma,
-  Client;
+  snd_dma;  // Provides S_Activate (ensure S_Activate is in its interface)
+
+// Platform-specific sound and system units, conditionally included
+// This ensures the unit remains portable between macOS (Darwin) and Linux.
+{$IFDEF LINUX}
+uses snd_sdl in '../linux/snd_sdl.pas', // Keep if still using SDL for sound specifically here
+     sys_linux in '../linux/sys_linux.pas'; // Keep if still needed for other system calls
+{$ENDIF}
+
+{$IFDEF DARWIN}
+snd_mac in '../mac/snd_mac.pas', // Keep if still using native macOS sound, or replace with SDL sound
+sys_mac in '../mac/sys_mac.pas'; // Keep if still needed for other system calls
+{$ENDIF}
+
 
 type
   vidmode_p = ^vidmode_t;
@@ -82,43 +49,50 @@ type
 procedure VID_CheckChanges;
 procedure VID_Init;
 procedure VID_Shutdown;
-// MainWndProc and related Windows-specific messaging is removed as it's for Windows GUI
-// You will need a platform-specific windowing and event handling mechanism for macOS/Linux.
-// This typically involves libraries like SDL, GLFW, or native Cocoa/X11 APIs.
 
 // These are still needed if the refresh DLL calls them back (e.g., for logging/errors)
-procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const);
-procedure VID_Error(err_level: integer; fmt: PChar; args: array of const);
+procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const); cdecl;
+procedure VID_Error(err_level: integer; fmt: PChar; args: array of const); cdecl;
+
+// Procedures for activating/deactivating the application focus, input, audio, etc.
+procedure AppActivate(fActive: Boolean; minimize: Boolean); cdecl;
+procedure VID_UpdateWindowPosAndSize(x, y: Integer); cdecl;
+procedure VID_NewWindow(width, height: Integer); cdecl;
+function VID_GetModeInfo(width, height: PInteger; mode: integer): qboolean; cdecl;
 
 const
   MAXPRINTMSG = 4096;
 
   {──── 128‑entry PC/USB scan‑code → Quake key map ────}
+  // This map is still useful for translating raw input (like SDL scancodes) to Quake's internal key codes.
+  // Note: SDL_Scancode enum values are generally higher than 127. This array might need to be
+  // expanded or `MapKey` adjusted to handle the full range of SDL_Scancode.
+  // For now, assuming only the lower 128 values are used or mapped.
   scantokey: array[0..127] of Byte = (
-    { 00‑0F }
-     0, 27,  Ord('1'), Ord('2'), Ord('3'), Ord('4'), Ord('5'), Ord('6'),
+      // 00-0F
+      0, 27,  Ord('1'), Ord('2'), Ord('3'), Ord('4'), Ord('5'), Ord('6'),
     Ord('7'), Ord('8'), Ord('9'), Ord('0'), Ord('-'), Ord('='), K_BACKSPACE, 9,
-    { 10‑1F }
+      // 10-1F
     Ord('q'), Ord('w'), Ord('e'), Ord('r'), Ord('t'), Ord('y'), Ord('u'), Ord('i'),
     Ord('o'), Ord('p'), Ord('['), Ord(']'), 13, K_CTRL,  Ord('a'), Ord('s'),
-    { 20‑2F }
+      // 20-2F
     Ord('d'), Ord('f'), Ord('g'), Ord('h'), Ord('j'), Ord('k'), Ord('l'), Ord(';'),
     Ord(''''),Ord('`'), K_SHIFT, Ord('\'), Ord('z'), Ord('x'), Ord('c'), Ord('v'),
-    { 30‑3F }
+      // 30-3F
     Ord('b'), Ord('n'), Ord('m'), Ord(','), Ord('.'), Ord('/'), K_SHIFT, Ord('*'),
     K_ALT,  Ord(' '), 0, K_F1, K_F2, K_F3, K_F4, K_F5,
-    { 40‑4F }
+      // 40-4F
     K_F6, K_F7, K_F8, K_F9, K_F10, K_PAUSE, 0, K_HOME,
     K_UPARROW, K_PGUP, K_KP_MINUS, K_LEFTARROW, K_KP_5, K_RIGHTARROW, K_KP_PLUS, K_END,
-    { 50‑5F }
+      // 50-5F
     K_DOWNARROW, K_PGDN, K_INS, K_DEL, 0, 0, 0, K_F11,
     K_F12, 0, 0, 0, 0, 0, 0, 0,
-    { 60‑6F }
-     0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0,
-    { 70‑7F }
-     0, 0, 0, 0, 0, 0, 0, 0,
-     0, 0, 0, 0, 0, 0, 0, 0
+      // 60-6F
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0,
+      // 70-7F
+      0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0
   );
 
   vid_modes: array[0..10] of vidmode_t =
@@ -136,61 +110,61 @@ const
     (description: 'Mode 10: 2048x1536'; width: 2048; height: 1536; mode: 10)
   );
 
-
-
 var
   // Structure containing functions exported from refresh DLL
   re: refexport_t; // 're' is declared here. Ensure refexport_t is visible from 'ref' unit.
 
   // Console variables that we need to access from this module
   vid_gamma: cvar_p;
-  vid_ref: cvar_p;          // Name of Refresh DLL loaded
-  vid_xpos: cvar_p;         // X coordinate of window position
-  vid_ypos: cvar_p;         // Y coordinate of window position
+  vid_ref: cvar_p;        // Name of Refresh DLL loaded
+  vid_xpos: cvar_p;       // X coordinate of window position
+  vid_ypos: cvar_p;       // Y coordinate of window position
   vid_fullscreen: cvar_p;
 
   // Global variables used internally by this module
-  viddef: viddef_t;         // global video state; used by other modules
+  viddef: viddef_t;       // global video state; used by other modules
 
-  // cl_hwnd (HWND) is a Windows-specific handle. This will need to be replaced
-  // with a platform-appropriate window handle type (e.g., NSWindow* for Cocoa,
-  // SDL_Window* for SDL). For now, it's removed.
-  // cl_hwnd: HWND;
-
-
-
+  // Global SDL Window pointer, managed by the main program
+  // This will be set by your main program unit (e.g., in Quake2Main.lpr)
+  // and passed to relevant functions. It's crucial for SDL2 operations.
+  QuakeWindow: PSDL_Window = nil;
 
 const
-  VID_NUM_MODES = (sizeof(vid_modes) div sizeof(vid_modes[0])); // Changed / to div for integer division
+  VID_NUM_MODES = (sizeof(vid_modes) div sizeof(vid_modes[0]));
 
 implementation
 
 uses
-  // Removed cd_win (Windows CD Audio)
   cl_main,
   Cmd,
   Files,
-  vid_menu,
-  CPas,
-  // Platform-specific system unit for macOS/Linux
+  CPas, // For DelphiStrFmt
+  // Platform-specific system unit (moved from interface to implementation if only used here)
   {$IFDEF LINUX}
-  sys_linux in '../linux/sys_linux.pas',
+  sys_linux, // No longer needs `in` clause if in standard search path
   {$ENDIF}
   {$IFDEF DARWIN}
-  sys_mac in '../mac/sys_mac.pas' // sys_mac is moved here
+  sys_mac // No longer needs `in` clause if in standard search path
   {$ENDIF}
   ;
 
 var
   // Static Variables
-  // MSH_MOUSEWHEEL: Cardinal; // Windows-specific message ID, removed
-  // s_alttab_disabled: qboolean; // Windows-specific flag, removed
-  reflib_library: LongWord;    // Handle to refresh DLL/Shared Object
+  reflib_library: TLibHandle;
   reflib_active: qboolean = False;
-  // win_noalttab: cvar_p; // Windows-specific cvar, removed
+  vidref_val: Integer; // Added for PGM section
 
-// WIN_DisableAltTab and WIN_EnableAltTab are Windows-specific, removed.
-// You'll need to implement equivalent platform-specific window management for fullscreen/focus.
+// These are now C-compatible wrappers for the procedures above, used for function pointers
+// in refimport_t.
+procedure VID_Printf_cdecl(print_level: Integer; fmt: PChar; args: array of const); cdecl;
+begin
+  VID_Printf(print_level, fmt, args);
+end;
+
+procedure VID_Error_cdecl(err_level: integer; fmt: PChar; args: array of const); cdecl;
+begin
+  VID_Error(err_level, fmt, args);
+end;
 
 procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const);
 var
@@ -203,10 +177,8 @@ begin
     Com_DPrintf('%s', [msg])
   else if (print_level = PRINT_ALERT) then
   begin
-    // MessageBox is Windows-specific. You need a platform-agnostic way to show alerts.
-    // For now, it will just output to debug.
+    // For a real game, you might want a GUI alert here (e.g., SDL_ShowSimpleMessageBox)
     Com_Printf('ALERT: %s'#10, [msg]); // Fallback to console print
-    // OutputDebugString is Windows-specific. You might use SysUtils.OutputDebugString or a custom debug log.
   end;
 end;
 
@@ -218,137 +190,56 @@ begin
   Com_Error(err_level, '%s', [msg]);
 end;
 
-(* ============
-VID_Restart_f
-
-Console command to re-start the video mode and refresh DLL. We do this
-simply by setting the modified flag for the vid_ref variable, which will
-cause the entire video mode and refresh DLL to be reset on the next frame.
-============ *)
-
 procedure VID_Restart_f; cdecl;
 begin
-  vid_ref^.modified := True; // Access as pointer
+  // Access as pointer
+  vid_ref^.modified := True;
 end;
 
 procedure VID_Front_f; cdecl;
 begin
-  // SetWindowLong and SetForegroundWindow are Windows-specific.
-  // You'll need to use platform-specific APIs for bringing the window to front.
-  // For example, in Cocoa (macOS), you'd interact with NSWindow.
+  if Assigned(QuakeWindow) then
+  begin
+    SDL_RaiseWindow(QuakeWindow); // Bring the window to front
+  end;
 end;
 
-(* =======
-MapKey
-
-Map from windows to quake keynums
-======= *)
-
 function MapKey(key: Integer): Integer;
+// Assuming 'key' here is an SDL_Scancode (which is an Integer type in SDL2 bindings).
+// The scantokey array currently only supports indices up to 127.
+// SDL_Scancode values can be much higher (e.g., SDL_SCANCODE_GRAVE is 52, SDL_SCANCODE_KP_ENTER is 88).
+// For a robust solution, you'd need a larger `scantokey` array or a different mapping strategy.
 var
-  iResult: Integer;
-  modified: Integer;
-  is_extended: qboolean;
+  scancode_index: Integer;
 begin
-  // This logic is highly dependent on Windows WM_KEYDOWN/WM_SYSKEYDOWN lParam.
-  // For macOS/Linux, you'll get different key codes (e.g., from SDL, Cocoa, X11).
-  // You will need to rewrite this function based on the input system you use.
-  // For now, it's kept as-is, but be aware it won't work correctly without input system changes.
+  scancode_index := key; // Direct use of SDL_Scancode as index
 
-  modified := (key shr 16) and 255;
-  is_extended := False;
-
-  if (modified > 127) then
+  if (scancode_index < 0) or (scancode_index >= Length(scantokey)) then // Use Length for array size
   begin
-    Result := 0;
+    Result := 0; // Invalid scancode
     Exit;
   end;
 
-  if (key and (1 shl 24) <> 0) then
-    is_extended := True;
+  Result := scantokey[scancode_index];
 
-  iResult := scantokey[modified];
-
-  if (not is_extended) then
-  begin
-    case iResult of
-      K_HOME: Result := K_KP_HOME;
-      K_UPARROW: Result := K_KP_UPARROW;
-      K_PGUP: Result := K_KP_PGUP;
-      K_LEFTARROW: Result := K_KP_LEFTARROW;
-      K_RIGHTARROW: Result := K_KP_RIGHTARROW;
-      K_END: Result := K_KP_END;
-      K_DOWNARROW: Result := K_KP_DOWNARROW;
-      K_PGDN: Result := K_KP_PGDN;
-      K_INS: Result := K_KP_INS;
-      K_DEL: Result := K_KP_DEL;
-    else
-      Result := iResult;
-    end;
-  end
-  else
-  begin
-    case iResult of
-      $0D: Result := K_KP_ENTER;
-      $2F: Result := K_KP_SLASH;
-      $AF: Result := K_KP_PLUS;
-    else
-      Result := iResult;
-    end;
+  // Additional handling for specific keys if SDL's default mapping doesn't align
+  // with Quake's K_KP_ constants for numpad/extended keys.
+  // This part needs careful testing with actual SDL events.
+  // Example: SDL_SCANCODE_KP_ENTER could map directly to K_KP_ENTER.
+  case Result of
+    K_HOME: Result := K_KP_HOME;
+    K_UPARROW: Result := K_KP_UPARROW;
+    K_PGUP: Result := K_KP_PGUP;
+    K_LEFTARROW: Result := K_KP_LEFTARROW;
+    K_RIGHTARROW: Result := K_KP_RIGHTARROW;
+    K_END: Result := K_KP_END;
+    K_DOWNARROW: Result := K_KP_DOWNARROW;
+    K_PGDN: Result := K_KP_PGDN;
+    K_INS: Result := K_KP_INS;
+    K_DEL: Result := K_KP_DEL;
+    // Add more specific SDL to Quake key mappings as needed.
   end;
 end;
-
-procedure AppActivate(fActive: Boolean; minimize: Boolean);
-var
-  Minimized: Boolean;
-begin
-  Minimized := minimize;
-
-  Key_ClearStates;
-
-  // we don't want to act like we're active if we're minimized
-  if (fActive and (not Minimized)) then
-    ActiveApp := Integer(True)
-  else
-    ActiveApp := Integer(False);
-
-  // minimize/restore mouse-capture on demand
-  if (ActiveApp = 0) then
-  begin
-    IN_Activate(False);
-    CDAudio_Activate(False); // CDAudio_Activate might need platform-specific implementation
-    S_Activate(False);
-
-    // win_noalttab cvar and its functions were Windows-specific, removed.
-  end
-  else
-  begin
-    IN_Activate(True);
-    CDAudio_Activate(True);
-    S_Activate(True);
-
-    // win_noalttab cvar and its functions were Windows-specific, removed.
-  end;
-end;
-
-(* ====================
-MainWndProc
-
-main window procedure
-==================== *)
-
-// This function is entirely Windows-specific due to HWND, uMsg, wParam, lParam,
-// and Windows messages like WM_MOUSEWHEEL, WM_HOTKEY, WM_CREATE, etc.
-// It MUST be rewritten for macOS/Linux using platform-native windowing APIs
-// (e.g., Cocoa for macOS, X11 for Linux, or a cross-platform library like SDL).
-// For now, I'm removing it entirely, as it won't compile or function on non-Windows.
-
-// function MainWndProc(h_Wnd: HWND; uMsg: Cardinal; wParam: WPARAM; lParam: LPARAM): LongInt;
-// begin
-//   // ... (Removed Windows-specific message handling)
-//   Result := 0; // Placeholder
-// end;
-
 
 function VID_GetModeInfo(width, height: PInteger; mode: integer): qboolean; cdecl;
 begin
@@ -364,64 +255,86 @@ begin
   Result := True;
 end;
 
-(*** VID_UpdateWindowPosAndSize ***)
-
-procedure VID_UpdateWindowPosAndSize(x, y: Integer); cdecl;
-var
-  // TRECT, GetWindowLong, AdjustWindowRect, MoveWindow are Windows-specific.
-  // You'll need to use platform-specific equivalents for window positioning and sizing.
-  // r: TRECT;
-  // style, w, h: Integer;
+procedure AppActivate(fActive, minimize: Boolean); cdecl;
 begin
-  // Implementation for macOS/Linux window sizing and positioning
-  // This will require calls to Cocoa/X11 or SDL APIs
-  // For now, the Windows-specific calls are commented out/removed.
-  // r.left := 0;
-  // r.top := 0;
-  // r.right := viddef.width;
-  // r.bottom := viddef.height;
+  Minimized := minimize;
+  Key_ClearStates;
 
-  // style := GetWindowLong(cl_hwnd, GWL_STYLE);
-  // AdjustWindowRect(r, style, FALSE);
+  // An app is “active” only when not minimised.
+  ActiveApp := Ord( fActive and (not Minimized) );
 
-  // w := (r.right - r.left);
-  // h := (r.bottom - r.top);
-
-  // MoveWindow(cl_hwnd, Round(vid_xpos^.value), Round(vid_ypos^.value), w, h, TRUE);
+  if ActiveApp = 0 then
+  begin
+    // Release mouse grab and deactivate input/sound when inactive.
+    SDL_SetRelativeMouseMode(SDL_FALSE);
+    IN_Activate(False); // Assuming IN_Activate exists in an input unit.
+    S_Activate(False);
+    // CDAudio_Activate(False); // Explicitly commented out.
+  end
+  else
+  begin
+    // Grab mouse and activate input/sound when active.
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+    IN_Activate(True); // Assuming IN_Activate exists in an input unit.
+    S_Activate(True);
+    // CDAudio_Activate(True); // Explicitly commented out.
+  end;
 end;
 
-(*** VID_NewWindow ***)
+procedure VID_UpdateWindowPosAndSize(x, y: Integer); cdecl;
+begin
+  if Assigned(QuakeWindow) then
+  begin
+    SDL_SetWindowPosition(QuakeWindow, x, y);
+  end
+  else
+  begin
+    Com_Printf(PRINT_ALERT, 'VID_UpdateWindowPosAndSize called before SDL window is created.');
+  end;
+end;
 
 procedure VID_NewWindow(width, height: Integer); cdecl;
 begin
   viddef.width := width;
   viddef.height := height;
 
-  cl.force_refdef := True; // can't use a paused refdef
+  if Assigned(QuakeWindow) then
+  begin
+    SDL_SetWindowSize(QuakeWindow, width, height);
+    // Handle fullscreen toggle
+    if vid_fullscreen^.value <> 0 then // If fullscreen is desired
+    begin
+      // SDL_WINDOW_FULLSCREEN_DESKTOP for borderless fullscreen, SDL_WINDOW_FULLSCREEN for true fullscreen.
+      SDL_SetWindowFullscreen(QuakeWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
+    end
+    else
+    begin
+      SDL_SetWindowFullscreen(QuakeWindow, 0); // Windowed mode
+    end;
+  end;
+
+  cl.force_refdef := True; // Can't use a paused refdef.
 end;
 
 procedure VID_FreeReflib;
 begin
-  // FreeLibrary is Windows-specific. For macOS/Linux, you'll use dlclose for shared libraries.
-  // However, Free Pascal's DynLibs unit provides platform-agnostic functions.
-  // Assuming 'reflib_library' is a handle obtained via LoadLibrary equivalent (e.g., LoadLibrary_ or fpdlopen).
-  if (not FreeLibrary(reflib_library)) then // Assuming FreeLibrary is a cross-platform wrapper or placeholder
-    Com_Error(ERR_FATAL, 'Reflib FreeLibrary failed', []);
+  if (reflib_library <> 0) then
+  begin
+    SysUtils.UnloadPackage(reflib_library);
+  end;
 
   FillChar(re, SizeOf(re), 0);
-
   reflib_library := 0;
   reflib_active := False;
 end;
 
-(* ==============
-VID_LoadRefresh
-============== *)
-
 function VID_LoadRefresh(name: PChar): qboolean; cdecl;
+type
+  // Define the type for the GetRefAPI function pointer, as expected by the refresh DLL
+  TGetRefAPI = function(imp: refimport_t): refexport_t; cdecl;
 var
   ri: refimport_t;
-  GetRefAPI: GetRefAPI_t;
+  GetRefAPI_Proc: TGetRefAPI;
 begin
   if (reflib_active) then
   begin
@@ -431,25 +344,23 @@ begin
 
   Com_Printf('------- Loading %s -------'#10, [name]);
 
-  // LoadLibrary is Windows-specific. Replace with a platform-agnostic
-  // (e.g., from DynLibs unit) or platform-specific equivalent (dlopen on POSIX).
-  // Free Pascal's SysUtils.LoadLibrary can often handle this cross-platform.
-  reflib_library := LoadLibrary(name);
+  // Use SysUtils.LoadPackage for cross-platform dynamic library loading
+  reflib_library := SysUtils.LoadPackage(name);
   if (reflib_library = 0) then
   begin
-    Com_Printf('LoadLibrary("%s") failed'#10, [name]);
-
+    Com_Printf('LoadPackage("%s") failed: %s'#10, [name, SysUtils.SysErrorMessage(SysUtils.GetLastError)]);
     Result := False;
     Exit;
   end;
 
+  // Populate the refimport_t structure with pointers to our functions
   ri.Cmd_AddCommand := Cmd_AddCommand;
   ri.Cmd_RemoveCommand := Cmd_RemoveCommand;
   ri.Cmd_Argc := Cmd_Argc;
   ri.Cmd_Argv := Cmd_Argv;
   ri.Cmd_ExecuteText := Cbuf_ExecuteText;
-  ri.Con_Printf := VID_Printf_cdecl; // Ensure VID_Printf_cdecl is defined as cdecl
-  ri.Sys_Error := VID_Error_cdecl;   // Ensure VID_Error_cdecl is defined as cdecl
+  ri.Con_Printf := @VID_Printf_cdecl; // Pass address of wrapper procedure
+  ri.Sys_Error := @VID_Error_cdecl;    // Pass address of wrapper procedure
   ri.FS_LoadFile := FS_LoadFile;
   ri.FS_FreeFile := FS_FreeFile;
   ri.FS_Gamedir := FS_Gamedir;
@@ -460,19 +371,22 @@ begin
   ri.Vid_MenuInit := VID_MenuInit;
   ri.Vid_NewWindow := VID_NewWindow;
 
-  // GetProcAddress is Windows-specific. Use GetProcedureAddress (from DynLibs)
-  // or dlsym (on POSIX) or a cross-platform wrapper.
-  GetRefApi := GetProcAddress(reflib_library, 'GetRefAPI'); // Assuming GetProcAddress is a cross-platform wrapper
-  if not Assigned(GetRefApi) then
-    Com_Error(ERR_FATAL, 'GetProcAddress failed on %s', [name]);
+  // Use SysUtils.GetProcAddress for cross-platform procedure address retrieval
+  GetRefAPI_Proc := SysUtils.GetProcAddress(reflib_library, 'GetRefAPI');
+  if not Assigned(GetRefAPI_Proc) then
+  begin
+    Com_Error(ERR_FATAL, 'GetProcAddress failed for "GetRefAPI" in %s: %s', [name, SysUtils.SysErrorMessage(SysUtils.GetLastError)]);
+    VID_FreeReflib; // Ensure library is freed on error
+    Result := False;
+    Exit;
+  end;
 
-  // global_hInstance and MainWndProc are Windows-specific.
-  // You'll need to adapt 're.Init' to use platform-agnostic handles or
-  // an SDL window pointer, or remove them if the renderer doesn't need them.
-  // For now, replaced with nil and a placeholder MainWndProc.
-  // If 're.Init' absolutely requires a window handle, you'll need to create one
-  // via SDL, GLFW, or native APIs before calling this.
-  if (re.Init(nil, nil) = -1) then // Pass nil for HWND and MainWndProc placeholder
+  // Call the GetRefAPI function from the loaded DLL to get the exported functions
+  re := GetRefAPI_Proc(ri);
+
+  // Pass the SDL window and OpenGL context (or nil if managed by renderer) to the renderer's Init function.
+  // QuakeWindow should be set by the main program (Quake2Main.lpr) before this.
+  if (re.Init(QuakeWindow, nil) = -1) then // nil for GL context if renderer handles it, or if it's a software renderer
   begin
     re.Shutdown;
     VID_FreeReflib;
@@ -483,78 +397,55 @@ begin
   Com_Printf('------------------------------------'#10, []);
   reflib_active := True;
 
-  //======
-  //PGM
-  vidref_val := VIDREF_OTHER;
+  // Set vidref_val based on loaded renderer
   if Assigned(vid_ref) then
   begin
     if (StrComp(vid_ref^.string_, 'gl') = 0) then
       vidref_val := VIDREF_GL
     else if (StrComp(vid_ref^.string_, 'soft') = 0) then
-      vidref_val := VIDREF_SOFT;
+      vidref_val := VIDREF_SOFT
+    else
+      vidref_val := VIDREF_OTHER;
+  end else begin
+    vidref_val := VIDREF_OTHER; // Default if vid_ref cvar isn't set
   end;
-  //PGM
-  //======
 
   Result := True;
 end;
-
-{*
-============
-VID_CheckChanges
-
-This function gets called once just before drawing each frame, and it's sole purpose in life
-is to check to see if any of the video mode parameters have changed, and if they have to
-update the rendering DLL and/or video mode to match.
-============
-*}
 
 procedure VID_CheckChanges;
 var
   name: array[0..100 - 1] of Char;
 begin
-  // win_noalttab and WIN_DisableAltTab/WIN_EnableAltTab are Windows-specific, removed.
-  // if (win_noalttab^.modified) then
-  // begin
-  //   if (win_noalttab^.value <> 0) then
-  //     WIN_DisableAltTab
-  //   else
-  //     WIN_EnableAltTab;
-  //   win_noalttab^.modified := False;
-  // end;
-
-  if (vid_ref^.modified) then // Access as pointer
+  if (vid_ref^.modified) then
   begin
-    cl.force_refdef := True;  // can't use a paused refdef
+    cl.force_refdef := True;
     S_StopAllSounds;
   end;
 
-  while (vid_ref^.modified) do // Access as pointer
+  while (vid_ref^.modified) do
   begin
-    // refresh has changed
-    vid_ref^.modified := False; // Access as pointer
-    vid_fullscreen^.modified := True; // Access as pointer
+    // Refresh has changed
+    vid_ref^.modified := False;
+    vid_fullscreen^.modified := True; // Mark fullscreen for update after refresh load
     cl.refresh_prepped := False;
     cls.disable_screen := Integer(True);
 
-    // Use 'lib' extension for shared libraries on Unix-like systems
-    {$IFDEF LINUX}
-    Com_sprintf(name, SizeOf(name), 'ref_%s.so', [vid_ref^.string_]);
-    {$ELSEIF DEF DARWIN}
+    // Use 'dylib' for macOS and 'so' for Linux shared libraries
+    {$IFDEF DARWIN}
     Com_sprintf(name, SizeOf(name), 'ref_%s.dylib', [vid_ref^.string_]);
-    {$ELSE}
-    // Fallback if no specific OS defined, though this unit is macOS/Linux focused
+    {$ELSEIF DEF LINUX}
     Com_sprintf(name, SizeOf(name), 'ref_%s.so', [vid_ref^.string_]);
     {$ENDIF}
 
     if (not VID_LoadRefresh(name)) then
     begin
-      if (CompareStr(vid_ref^.string_, 'soft') = 0) then // Access as pointer
+      if (CompareStr(vid_ref^.string_, 'soft') = 0) then
         Com_Error(ERR_FATAL, 'Couldn''t fall back to software refresh!', []);
 
       Cvar_Set('vid_ref', 'soft');
 
-      // drop the console if we fail to load a refresh
+      // Drop the console if we fail to load a refresh
       if (cls.key_dest <> key_console) then
         Con_ToggleConsole_f;
     end;
@@ -562,20 +453,32 @@ begin
     cls.disable_screen := Integer(False);
   end;
 
-  // update our window position
-  if (vid_xpos^.modified or vid_ypos^.modified) then // Access as pointer
+  // Update window position and fullscreen state after refresh is loaded/checked
+  if (vid_xpos^.modified or vid_ypos^.modified or vid_fullscreen^.modified) then
   begin
-    if (vid_fullscreen^.value = 0) then // Access as pointer
-      VID_UpdateWindowPosAndSize(Round(vid_xpos^.value), Round(vid_ypos^.value)); // Access as pointer
+    if Assigned(QuakeWindow) then
+    begin
+      // Update window position if not in fullscreen
+      if (vid_fullscreen^.value = 0) then
+      begin
+        VID_UpdateWindowPosAndSize(Round(vid_xpos^.value), Round(vid_ypos^.value));
+      end;
 
-    vid_xpos^.modified := False; // Access as pointer
-    vid_ypos^.modified := False; // Access as pointer
+      // Apply fullscreen mode if changed
+      if (vid_fullscreen^.modified) then
+      begin
+        if (vid_fullscreen^.value <> 0) then
+          SDL_SetWindowFullscreen(QuakeWindow, SDL_WINDOW_FULLSCREEN_DESKTOP)
+        else
+          SDL_SetWindowFullscreen(QuakeWindow, 0); // Windowed mode
+        vid_fullscreen^.modified := False;
+      end;
+    end;
+
+    vid_xpos^.modified := False;
+    vid_ypos^.modified := False;
   end;
 end;
-
-(* ============
-VID_Init
-============ *)
 
 procedure VID_Init;
 begin
@@ -585,23 +488,14 @@ begin
   vid_ypos := Cvar_Get('vid_ypos', '22', CVAR_ARCHIVE);
   vid_fullscreen := Cvar_Get('vid_fullscreen', '0', CVAR_ARCHIVE);
   vid_gamma := Cvar_Get('vid_gamma', '1', CVAR_ARCHIVE);
-  // win_noalttab: cvar_p; // Windows-specific, removed
-  // win_noalttab := Cvar_Get('win_noalttab', '0', CVAR_ARCHIVE);
 
   // Add some console commands that we want to handle
   Cmd_AddCommand('vid_restart', @VID_Restart_f);
   Cmd_AddCommand('vid_front', @VID_Front_f);
 
-  // Disable the 3Dfx splash screen (Windows-specific environment variable)
-  // Windows.SetEnvironmentVariable('FX_GLIDE_NO_SPLASH', '0'); // Removed
-
   // Start the graphics mode and load refresh DLL
   VID_CheckChanges;
 end;
-
-(* ============
-VID_Shutdown
-============ *)
 
 procedure VID_Shutdown;
 begin

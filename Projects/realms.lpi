@@ -344,7 +344,7 @@
     <SearchPaths>
       <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server;$(ProjOutDir)"/>
       <Libraries Value="../jedi"/>
-      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;../vulkan;..;../mac"/>
+      <OtherUnitFiles Value="../jedi;../qcommon;../game;../client;../server;../vulkan;..;../mac;/Users/pedro/fpc-units/"/>
       <UnitOutputDirectory Value="build"/>
       <ObjectPath Value="../jedi"/>
     </SearchPaths>
