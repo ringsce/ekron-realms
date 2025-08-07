@@ -144,6 +144,8 @@ procedure MSG_ReadDir(var sb: sizebuf_t; var dir: vec3_t);
 
 procedure MSG_ReadData(var msg_read: sizebuf_t; data: Pointer; len: Integer);
 
+
+
 const
   MAX_NUM_ARGVS = 50;
 
@@ -422,10 +424,10 @@ type
 
 procedure Com_BeginRedirect(target: Integer; buffer: PChar; buffersize: Integer; flush: rd_flush_proc);
 procedure Com_EndRedirect;
-procedure Com_Printf(fmt: PChar; args: array of const); overload;
+//procedure Com_Printf(fmt: PChar; args: array of const); overload;
 procedure Com_DPrintf(fmt: PChar; args: array of const); overload;
 procedure Com_Error(code: Integer; fmt: PChar; args: array of const); overload;
-procedure Com_Printf(fmt: PChar); overload;
+procedure Com_PrintfF(level: Integer; const fmt: string; const args: array of const);
 procedure Com_DPrintf(fmt: PChar); overload;
 procedure Com_Error(code: Integer; fmt: PChar); overload;
 procedure Com_Quit; cdecl;

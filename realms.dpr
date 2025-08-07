@@ -30,10 +30,10 @@ uses
   rw_linux_h  in '../linux/rw_linux_h.pas',
   {$ENDIF}
   {$IFDEF DARWIN}
-  sys_mac   in '../engine/mac/sys_mac.pas',
-  vid_macos in '../engine/mac/vid_macos.pas',
-  snd_mac   in '../engine/mac/snd_mac.pas',
-  in_mac    in '../engine/mac/in_mac.pas',
+  sys_mac   in '../mac/sys_mac.pas',
+  vid_macos in '../mac/vid_macos.pas',
+  snd_mac   in '../mac/snd_mac.pas',
+  in_mac    in '../mac/in_mac.pas',
   q_shmac   in '../mac/q_shmac.pas',
   net_udp   in '../mac/net_udp.pas',
   cd_sdl    in '../mac/cd_sdl.pas',

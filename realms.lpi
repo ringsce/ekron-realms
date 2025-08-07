@@ -374,8 +374,7 @@
     </Linking>
     <Other>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL
--vw -vm5024 -Fuengine
--Fugame"/>
+-vw -vm5024"/>
     </Other>
   </CompilerOptions>
   <Debugging>

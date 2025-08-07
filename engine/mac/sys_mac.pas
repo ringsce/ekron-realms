@@ -12,9 +12,9 @@ uses
   // For now, let's keep it minimal.
   SysUtils,   // Core system utilities (for LoadPackage, GetProcAddress, FileExists, etc.)
   Classes,    // For TList and other base classes if needed
-  Common in '../qcommon/Common.pas', // Assuming this provides Com_Printf, etc.
+  Common in '../game/qcommon/Common.pas', // Assuming this provides Com_Printf, etc.
   q_shared,   // Shared definitions (like qboolean, MAX_OSPATH)
-  SDL2;       // Crucial: Add SDL2 for cross-platform system functionality
+  SDL2 in '../../../../fpc-units/SDL2.pas';       // Crucial: Add SDL2 for cross-platform system functionality
 
 const
   // These memory values are symbolic for historical context but largely irrelevant for modern macOS.

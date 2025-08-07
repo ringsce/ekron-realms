@@ -1,4 +1,0 @@
-# cmake/Modules/CMakePascalCompiler.cmake.in
-
-set(CMAKE_Pascal_COMPILER "@CMAKE_Pascal_COMPILER@")
-set(CMAKE_Pascal_COMPILER_ID "FreePascal")

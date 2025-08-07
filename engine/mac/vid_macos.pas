@@ -10,32 +10,31 @@ interface
 
 uses
   SysUtils, // Needed for LoadPackage, GetProcAddress
-  SDL2,     // **Crucial: Added SDL2 for cross-platform windowing, input, etc.**
-
+  SDL2,     // Crucial: Add SDL2 for cross-platform system functionality
   // Own Quake Units
   ref,      // This unit is crucial for 're' (renderer export)
   keys,
-  cvar,
+  Cvar,
   vid_h,
   Client,   // Provides ActiveApp (ensure ActiveApp is in Client.pas interface var section)
   cl_scrn,
   Common,
   q_shared,
   Console,
-  snd_dma;  // Provides S_Activate (ensure S_Activate is in its interface)
+  snd_dma,
+  input,
 
-// Platform-specific sound and system units, conditionally included
-// This ensures the unit remains portable between macOS (Darwin) and Linux.
-{$IFDEF LINUX}
-snd_sdl in '../linux/snd_sdl.pas', // Keep if still using SDL for sound specifically here
-sys_linux in '../linux/sys_linux.pas'; // Keep if still needed for other system calls
-{$ENDIF}
+  // Platform-specific sound and system units, conditionally included
+  {$IFDEF LINUX}
+  snd_sdl in '../linux/snd_sdl.pas',
+  sys_linux in '../linux/sys_linux.pas',
+  {$ENDIF}
 
-{$IFDEF DARWIN}
-snd_mac in '../mac/snd_mac.pas', // Keep if still using native macOS sound, or replace with SDL sound
-sys_mac in '../mac/sys_mac.pas'; // Keep if still needed for other system calls
-{$ENDIF}
-
+  {$IFDEF DARWIN}
+  snd_mac in '../mac/snd_mac.pas',
+  sys_mac in '../mac/sys_mac.pas'
+  {$ENDIF}
+  ; // This semicolon terminates the entire uses clause
 
 type
   vidmode_p = ^vidmode_t;
@@ -49,25 +48,22 @@ type
 procedure VID_CheckChanges;
 procedure VID_Init;
 procedure VID_Shutdown;
+procedure VID_UpdateWindowPosAndSize(x, y: Integer); cdecl; // Added cdecl back, it's a callback
+procedure VID_NewWindow(width, height: Integer); cdecl;      // Added cdecl back, it's a callback
+function VID_GetModeInfo(width, height: PInteger; mode: integer): qboolean; cdecl; // Added cdecl back, it's a callback
 
 // These are still needed if the refresh DLL calls them back (e.g., for logging/errors)
-procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const); cdecl;
-procedure VID_Error(err_level: integer; fmt: PChar; args: array of const); cdecl;
+procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const);
+procedure VID_Error(err_level: integer; fmt: PChar; args: array of const);
+
 
 // Procedures for activating/deactivating the application focus, input, audio, etc.
 procedure AppActivate(fActive: Boolean; minimize: Boolean); cdecl;
-procedure VID_UpdateWindowPosAndSize(x, y: Integer); cdecl;
-procedure VID_NewWindow(width, height: Integer); cdecl;
-function VID_GetModeInfo(width, height: PInteger; mode: integer): qboolean; cdecl;
 
 const
   MAXPRINTMSG = 4096;
 
   {──── 128‑entry PC/USB scan‑code → Quake key map ────}
-  // This map is still useful for translating raw input (like SDL scancodes) to Quake's internal key codes.
-  // Note: SDL_Scancode enum values are generally higher than 127. This array might need to be
-  // expanded or `MapKey` adjusted to handle the full range of SDL_Scancode.
-  // For now, assuming only the lower 128 values are used or mapped.
   scantokey: array[0..127] of Byte = (
       // 00-0F
       0, 27,  Ord('1'), Ord('2'), Ord('3'), Ord('4'), Ord('5'), Ord('6'),
@@ -110,12 +106,15 @@ const
     (description: 'Mode 10: 2048x1536'; width: 2048; height: 1536; mode: 10)
   );
 
+  procedure S_Activate(fActive: Boolean);
+
+
 var
   // Structure containing functions exported from refresh DLL
   re: refexport_t; // 're' is declared here. Ensure refexport_t is visible from 'ref' unit.
 
   // Console variables that we need to access from this module
-  vid_gamma: cvar_p;
+  vid_gamma: cvar_p;      // This is the correct declaration for the cvar pointer
   vid_ref: cvar_p;        // Name of Refresh DLL loaded
   vid_xpos: cvar_p;       // X coordinate of window position
   vid_ypos: cvar_p;       // Y coordinate of window position
@@ -123,11 +122,6 @@ var
 
   // Global variables used internally by this module
   viddef: viddef_t;       // global video state; used by other modules
-
-  // Global SDL Window pointer, managed by the main program
-  // This will be set by your main program unit (e.g., in Quake2Main.lpr)
-  // and passed to relevant functions. It's crucial for SDL2 operations.
-  QuakeWindow: PSDL_Window = nil;
 
 const
   VID_NUM_MODES = (sizeof(vid_modes) div sizeof(vid_modes[0]));
@@ -138,33 +132,31 @@ uses
   cl_main,
   Cmd,
   Files,
-  CPas, // For DelphiStrFmt
-  // Platform-specific system unit (moved from interface to implementation if only used here)
-  {$IFDEF LINUX}
-  sys_linux, // No longer needs `in` clause if in standard search path
-  {$ENDIF}
-  {$IFDEF DARWIN}
-  sys_mac // No longer needs `in` clause if in standard search path
-  {$ENDIF}
+  CPas // For DelphiStrFmt
   ;
 
 var
-  // Static Variables
+  // Static Variables (moved QuakeWindow here as it's typically managed internally by this unit)
   reflib_library: TLibHandle;
   reflib_active: qboolean = False;
-  vidref_val: Integer; // Added for PGM section
+  vidref_val: Integer; // Declared here once, as it's for internal use by this implementation
+  QuakeWindow: PSDL_Window = nil; // Declared here once, for internal management
+  InputInitialized: Boolean = False;
 
-// These are now C-compatible wrappers for the procedures above, used for function pointers
-// in refimport_t.
-procedure VID_Printf_cdecl(print_level: Integer; fmt: PChar; args: array of const); cdecl;
-begin
-  VID_Printf(print_level, fmt, args);
-end;
 
-procedure VID_Error_cdecl(err_level: integer; fmt: PChar; args: array of const); cdecl;
-begin
-  VID_Error(err_level, fmt, args);
-end;
+  // These are now C-compatible wrappers for the procedures above, used for function pointers
+  // in refimport_t.
+  // Removed cdecl from the procedure declaration itself. The 'cdecl' is on the function pointer type
+  // (e.g., in refimport_t) that will point to this procedure.
+  procedure VID_Printf_cdecl(print_level: Integer; fmt: PChar; args: array of const);
+  begin
+    VID_Printf(print_level, fmt, args);
+  end;
+
+  procedure VID_Error_cdecl(err_level: integer; fmt: PChar; args: array of const);
+  begin
+    VID_Error(err_level, fmt, args);
+  end;
 
 procedure VID_Printf(print_level: Integer; fmt: PChar; args: array of const);
 var
@@ -211,6 +203,7 @@ function MapKey(key: Integer): Integer;
 // For a robust solution, you'd need a larger `scantokey` array or a different mapping strategy.
 var
   scancode_index: Integer;
+
 begin
   scancode_index := key; // Direct use of SDL_Scancode as index
 

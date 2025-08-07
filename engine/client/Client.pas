@@ -279,6 +279,11 @@ type
 
   { Variables Moved Together }
 var
+  // This is likely already here
+  ActiveApp: Integer;
+
+  // *** Add this line ***
+  Minimized: Boolean;
   in_mlook, in_klook: kbutton_t;
   in_strafe: kbutton_t;
   in_speed: kbutton_t;

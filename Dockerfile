@@ -1,12 +1,14 @@
 FROM ubuntu:22.04
 
-# Install essentials
+# Install base build tools and FPC
 RUN apt-get update && \
     apt-get install -y curl git unzip build-essential \
     fpc binutils-aarch64-linux-gnu binutils-mingw-w64 \
     fp-compiler-windows fp-units-mingw-w64 fp-units-base fp-units-fcl
 
 WORKDIR /app
+
+# Copy source code
 COPY . .
 
 # Build Linux ARM64
@@ -18,4 +20,3 @@ RUN mkdir -p output/windows && \
     fpc -Mdelphi -Twin64 -O2 -FuProjects/units -ooutput/windows/realms.exe Projects/realms.dpr
 
 CMD ["bash"]
-
