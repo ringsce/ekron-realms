@@ -59,27 +59,6 @@ var
   global_hInstance: Pointer;
 
 procedure Sys_Error(error: PChar; args: array of const);
-procedure Sys_Quit;
-function Sys_ScanForCD: PChar;
-procedure Sys_CopyProtect;
-procedure Sys_Init;
-function Sys_ConsoleInput: PChar;
-procedure Sys_ConsoleOutput(aString: PChar);
-procedure Sys_SendKeyEvents;
-function Sys_GetClipboardData: PChar;
-procedure Sys_AppActivate;
-procedure Sys_Unloadgame;
-function Sys_GetGameAPI(parms: Pointer): Pointer;
-
-procedure SysError;
-procedure ParseCommandLine(cmdLine: PChar);
-function Sys_Main(argc: Integer; argv: PPChar): Integer;
-
-var
-  cddir: array[0..MAX_OSPATH - 1] of Char;
-  done: qboolean;
-
-procedure Sys_Error(error: PChar; args: array of const);
 var
   text: string;
 begin
