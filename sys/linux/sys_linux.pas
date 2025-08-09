@@ -158,47 +158,39 @@ begin
 end;
 
 function Sys_ScanForCD: PChar;
-
-{$IFNDEF DEMO}
-
 var
-  path: string;
-  drive: string;
-
-{$ENDIF}
-
+  mountPoints: array[0..4] of string = (
+    '/media/',
+    '/mnt/',
+    '/run/media/',
+    '/Volumes/',
+    '/cdrom/'
+  );
+  mountPath: string;
+  i: Integer;
+  exePath: string;
 begin
+  // Set the result to nil initially.
+  Result := nil;
 
+  // The original game has a CD check, but for a digital port, we disable this.
+  // The 'demo' flag is used here to represent a non-digital version that still needs a check.
   {$IFNDEF DEMO}
-  function Sys_ScanForCD: PChar;
-  var
-    mountPoints: array[0..4] of string = (
-      '/media/',
-      '/mnt/',
-      '/run/media/',
-      '/Volumes/',  // macOS and some Linux distros
-      '/cdrom/'     // older Linux distros
-    );
-    mountPath: string;
-    i: Integer;
-    exePath: string;
-  begin
-    // Don't re-check
+    // Don't re-check after the first time.
     if done then
     begin
       Result := cddir;
       Exit;
     end;
-
     done := True;
 
-    // Scan known CD/DVD mount points
+    // Scan known CD/DVD mount points for the game's installation directory.
     for i := Low(mountPoints) to High(mountPoints) do
     begin
       mountPath := mountPoints[i] + 'install/data';
       exePath := IncludeTrailingPathDelimiter(mountPath) + 'quake2.exe';
 
-      // We can't check drive type like on Windows, so we assume CD if the file exists
+      // We can't check drive type like on Windows, so we assume a CD if the file exists.
       if FileExists(exePath) then
       begin
         StrPCopy(cddir, mountPath);
@@ -208,9 +200,9 @@ begin
     end;
   {$ENDIF}
 
-    cddir[0] := #0;
-    Result := nil;
-  end;
+  // If no CD is found (or if we are in DEMO mode), return a null pointer.
+  cddir[0] := #0;
+end;
 
 procedure Sys_CopyProtect;
 var
