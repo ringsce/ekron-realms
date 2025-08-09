@@ -134,7 +134,7 @@ end;
 procedure SysError;
 var
   errnum: cint;
-  errstr: string;
+  errstr: PChar; // The function returns a PChar
 begin
   {$IFDEF MSWINDOWS}
     // Windows version
@@ -152,7 +152,7 @@ begin
   {$ELSE}
     // Linux / macOS version
     errnum := fpgeterrno;  // gets the last errno
-    errstr := StrError(errnum); // returns error string for errno
+    errstr := StrError(errnum); // This is the correct function from BaseUnix
     Writeln(StdErr, 'System Error ', errnum, ': ', errstr);
   {$ENDIF}
 end;
