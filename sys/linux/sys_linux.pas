@@ -38,10 +38,10 @@ uses
   Files in '../game/Files.pas',
   Common,
   cl_main,
-  q_shared,
+  q_shared;
   // The fpGetInputReady function is in the Unix unit on some FPC versions
   // It is used for non-blocking console input.
-  TermIOS; // for Terminal I/O functions
+  //TermIOS; // for Terminal I/O functions
 
 implementation
 
