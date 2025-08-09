@@ -39,9 +39,6 @@ uses
   Common,
   cl_main,
   q_shared;
-  // The fpGetInputReady function is in the Unix unit on some FPC versions
-  // It is used for non-blocking console input.
-  //TermIOS; // for Terminal I/O functions
 
 implementation
 
@@ -52,14 +49,14 @@ const
 
 var
   sys_frame_time: Cardinal;
-  starttime: TUnixTime; // Use a Linux-specific time type
+  starttime: TUnixTime;
   argc: Integer;
   argv: array[0..MAX_NUM_ARGVS - 1] of PChar;
   console_text: array[0..255] of Char;
   console_textlen: Integer;
 
   game_library: Pointer;
-  global_hInstance: Pointer; // Retained for compatibility but will be null
+  global_hInstance: Pointer;
 
 procedure Sys_Error(error: PChar; args: array of const);
 procedure Sys_Quit;
