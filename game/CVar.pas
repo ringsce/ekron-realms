@@ -14,7 +14,7 @@ uses
   // Memory,   // Z_Malloc, Z_Free - external declarations are usually fine, but if they are functions, this unit helps.
   // Assuming these provide necessary types/functions, but ensure they don't redefine cvar_p/Tcvar_t
   Q_Shared in '../game/Q_Shared.pas',
-  CPas,
+  CPas in '../game/CPas.pas',
   //cmd in '..\qcommon\cmd.pas',
   q_shared_add in '../game/q_shared_add.pas';
 
