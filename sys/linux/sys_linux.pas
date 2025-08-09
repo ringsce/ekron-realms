@@ -153,6 +153,7 @@ begin
     // Linux / macOS version
     errnum := fpgeterrno;  // gets the last errno
     errstr := StrError(errnum); // This is the correct function from BaseUnix
+    // Use a single formatted string for reliable output.
     Writeln(StdErr, 'System Error ', errnum, ': ', errstr);
   {$ENDIF}
 end;
