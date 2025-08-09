@@ -70,7 +70,7 @@ uses
   cmd       in '..\game\qcommon\cmd.pas',
   Common    in '..\game\qcommon\Common.pas',
   CVar      in '..\game\qcommon\CVar.pas',
-  Files     in '..\game\qcommon\Files.pas',
+  //Files     in '..\game\qcommon\Files.pas',
   CModel    in '..\game\qcommon\CModel.pas',
   MD4       in '..\game\qcommon\MD4.pas',
   PMoveUnit in '..\game\qcommon\PMoveUnit.pas',
