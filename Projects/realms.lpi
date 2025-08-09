@@ -357,7 +357,7 @@
   <CompilerOptions>
     <Version Value="11"/>
     <SearchPaths>
-      <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server;$(ProjOutDir)"/>
+      <IncludeFiles Value="../game/Jedi;../game/qcommon;../game;../engine/client;../game/server;$(ProjOutDir)"/>
       <Libraries Value="../jedi"/>
       <OtherUnitFiles Value="../game;/Users/pedro/fpc-units/;../engine;../sys"/>
       <UnitOutputDirectory Value="build"/>
