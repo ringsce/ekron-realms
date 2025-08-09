@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<CONFIG>
-  <Compiler Value="/usr/local/bin/fpc" Date="1731148040"/>
-  <Params Value="-MObjFPC -Scghi -O1 -gw -gl -k-weak_framework -kAppKit -k-weak_framework -kUserNotifications -l -vewnhibq -Fi/Users/pedro/Projects/SB_MMO/ekron-realms/Projects/lib/aarch64-darwin -Fu/Users/pedro/Projects/SB_MMO/ekron-realms/Projects/ -Fu/Applications/lazarus/lcl/units/aarch64-darwin/cocoa -Fu/Applications/lazarus/lcl/units/aarch64-darwin -Fu/Applications/lazarus/components/freetype/lib/aarch64-darwin -Fu/Applications/lazarus/components/lazutils/lib/aarch64-darwin -Fu/Applications/lazarus/packager/units/aarch64-darwin -FU/Users/pedro/Projects/SB_MMO/ekron-realms/Projects/lib/aarch64-darwin/ -FE/Users/pedro/Projects/SB_MMO/ekron-realms/Projects/ -o/Users/pedro/Projects/SB_MMO/ekron-realms/Projects/DebuggerMain -dLCL -dLCLcocoa DebuggerMain.lpr"/>
-  <Complete Value="False"/>
-</CONFIG>
