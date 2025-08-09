@@ -33,24 +33,15 @@ unit sys_linux;
 interface
 
 uses
-  {$IFDEF MSWINDOWS}
-    Windows, // Windows-specific API
-  {$ENDIF}
-
-  {$IFDEF LINUX}
-    BaseUnix, Unix, UnixType, // Linux-specific API
-  {$ENDIF}
-
-  {$IFDEF DARWIN}
-    MacOSAll, // macOS-specific API
-  {$ENDIF}
-
-  SysUtils,
-  Math,
-  Files     in '../game/Files.pas',
+  BaseUnix, Unix, UnixType, // Linux-specific API
+  SysUtils, Math,
+  Files in '../game/Files.pas',
   Common,
   cl_main,
-  q_shared;
+  q_shared,
+  // The fpGetInputReady function is in the Unix unit on some FPC versions
+  // It is used for non-blocking console input.
+  TermIOS; // for Terminal I/O functions
 
 implementation
 
@@ -60,30 +51,15 @@ const
   MAX_NUM_ARGVS = 128;
 
 var
-  {$IFDEF MSWINDOWS}
-  s_win95: qboolean;
-  ActiveApp: Integer;
-  Minimized: qboolean;
-  hinput: THandle;
-  houtput: THandle;
-  sys_msg_time: Cardinal;
   sys_frame_time: Cardinal;
-  qwclsemaphore: THandle;
-  {$ENDIF}
-
-  {$IFDEF LINUX}
-  // Linux/macOS equivalents
-  sys_frame_time: Cardinal;
-  {$ENDIF}
-
-  starttime: Integer;
+  starttime: TUnixTime; // Use a Linux-specific time type
   argc: Integer;
   argv: array[0..MAX_NUM_ARGVS - 1] of PChar;
   console_text: array[0..255] of Char;
   console_textlen: Integer;
 
-  game_library: Pointer;        // Cross-platform handle (dlopen on Linux, LoadLibrary on Windows)
-  global_hInstance: Pointer;    // Not really used in Linux
+  game_library: Pointer;
+  global_hInstance: Pointer; // Retained for compatibility but will be null
 
 procedure Sys_Error(error: PChar; args: array of const);
 procedure Sys_Quit;
@@ -98,12 +74,11 @@ procedure Sys_AppActivate;
 procedure Sys_Unloadgame;
 function Sys_GetGameAPI(parms: Pointer): Pointer;
 
-procedure SysError; // Cross-platform error display
-procedure ParseCommandLine(cmdLine: PChar); // Cross-platform
-function Sys_Main(argc: Integer; argv: PPChar): Integer; // Replaces WinMain
+procedure SysError;
+procedure ParseCommandLine(cmdLine: PChar);
+function Sys_Main(argc: Integer; argv: PPChar): Integer;
 
 var
-  // Only used by Sys_ScanForCD
   cddir: array[0..MAX_OSPATH - 1] of Char;
   done: qboolean;
 
