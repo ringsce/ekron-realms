@@ -18,6 +18,126 @@
         <Filename Value="enigne.pas"/>
         <UnitName Value="enigne"/>
       </Item>
+      <Item>
+        <Filename Value="x86.asm"/>
+        <Type Value="Text"/>
+      </Item>
+      <Item>
+        <Filename Value="vid_h.pas"/>
+        <UnitName Value="vid_h"/>
+      </Item>
+      <Item>
+        <Filename Value="sound_h.pas"/>
+        <UnitName Value="Sound_h"/>
+      </Item>
+      <Item>
+        <Filename Value="snd_mix.pas"/>
+        <UnitName Value="snd_mix"/>
+      </Item>
+      <Item>
+        <Filename Value="snd_mem.pas"/>
+        <UnitName Value="snd_mem"/>
+      </Item>
+      <Item>
+        <Filename Value="snd_loc.pas"/>
+        <UnitName Value="snd_loc"/>
+      </Item>
+      <Item>
+        <Filename Value="snd_dma.pas"/>
+        <UnitName Value="snd_dma"/>
+      </Item>
+      <Item>
+        <Filename Value="rpi.asm"/>
+        <Type Value="Text"/>
+      </Item>
+      <Item>
+        <Filename Value="ref.pas"/>
+        <UnitName Value="ref"/>
+      </Item>
+      <Item>
+        <Filename Value="qmenu.pas"/>
+        <UnitName Value="Qmenu"/>
+      </Item>
+      <Item>
+        <Filename Value="menu.pas"/>
+        <UnitName Value="menu"/>
+      </Item>
+      <Item>
+        <Filename Value="keys.pas"/>
+        <UnitName Value="keys"/>
+      </Item>
+      <Item>
+        <Filename Value="input.pas"/>
+        <UnitName Value="input"/>
+      </Item>
+      <Item>
+        <Filename Value="Console.pas"/>
+        <UnitName Value="Console"/>
+      </Item>
+      <Item>
+        <Filename Value="Client.pas"/>
+        <UnitName Value="Client"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_view.pas"/>
+        <UnitName Value="cl_view"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_tent.pas"/>
+        <UnitName Value="cl_tent"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_scrn.pas"/>
+        <UnitName Value="cl_scrn"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_pred.pas"/>
+        <UnitName Value="cl_pred"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_parse.pas"/>
+        <UnitName Value="cl_parse"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_newfx.pas"/>
+        <UnitName Value="cl_newfx"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_main.pas"/>
+        <UnitName Value="cl_main"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_inv.pas"/>
+        <UnitName Value="cl_inv"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_input.pas"/>
+        <UnitName Value="cl_input"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_fx.pas"/>
+        <UnitName Value="cl_fx"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_ents.pas"/>
+        <UnitName Value="cl_ents"/>
+      </Item>
+      <Item>
+        <Filename Value="cl_cin.pas"/>
+        <UnitName Value="cl_cin"/>
+      </Item>
+      <Item>
+        <Filename Value="asm_i386.pas"/>
+        <UnitName Value="asm_i386"/>
+      </Item>
+      <Item>
+        <Filename Value="arm64.asm"/>
+        <Type Value="Text"/>
+      </Item>
+      <Item>
+        <Filename Value="anorms.inc"/>
+        <Type Value="Include"/>
+      </Item>
     </Files>
     <RequiredPkgs>
       <Item>
