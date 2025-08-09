@@ -107,7 +107,7 @@ implementation
 
 uses
   Files, // For FileExists etc.
-  cl_main in '../engine/client/cl_main.pas', // For CL_Shutdown
+  cl_main in '../engine/cl_main.pas', // For CL_Shutdown
   Cmd, // For Cmd_Argc, Cmd_Argv, Cmd_ExecuteText if needed
   cvar; // For accessing 'dedicated' cvar
 
