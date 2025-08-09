@@ -8,7 +8,7 @@ unit enigne;
 interface
 
 uses
-  LazarusPackageIntf;
+  ekron, LazarusPackageIntf;
 
 implementation
 

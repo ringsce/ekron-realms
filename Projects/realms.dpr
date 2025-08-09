@@ -34,13 +34,13 @@ uses
   vid_macos in '../engine/mac/vid_macos.pas',
   snd_mac   in '../engine/mac/snd_mac.pas',
   in_mac    in '../engine/mac/in_mac.pas',
-  q_shmac   in '../mac/q_shmac.pas',
-  net_udp   in '../mac/net_udp.pas',
-  cd_sdl    in '../mac/cd_sdl.pas',
-  vid_menu  in '../mac/vid_menu.pas',
-  glob      in '../mac/glob.pas',
-  rw_mac_h  in '../mac/rw_mac_h.pas',
-  MoltenVK  in '../mac/MoltenVK.pas', // Add MoltenVK unit
+  q_shmac   in './engine/mac/q_shmac.pas',
+  net_udp   in './engine/mac/net_udp.pas',
+  cd_sdl    in './engine/mac/cd_sdl.pas',
+  vid_menu  in './engine/mac/vid_menu.pas',
+  glob      in './engine/mac/glob.pas',
+  rw_mac_h  in './engine/mac/rw_mac_h.pas',
+  MoltenVK  in './engine/mac/MoltenVK.pas', // Add MoltenVK unit
 {$ENDIF}
 { Vulkan API support }
   Vulkan     in '../vulkan/vulkan.pas',

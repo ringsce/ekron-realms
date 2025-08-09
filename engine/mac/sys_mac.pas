@@ -12,8 +12,8 @@ uses
   // For now, let's keep it minimal.
   SysUtils,   // Core system utilities (for LoadPackage, GetProcAddress, FileExists, etc.)
   Classes,    // For TList and other base classes if needed
-  Common in '../game/qcommon/Common.pas', // Assuming this provides Com_Printf, etc.
-  q_shared,   // Shared definitions (like qboolean, MAX_OSPATH)
+  Common in '../game/common.pas', // Assuming this provides Com_Printf, etc.
+  q_shared in '../game/q_shared.pas',   // Shared definitions (like qboolean, MAX_OSPATH)
   SDL2 in '../../../../fpc-units/SDL2.pas';       // Crucial: Add SDL2 for cross-platform system functionality
 
 const
@@ -107,7 +107,7 @@ implementation
 
 uses
   Files, // For FileExists etc.
-  cl_main, // For CL_Shutdown
+  cl_main in '../engine/client/cl_main.pas', // For CL_Shutdown
   Cmd, // For Cmd_Argc, Cmd_Argv, Cmd_ExecuteText if needed
   cvar; // For accessing 'dedicated' cvar
 
