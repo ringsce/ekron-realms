@@ -18,16 +18,16 @@ uses
   ConProc   in '..\win32\ConProc.pas',
   {$ENDIF}
   {$IFDEF LINUX}
-  sys_linux   in '../linux/sys_linux.pas',
-  vid_so      in '../linux/vid_so.pas',
-  snd_sdl     in '../linux/snd_sdl.pas',
-  in_linux    in '../linux/in_linux.pas',
-  q_shlinux   in '../linux/q_shlinux.pas',
-  net_udp     in '../linux/net_udp.pas',
-  cd_sdl      in '../linux/cd_sdl.pas',
-  vid_menu    in '../linux/vid_menu.pas',
-  glob        in '../linux/glob.pas',
-  rw_linux_h  in '../linux/rw_linux_h.pas',
+  sys_linux   in '../engine/linux/sys_linux.pas',
+  vid_so      in '../engine/linux/vid_so.pas',
+  snd_sdl     in '../engine/linux/snd_sdl.pas',
+  in_linux    in '../engine/linux/in_linux.pas',
+  q_shlinux   in '../engine/linux/q_shlinux.pas',
+  net_udp     in '../engine/linux/net_udp.pas',
+  cd_sdl      in '../engine/linux/cd_sdl.pas',
+  vid_menu    in '../engine/linux/vid_menu.pas',
+  glob        in '../engine/linux/glob.pas',
+  rw_linux_h  in '../engine/linux/rw_linux_h.pas',
   {$ENDIF}
   {$IFDEF DARWIN}
   sys_mac   in '../engine/mac/sys_mac.pas',
