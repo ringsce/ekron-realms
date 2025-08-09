@@ -13,12 +13,17 @@ uses
   Cmd,
   Common,
   {$IFDEF LINUX}
-  BaseUnix, Unix, UnixType;
+    BaseUnix, Unix, UnixType,
   {$ENDIF}
-  CVar in '../game/CVar.pas';  // Adjust path if needed
+  {$IFDEF DARWIN} // macOS
+    MacOSAll, // FPC macOS API unit
+  {$ENDIF}
+  {$IFDEF MSWINDOWS}
+    Windows, // Delphi/FPC Windows API unit
+  {$ENDIF}
+  CVar in '../game/CVar.pas'; // Adjust path as needed
 
-// Declare all functions and procedures here
-
+// procedures and functions
 procedure FS_InitFilesystem; cdecl;
 procedure FS_SetGamedir(dir: PChar); cdecl;
 function FS_Gamedir: PChar; cdecl;
