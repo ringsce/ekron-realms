@@ -135,13 +135,26 @@ end;
 
 procedure Sys_Quit;
 begin
+  {$IFDEF MSWINDOWS}
   timeEndPeriod(1);
-  CL_Shutdown;
-  Qcommon_Shutdown;
   CloseHandle(qwclsemaphore);
   if (dedicated <> nil) and (dedicated.value <> 0) then
     FreeConsole;
   DeinitConProc();
+  {$ENDIF}
+
+  {$IFDEF LINUX}
+  // No timeEndPeriod on Linux
+  // If you want similar behavior for timer cleanup, use setitimer() or clock_nanosleep()
+  // No FreeConsole or ConProc — just rely on normal stdout/stderr cleanup
+  {$ENDIF}
+
+  {$IFDEF DARWIN}
+  // macOS uses same cleanup as Linux
+  {$ENDIF}
+
+  CL_Shutdown;
+  Qcommon_Shutdown;
 
   Halt(0);
 end;
@@ -184,191 +197,198 @@ var
 
 begin
 
-{$IFNDEF DEMO}
-
-  // Don't re-check.
-  if done then
+  {$IFNDEF DEMO}
+  function Sys_ScanForCD: PChar;
+  var
+    mountPoints: array[0..4] of string = (
+      '/media/',
+      '/mnt/',
+      '/run/media/',
+      '/Volumes/',  // macOS and some Linux distros
+      '/cdrom/'     // older Linux distros
+    );
+    mountPath: string;
+    i: Integer;
+    exePath: string;
   begin
-    Result := cddir;
-    Exit;
-  end;
+    // Don't re-check
+    if done then
+    begin
+      Result := cddir;
+      Exit;
+    end;
 
-  // no abort/retry/fail errors
-  SetErrorMode(SEM_FAILCRITICALERRORS);
+    done := True;
 
-  drive := 'c:\';
-  done := True;
+    // Scan known CD/DVD mount points
+    for i := Low(mountPoints) to High(mountPoints) do
+    begin
+      mountPath := mountPoints[i] + 'install/data';
+      exePath := IncludeTrailingPathDelimiter(mountPath) + 'quake2.exe';
 
-  // Start scanning for the CD-ROM drive on which "quake2.exe" exists.
-  while drive[1] <= 'z' do
-  begin
-    path := drive + 'install\data';
-    Move(PChar(path)^, cddir, Length(path));
-    if FileExists(path + '\quake2.exe') then
-      if GetDriveType(PChar(drive)) = DRIVE_CDROM then
+      // We can't check drive type like on Windows, so we assume CD if the file exists
+      if FileExists(exePath) then
       begin
+        StrPCopy(cddir, mountPath);
         Result := cddir;
         Exit;
       end;
-    Inc(drive[1]);
+    end;
+  {$ENDIF}
+
+    cddir[0] := #0;
+    Result := nil;
   end;
 
-{$ENDIF}
-
-  cddir[0] := #0;
-  Result := nil;
-end;
-
 procedure Sys_CopyProtect;
-
-{$IFNDEF DEMO}
-
 var
-  cddir: PChar;
-
-{$ENDIF}
-
+  DataFileExists: Boolean;
 begin
+  // For a modern port, you could check for the presence of the game data file.
+  // This is a simple example and may not be the best approach for a full engine.
+  DataFileExists := FileExists('baseq2/pak0.pak');
 
-{$IFNDEF DEMO}
-
-  cddir := Sys_ScanForCD;
-  if cddir^ = #0 then
-    Com_Error(ERR_FATAL, 'You must have the Quake2 CD in the drive to play.');
-
-{$ENDIF}
-
+  if not DataFileExists then
+  begin
+    // Com_Error is likely defined elsewhere in the engine.
+    Com_Error(ERR_FATAL, 'Quake2 data files not found. Make sure "baseq2/pak0.pak" is in the correct directory.');
+  end;
 end;
+
 
 procedure Sys_Init;
-var
-  vinfo: OSVERSIONINFO;
 begin
-  {
+  //
+  // Mutex and Semaphore logic is not needed for a standard
+  // Linux port as modern systems handle process management differently.
+  // The original Quake 2 used this to prevent multiple instances
+  // and for inter-process communication with a front-end launcher.
+  // Modern ports typically don't require this.
+  //
+  // The original version check is also removed. Linux kernels
+  // don't have a "version 4 or greater" dependency like Windows,
+  // and the platform IDs are Windows-specific.
+  //
 
-    // Mutex will fail if semaphore already exists.
-    qwclsemaphore := CreateMutex(nil, False, 'qwcl');
-    if qwclsemaphore = 0 then
-      Sys_Error('QWCL is already running on this system', []);
-    CloseHandle(qwclsemaphore);
+  Randomize; // Initializes the random number generator.
 
-    // Allocate a named semaphore on the client,
-    // so that the front end can tell if it is alive.
-    qwclsemaphore := CreateSemaphore(nil, 0, 1, 'qwcl');
+  //
+  // timeBeginPeriod(1) is a Windows-specific function to
+  // increase timer resolution. On Linux, this is handled
+  // by the kernel or other libraries (like SDL) that a
+  // modern port would use for timing. So, we remove it.
+  //
 
-  }
-
-    // Juha: Needed for Delphi.
-  Randomize;
-
-  timeBeginPeriod(1);
-
-  // Vhecking version information.
-  vinfo.dwOSVersionInfoSize := SizeOf(vinfo);
-  if not GetVersionEx(vinfo) then
-    Sys_Error('Couldn''t get OS info', []);
-  if vinfo.dwMajorVersion < 4 then
-    Sys_Error('Quake2 requires windows version 4 or greater', []);
-  if vinfo.dwPlatformId = VER_PLATFORM_WIN32s then
-    Sys_Error('Quake2 doesn''t run on Win32s', [])
-  else if vinfo.dwPlatformId = VER_PLATFORM_WIN32_WINDOWS then
-    s_win95 := True;
-
+  // The original code checked for dedicated server mode to
+  // allocate a console. On Linux, a console is always available
+  // when the program is run from a terminal. The equivalent
+  // of AllocConsole is not needed. The standard I/O handles
+  // are always available.
   if dedicated.value <> 0 then
   begin
-    if not AllocConsole then
-      Sys_Error('Couldn''t create dedicated server console', []);
-    hinput := GetStdHandle(STD_INPUT_HANDLE);
-    houtput := GetStdHandle(STD_OUTPUT_HANDLE);
+    // For a dedicated server, we can simply initialize the
+    // console procedure with the standard I/O streams.
+    // The hinput and houtput variables are no longer needed
+    // as we don't have to create a new console.
     InitConProc(argc, @argv[0]);
   end;
 end;
 
 function Sys_ConsoleInput: PChar;
 var
-  recs: array[0..1023] of INPUT_RECORD;
-  dummy: Integer;
-  ch, numread, numevents: Integer;
+  ch: Char;
+  bytesRead: Integer;
 begin
   Result := nil;
+  // This check for 'dedicated' is still valid, as it determines
+  // if the game is a dedicated server and needs console input.
   if (dedicated = nil) or (dedicated.value = 0) then
     Exit;
 
-  while True do
+  // The original loop for reading console events is replaced with a simple
+  // check to see if there's any data waiting on standard input (stdin).
+  // This is a much simpler and more direct approach on Linux.
+
+  // Check if there is data on stdin without blocking.
+  if fpGetInputReady(stdin) then
   begin
+    // Read a single character from stdin.
+    bytesRead := Read(stdin, ch, 1);
+    if bytesRead > 0 then
+    begin
+      case Ord(ch) of
+        13: // Enter key (or carriage return)
+        begin
+          // On Linux, a newline is typically a single #10.
+          // We can use WriteLn, which is a simpler way to handle this.
+          WriteLn;
+          if console_textlen <> 0 then
+          begin
+            console_text[console_textlen] := #0;
+            console_textlen := 0;
+            Result := console_text;
+            Exit;
+          end;
+        end;
 
-    // End the loop, if there are no console input events.
-    if not GetNumberOfConsoleInputEvents(hinput, Cardinal(numevents)) then
-      Sys_Error('Error getting # of console events', []);
-    if numevents <= 0 then
-      Break;
+        8, 127: // Backspace key (ASCII 8) or Delete key (ASCII 127)
+        begin
+          if console_textlen > 0 then
+          begin
+            Dec(console_textlen);
+            // We use standard terminal escape sequences to move the
+            // cursor back, print a space, and move back again.
+            Write(Chr(8), ' ', Chr(8));
+          end;
+        end;
 
-    // Read console input.
-    if not ReadConsoleInput(hinput, recs[0], 1, Cardinal(numread)) then
-      Sys_Error('Error reading console input', []);
-    if numread <> 1 then
-      Sys_Error('Couldn''t read console input', []);
-
-    // Process console input.
-    if recs[0].EventType = KEY_EVENT then
-      if not recs[0].Event.KeyEvent.bKeyDown then
-      begin
-        ch := Integer(recs[0].Event.KeyEvent.AsciiChar);
-        case ch of
-          13:                           // Pressed key = [Enter]
+        else // Any other printable character
+          if (Ord(ch) >= 32) then
+          begin
+            if console_textlen < (SizeOf(console_text) - 2) then
             begin
-              WriteFile(houtput, #13#10, 2, Cardinal(dummy), nil);
-              if console_textlen <> 0 then
-              begin
-                console_text[console_textlen] := #0;
-                console_textlen := 0;
-                Result := console_text;
-                Exit;
-              end;
-            end;
-          08:                           // Pressed key = [BACK SPACE]
-            if console_textlen > 0 then
-            begin
-              Dec(console_textlen);
-              WriteFile(houtput, #8#32#8, 3, Cardinal(dummy), nil);
-            end;
-        else                            // Otherwise
-          if ch >= 32 then
-            if console_textlen < (SizeOf(console_textlen) - 2) then
-            begin
-              WriteFile(houtput, ch, 1, Cardinal(dummy), nil);
-              console_text[console_textlen] := Chr(ch);
+              Write(ch);
+              console_text[console_textlen] := ch;
               Inc(console_textlen);
             end;
-        end;
+          end;
       end;
+    end;
   end;
 end;
 
 procedure Sys_ConsoleOutput(aString: PChar);
 var
-  dummy: Integer;
-  text: array[0..255] of Char;
+  i: Integer;
 begin
   if (dedicated = nil) or (dedicated.value = 0) then
     Exit;
 
-  // Erase what currently appears on the console's command line.
+  // On Linux, the standard way to handle this is to first save the cursor position,
+  // then output the new text, and finally restore the cursor.
+  // We use standard terminal escape codes for this.
+
+  // 1. Clear the current command line by moving the cursor back to the start of the line.
+  //    and clearing from the cursor to the end of the line.
+  Write(Chr(13)); // Carriage return, moves cursor to the beginning of the current line.
+  Write(Chr(27), '[K'); // ANSI escape code to clear line from cursor to end.
+
+  // 2. Output the new string.
+  Write(aString);
+
+  // 3. Re-print the console input line that was cleared.
   if console_textlen <> 0 then
   begin
-    text[0] := #13;
-    FillChar(text[1], console_textlen, ' ');
-    text[console_textlen + 1] := #13;
-    text[console_textlen + 2] := #0;
-    WriteFile(houtput, text, console_textlen + 2, Cardinal(dummy), nil);
+    // We move the cursor to the new line before re-printing the prompt.
+    WriteLn;
+
+    // We can directly write the console_text, as it is a null-terminated string.
+    Write(console_text);
   end;
 
-  // Output the string.
-  WriteFile(houtput, aString^, StrLen(aString), Cardinal(dummy), nil);
-
-  // Re-type what has been erased.
-  if console_textlen <> 0 then
-    WriteFile(houtput, console_text, console_textlen, Cardinal(dummy), nil);
+  // We should also print a newline after the output string to ensure it's
+  // on a separate line from the input prompt.
+  WriteLn;
 end;
 
 procedure Sys_SendKeyEvents;
