@@ -28,9 +28,6 @@
     </RunParams>
     <RequiredPackages>
       <Item>
-        <PackageName Value="enigne"/>
-      </Item>
-      <Item>
         <PackageName Value="LCL"/>
       </Item>
     </RequiredPackages>
@@ -350,6 +347,22 @@
       </Unit>
       <Unit>
         <Filename Value="ekron.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../sys/mac/sys_mac.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../sys/mac/vid_macos.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../sys/mac/snd_mac.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit>
+      <Unit>
+        <Filename Value="../sys/mac/in_mac.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit>
     </Units>

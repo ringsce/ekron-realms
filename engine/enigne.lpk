@@ -11,10 +11,6 @@
     </CompilerOptions>
     <Files>
       <Item>
-        <Filename Value="ekron.pas"/>
-        <UnitName Value="ekron"/>
-      </Item>
-      <Item>
         <Filename Value="x86.asm"/>
         <Type Value="Text"/>
       </Item>
