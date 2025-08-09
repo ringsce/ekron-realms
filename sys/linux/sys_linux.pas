@@ -55,13 +55,13 @@ uses
 implementation
 
 const
-  MINIMUM_WIN_MEMORY = $0A00000;
-  MAXIMUM_WIN_MEMORY = $1000000;
+  MINIMUM_SYS_MEMORY = $0A00000;
+  MAXIMUM_SYS_MEMORY = $1000000;
   MAX_NUM_ARGVS = 128;
 
 var
+  {$IFDEF MSWINDOWS}
   s_win95: qboolean;
-  starttime: Integer;
   ActiveApp: Integer;
   Minimized: qboolean;
   hinput: THandle;
@@ -69,12 +69,21 @@ var
   sys_msg_time: Cardinal;
   sys_frame_time: Cardinal;
   qwclsemaphore: THandle;
+  {$ENDIF}
+
+  {$IFDEF LINUX}
+  // Linux/macOS equivalents
+  sys_frame_time: Cardinal;
+  {$ENDIF}
+
+  starttime: Integer;
   argc: Integer;
   argv: array[0..MAX_NUM_ARGVS - 1] of PChar;
   console_text: array[0..255] of Char;
   console_textlen: Integer;
-  game_library: Pointer;   // Changed from HINST to Pointer for cross-platform compatibility
-  global_hInstance: Pointer; // Changed from HINST to Pointer
+
+  game_library: Pointer;        // Cross-platform handle (dlopen on Linux, LoadLibrary on Windows)
+  global_hInstance: Pointer;    // Not really used in Linux
 
 procedure Sys_Error(error: PChar; args: array of const);
 procedure Sys_Quit;
@@ -89,13 +98,12 @@ procedure Sys_AppActivate;
 procedure Sys_Unloadgame;
 function Sys_GetGameAPI(parms: Pointer): Pointer;
 
-procedure WinError;
-procedure ParseCommandLine(lpCmdLine: PChar); // Changed from LPSTR to PChar (cross-platform)
-function Sys_Main(argc: Integer; argv: PPChar): Integer; // Renamed from WinMain to Sys_Main (cross-platform)
+procedure SysError; // Cross-platform error display
+procedure ParseCommandLine(cmdLine: PChar); // Cross-platform
+function Sys_Main(argc: Integer; argv: PPChar): Integer; // Replaces WinMain
 
 var
-
-  // Those are only used by Sys_ScanForCD.
+  // Only used by Sys_ScanForCD
   cddir: array[0..MAX_OSPATH - 1] of Char;
   done: qboolean;
 
