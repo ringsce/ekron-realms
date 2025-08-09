@@ -49,7 +49,7 @@ const
 
 var
   sys_frame_time: Cardinal;
-  starttime: TUnixTime;
+  starttime: time_t;
   argc: Integer;
   argv: array[0..MAX_NUM_ARGVS - 1] of PChar;
   console_text: array[0..255] of Char;
