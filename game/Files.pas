@@ -15,7 +15,7 @@ uses
   {$IFDEF LINUX}
   BaseUnix, Unix, UnixType;
   {$ENDIF}
-  CVar in '../qcommon/CVar.pas';  // Adjust path if needed
+  CVar in '../game/CVar.pas';  // Adjust path if needed
 
 // Declare all functions and procedures here
 
