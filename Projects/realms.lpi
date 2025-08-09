@@ -383,6 +383,8 @@
     </Parsing>
     <Linking>
       <Options>
+        <PassLinkerOptions Value="True"/>
+        <LinkerOptions Value="-k-no_order_inits-k-no_order_data"/>
         <Win32>
           <GraphicApplication Value="True"/>
         </Win32>
@@ -391,7 +393,8 @@
     <Other>
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL
 -vw -vm5024 -Fuengine
--Fugame"/>
+-Fugame 
+-order_file /Users/pedro/Projects/kayte-lang/projects/symbol_order.fpc"/>
     </Other>
   </CompilerOptions>
   <Debugging>
