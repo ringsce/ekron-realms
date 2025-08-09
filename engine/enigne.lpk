@@ -15,10 +15,6 @@
         <UnitName Value="ekron"/>
       </Item>
       <Item>
-        <Filename Value="enigne.pas"/>
-        <UnitName Value="enigne"/>
-      </Item>
-      <Item>
         <Filename Value="x86.asm"/>
         <Type Value="Text"/>
       </Item>
@@ -65,10 +61,6 @@
       <Item>
         <Filename Value="keys.pas"/>
         <UnitName Value="keys"/>
-      </Item>
-      <Item>
-        <Filename Value="input.pas"/>
-        <UnitName Value="input"/>
       </Item>
       <Item>
         <Filename Value="Console.pas"/>

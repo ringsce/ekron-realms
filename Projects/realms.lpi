@@ -359,7 +359,7 @@
     <SearchPaths>
       <IncludeFiles Value="../jedi;../qcommon;../game;../client;../server;$(ProjOutDir)"/>
       <Libraries Value="../jedi"/>
-      <OtherUnitFiles Value="../game;/Users/pedro/fpc-units/;../engine"/>
+      <OtherUnitFiles Value="../game;/Users/pedro/fpc-units/;../engine;../sys"/>
       <UnitOutputDirectory Value="build"/>
       <ObjectPath Value="../jedi"/>
     </SearchPaths>
