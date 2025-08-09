@@ -34,31 +34,23 @@ interface
 
 uses
   {$IFDEF MSWINDOWS}
-  Windows, // Windows-specific unit
+    Windows, // Windows-specific API
   {$ENDIF}
 
   {$IFDEF LINUX}
-  BaseUnix, Unix, // Linux-specific units
+    BaseUnix, Unix, UnixType, // Linux-specific API
   {$ENDIF}
 
   {$IFDEF DARWIN}
-  MacOSAll, // macOS-specific units
+    MacOSAll, // macOS-specific API
   {$ENDIF}
 
-
   SysUtils,
-  (*MMSystem, To be checked*)
   Math,
-  Files     in '../qcommon/Files.pas',
+  Files     in '../game/Files.pas',
   Common,
   cl_main,
-  //conproc,
-  //vid_macos,
-  //q_shwin,
-
   q_shared;
-
-// Your code here
 
 implementation
 
@@ -114,13 +106,21 @@ begin
   CL_Shutdown;
   Qcommon_Shutdown;
 
-  // Report error.
+  // Report error
   text := Format(error, args);
-  MessageBox(0, PChar(text), 'Error', 0 { MB_OK});
 
-  if qwclsemaphore <> 0 then
-    CloseHandle(qwclsemaphore);
-  DeinitConProc;
+  {$IFDEF MSWINDOWS}
+    MessageBox(0, PChar(text), 'Error', MB_OK or MB_ICONERROR);
+  {$ELSE}
+    // On Linux/macOS, just print to stderr
+    Writeln(StdErr, 'ERROR: ', text);
+  {$ENDIF}
+
+  {$IFDEF MSWINDOWS}
+    if qwclsemaphore <> 0 then
+      CloseHandle(qwclsemaphore);
+    DeinitConProc;
+  {$ENDIF}
 
   Halt(1);
 end;
@@ -138,20 +138,30 @@ begin
   Halt(0);
 end;
 
-procedure WinError;
+procedure SysError;
 var
-  lpMsgBuf: PChar;
+  errnum: cint;
+  errstr: string;
 begin
-  FormatMessage(
-    FORMAT_MESSAGE_ALLOCATE_BUFFER or FORMAT_MESSAGE_FROM_SYSTEM,
-    nil,
-    GetLastError,
-    (SUBLANG_DEFAULT shl 10) or LANG_NEUTRAL,
-    PChar(@lpMsgBuf),
-    0,
-    nil);
-  MessageBox(0, lpMsgBuf, 'GetLastError', MB_OK or MB_ICONINFORMATION);
-  LocalFree(HLOCAL(lpMsgBuf));          // Frees the buffer allocated by FormatMessage.
+  {$IFDEF MSWINDOWS}
+    // Windows version
+    var lpMsgBuf: PChar;
+    FormatMessage(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER or FORMAT_MESSAGE_FROM_SYSTEM,
+      nil,
+      GetLastError,
+      (SUBLANG_DEFAULT shl 10) or LANG_NEUTRAL,
+      PChar(@lpMsgBuf),
+      0,
+      nil);
+    MessageBox(0, lpMsgBuf, 'GetLastError', MB_OK or MB_ICONINFORMATION);
+    LocalFree(HLOCAL(lpMsgBuf));
+  {$ELSE}
+    // Linux / macOS version
+    errnum := fpgeterrno;  // gets the last errno
+    errstr := StrError(errnum); // returns error string for errno
+    Writeln(StdErr, 'System Error ', errnum, ': ', errstr);
+  {$ENDIF}
 end;
 
 function Sys_ScanForCD: PChar;
