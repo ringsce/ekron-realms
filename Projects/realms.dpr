@@ -59,7 +59,7 @@ uses
   VulkanUtils in '../game/vulkan/VulkanUtils.pas',
   VulkanRender in '../game/vulkan/VulkanRender.pas',
   kayte in '../engine/kayte/kayte.pas',
-  kayteparser in ' ../engine/kayte/kayte_parser.pas',
+  //kayteparser in ' ../engine/kayte/kayte_parser.pas',
   platformAsm in '../game/platformasm.pas',
   launcher in '../launcher.pas',
 

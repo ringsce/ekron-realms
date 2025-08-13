@@ -37,7 +37,8 @@ interface
 
 uses
   Client,
-  q_shared;
+  q_shared,
+  Console; // Add this line;
 
 procedure CL_CheckPredictionError;
 procedure CL_ClipMoveToEntities(const start, mins, maxs, end_: vec3_t; tr: trace_p);
