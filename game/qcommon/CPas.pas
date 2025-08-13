@@ -219,25 +219,28 @@ implementation
 uses
   SysUtils;
 
-procedure qsort_int(base: Pointer; width: Integer; compare: QSortCB; Left, Right: Integer; TempBuffer, TempBuffer2: Pointer);
+procedure qsort_int(base: Pointer; width: Integer; compare: QSortCB;
+  Left, Right: Integer; TempBuffer, TempBuffer2: Pointer);
 var
   Lo, Hi: Integer;
   P: Pointer;
 begin
   Lo := Left;
   Hi := Right;
-  P := Pointer(Integer(base) + ((Lo + Hi) div 2) * width);
+  // Use PtrUInt instead of PtrInt
+  P := Pointer(PtrUInt(base) + ((Lo + Hi) div 2) * PtrUInt(width));
   Move(P^, TempBuffer2^, width);
   repeat
-    while compare(Pointer(Integer(base) + Lo * width), TempBuffer2) < 0 do
+    while compare(Pointer(PtrUInt(base) + Lo * PtrUInt(width)), TempBuffer2) < 0 do
       Inc(Lo);
-    while compare(Pointer(Integer(base) + Hi * width), TempBuffer2) > 0 do
+    while compare(Pointer(PtrUInt(base) + Hi * PtrUInt(width)), TempBuffer2) > 0 do
       Dec(Hi);
     if Lo <= Hi then
     begin
-      Move(Pointer(Integer(base) + Lo * width)^, TempBuffer^, width);
-      Move(Pointer(Integer(base) + Hi * width)^, Pointer(Integer(base) + Lo * width)^, width);
-      Move(TempBuffer^, Pointer(Integer(base) + Hi * width)^, width);
+      Move(Pointer(PtrUInt(base) + Lo * PtrUInt(width))^, TempBuffer^, width);
+      Move(Pointer(PtrUInt(base) + Hi * PtrUInt(width))^,
+           Pointer(PtrUInt(base) + Lo * PtrUInt(width))^, width);
+      Move(TempBuffer^, Pointer(PtrUInt(base) + Hi * PtrUInt(width))^, width);
       Inc(Lo);
       Dec(Hi);
     end;
@@ -247,6 +250,7 @@ begin
   if Lo < Right then
     qsort_int(base, width, compare, Lo, Right, TempBuffer, TempBuffer2);
 end;
+
 
 procedure qsort(base: Pointer; num: Size_t; width: Size_t; compare: QSortCB);
 var

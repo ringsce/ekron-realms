@@ -1,48 +1,4 @@
-//100%
 {$ALIGN ON}{$MINENUMSIZE 4}
-{----------------------------------------------------------------------------}
-{                                                                            }
-{ File(s): game\q_shared.c                                                   }
-{          game\q_shared.h                                                   }
-{ Content: stuff "included first by ALL program modules"                     }
-{                                                                            }
-{ Initial conversion by : savage                                             }
-{ Initial conversion on : 09-Jan-2002                                        }
-{                                                                            }
-{ This File contains part of convertion of Quake2 source to ObjectPascal.    }
-{ More information about this project can be found at:                       }
-{ http://www.sulaco.co.za/quake2/                                            }
-{                                                                            }
-{ Copyright (C) 1997-2001 Id Software, Inc.                                  }
-{                                                                            }
-{ This program is free software; you can redistribute it and/or              }
-{ modify it under the terms of the GNU General Public License                }
-{ as published by the Free Software Foundation; either version 2             }
-{ of the License, or (at your option) any later version.                     }
-{                                                                            }
-{ This program is distributed in the hope that it will be useful,            }
-{ but WITHOUT ANY WARRANTY; without even the implied warranty of             }
-{ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       }
-{                                                                            }
-{ See the GNU General Public License for more details.                       }
-{                                                                            }
-{----------------------------------------------------------------------------}
-{ 1) Updated on : 24-Feb-2002                                                }
-{    Updated by : Carl A Kenner (carl_kenner@hotmail.com)                    }
-{                                                                            }
-{ 2) 26-Feb-2002 - Clootie (clootie@reactor.ru)                              }
-{    *** edict_s and cplane_t *** set orecord (including pointers) to be     }
-{    [originally] defined only in one unit                                   }
-{                                                                            }
-{ 1) Updated on : 3-Mar-2002                                                 }
-{    Updated by : Carl A Kenner (carl_kenner@hotmail.com)                    }
-{
-{ Updated on: 3-jun-2002
-{ Updated by: Juha Hartikainen (juha@linearteam.org}
-{ - Changed OUT function parameters to VAR.
-{ - Added overloaded version of VectorCopy }
-{                                                                            }
-{----------------------------------------------------------------------------}
 unit q_shared;
 
 {$IFDEF FPC}
@@ -54,6 +10,14 @@ interface
 uses
   {$IFDEF WIN32}
   Windows,
+  {$ENDIF}
+  {$IFDEF LINUX}
+  Unix, // General Unix/Linux utilities
+  // Other Linux-specific units if needed
+  {$ENDIF}
+  {$IFDEF DARWIN}
+  MacTypes, // Core macOS types
+  // Other macOS-specific units if needed
   {$ENDIF}
   q_shared_add,
   Math;
@@ -2493,7 +2457,8 @@ begin
   s^ := #0;
 end;
 
-//====================================================================
+begin
+  //====================================================================
 
 // ... (rest of the file content)
 
