@@ -46,22 +46,22 @@ uses
   vid_macos in '../sys/mac/vid_macos.pas',
   snd_mac   in '../sys/mac/snd_mac.pas',
   in_mac    in '../sys/mac/in_mac.pas',
-  q_shmac   in './sys/mac/q_shmac.pas',
-  net_udp   in './sys/mac/net_udp.pas',
-  cd_sdl    in './sys/mac/cd_sdl.pas',
-  vid_menu  in './sys/mac/vid_menu.pas',
-  glob      in './sys/mac/glob.pas',
-  rw_mac_h  in './sys/mac/rw_mac_h.pas',
-  MoltenVK  in './sys/mac/MoltenVK.pas', // Add MoltenVK unit
+  q_shmac   in '../sys/mac/q_shmac.pas',
+  net_udp   in '../sys/mac/net_udp.pas',
+  cd_sdl    in '../sys/mac/cd_sdl.pas',
+  vid_menu  in '../sys/mac/vid_menu.pas',
+  glob      in '../sys/mac/glob.pas',
+  rw_mac_h  in '../sys/mac/rw_mac_h.pas',
+  MoltenVK  in '../sys/mac/MoltenVK.pas', // Add MoltenVK unit
 {$ENDIF}
 { Vulkan API support }
   Vulkan     in '../game/vulkan/vulkan.pas',
   VulkanUtils in '../game/vulkan/VulkanUtils.pas',
   VulkanRender in '../game/vulkan/VulkanRender.pas',
-  kayte in '../game/kayte/kayte.pas',
-  //kayteparser in ' ../game/kayte/kayteparser.pas',
+  kayte in '../engine/kayte/kayte.pas',
+  kayteparser in ' ../engine/kayte/kayte_parser.pas',
   platformAsm in '../game/platformasm.pas',
-  launcher in 'launcher.pas',
+  launcher in '../launcher.pas',
 
   { Other units }
   qfiles    in '../game/qcommon/qfiles.pas',

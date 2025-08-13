@@ -1,5 +1,0 @@
-Compile Project, Target: C:\Users\Pedro\Projects\ekron-realms\Projects\build\realms.exe: Exit code 1, Errors: 1
-snd_win.pas(62,3) Error: Cannot find DirectSound used by snd_win.
-
-
-fppkg install winunits-base
