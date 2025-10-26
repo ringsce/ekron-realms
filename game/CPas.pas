@@ -219,7 +219,7 @@ implementation
 uses
   SysUtils;
 
-procedure qsort_int(base: Pointer; width: Integer; compare: QSortCB; Left, Right: Integer; TempBuffer, TempBuffer2: Pointer);
+(*procedure qsort_int(base: Pointer; width: Integer; compare: QSortCB; Left, Right: Integer; TempBuffer, TempBuffer2: Pointer);
 var
   Lo, Hi: Integer;
   P: Pointer;
@@ -238,6 +238,42 @@ begin
       Move(Pointer(Integer(base) + Lo * width)^, TempBuffer^, width);
       Move(Pointer(Integer(base) + Hi * width)^, Pointer(Integer(base) + Lo * width)^, width);
       Move(TempBuffer^, Pointer(Integer(base) + Hi * width)^, width);
+      Inc(Lo);
+      Dec(Hi);
+    end;
+  until Lo > Hi;
+  if Hi > Left then
+    qsort_int(base, width, compare, Left, Hi, TempBuffer, TempBuffer2);
+  if Lo < Right then
+    qsort_int(base, width, compare, Lo, Right, TempBuffer, TempBuffer2);
+end;
+old one *)
+
+procedure qsort_int(base: Pointer; width: Integer; compare: QSortCB; Left, Right: Integer; TempBuffer, TempBuffer2: Pointer);
+var
+  Lo, Hi: Integer;
+  P: Pointer;
+begin
+  Lo := Left;
+  Hi := Right;
+  // FIX: Use PtrUInt for pointer arithmetic
+  P := Pointer(PtrUInt(base) + ((Lo + Hi) div 2) * width);
+  Move(P^, TempBuffer2^, width);
+  repeat
+    // FIX: Use PtrUInt for pointer arithmetic
+    while compare(Pointer(PtrUInt(base) + Lo * width), TempBuffer2) < 0 do
+      Inc(Lo);
+    // FIX: Use PtrUInt for pointer arithmetic
+    while compare(Pointer(PtrUInt(base) + Hi * width), TempBuffer2) > 0 do
+      Dec(Hi);
+    if Lo <= Hi then
+    begin
+      // FIX: Use PtrUInt for pointer arithmetic
+      Move(Pointer(PtrUInt(base) + Lo * width)^, TempBuffer^, width);
+      // FIX: Use PtrUInt for pointer arithmetic
+      Move(Pointer(PtrUInt(base) + Hi * width)^, Pointer(PtrUInt(base) + Lo * width)^, width);
+      // FIX: Use PtrUInt for pointer arithmetic
+      Move(TempBuffer^, Pointer(PtrUInt(base) + Hi * width)^, width);
       Inc(Lo);
       Dec(Hi);
     end;

@@ -618,6 +618,9 @@
       </SyntaxOptions>
     </Parsing>
     <Linking>
+      <Debugging>
+        <DebugInfoType Value="dsDwarf3"/>
+      </Debugging>
       <Options>
         <PassLinkerOptions Value="True"/>
         <LinkerOptions Value="-k-no_order_inits-k-no_order_data"/>
@@ -630,7 +633,8 @@
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL
 -vw -vm5024 -Fuengine
 -Fugame
- -Fu/Users/pedro/fpc-units"/>
+ -Fu/Users/pedro/fpc-units
+-Fu/Users/pedro/Projects/SB_MMO/ekron-realms/tools/SDL3-for-Pascal/units"/>
     </Other>
   </CompilerOptions>
   <Debugging>

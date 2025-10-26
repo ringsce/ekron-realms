@@ -8,6 +8,7 @@ uses
   SDL2,     // For SDL_Event, SDL_GetMouseState, etc.
   SysUtils, // For basic system utilities if needed (e.g. debugging)
   Common,   // For Com_Printf (assuming it's in Common.pas)
+  Console, // Added this line
   cvar,    // For Cvar_Get, Cvar_Set, etc.
   keys;     // For K_*, Key_Event, Key_SetCatcher, Key_ClearStates (already used)
 
@@ -41,8 +42,7 @@ begin
   if InputInitialized then Exit;
 
   // Added PRINT_ALL and an empty array of const
-  Com_Printf(PRINT_ALL, '------- Input Initialization -------'#10);
-
+  Com_Printf(PRINT_ALL, '------- Input Initialization -------'#10, []);
 
   // Register input CVars
   in_mouse := Cvar_Get('in_mouse', '1', CVAR_ARCHIVE);
@@ -52,8 +52,9 @@ begin
   // SDL_InitSubSystem(SDL_INIT_JOYSTICK or SDL_INIT_GAMECONTROLLER or SDL_INIT_HAPTIC);
 
   InputInitialized := True;
+
   // Added PRINT_ALL and an empty array of const
-  Com_Printf(PRINT_ALL, '------------------------------------'#10);
+  Com_Printf(PRINT_ALL, '------------------------------------'#10, []);
 end;
 
 procedure IN_Shutdown;

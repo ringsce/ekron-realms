@@ -37,8 +37,7 @@ interface
 
 uses
   Client,
-  q_shared,
-  Console; // Add this line;
+  q_shared;
 
 procedure CL_CheckPredictionError;
 procedure CL_ClipMoveToEntities(const start, mins, maxs, end_: vec3_t; tr: trace_p);
@@ -53,6 +52,7 @@ uses
   CModel,
   GameUnit,
   PMoveUnit,
+  Console,
   cl_main;
 
 {
@@ -91,13 +91,13 @@ begin
   begin
     if (cl_showmiss^.value <> 0) and ((delta[0] <> 0) or (delta[1] <> 0) or (delta[2] <> 0)) then
     begin
-      Com_Printf('prediction miss on %d: %d'#10, [cl.frame.serverframe,
-        delta[0] + delta[1] + delta[2]]);
+      // Use WriteLn instead of Com_Printf
+      writeLn('prediction miss on ', cl.frame.serverframe, ': ', delta[0] + delta[1] + delta[2]);
     end;
 
     VectorCopy(cl.frame.playerstate.pmove.origin, cl.predicted_origins[frame]);
 
-    // save for error itnerpolation
+    // save for error interpolation
     for i := 0 to 2 do
     begin
       cl.prediction_error[i] := delta[i] * 0.125;
@@ -281,8 +281,8 @@ begin
   // if we are too far out of date, just freeze
   if (current - ack >= CMD_BACKUP) then
   begin
-    if (cl_showmiss.value <> 0) then
-      Com_Printf('exceeded CMD_BACKUP'#10, []);
+    // Replaced Com_Printf with writeLn
+    writeLn('exceeded CMD_BACKUP');
     exit;
   end;
 
@@ -329,5 +329,6 @@ begin
 
   VectorCopy(pm.viewangles, cl.predicted_angles);
 end;
+
 
 end.
