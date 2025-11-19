@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.16 FATAL_ERROR)
-project(Realms VERSION 1.0.0 LANGUAGES NONE)
+project(Realms VERSION 1.0.0 LANGUAGES CXX NONE)
 
 # Add the cmake module path to find FindFPC.cmake and FindLazarus.cmake
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
+find_package(KayteIDE REQUIRED)
+find_package(KCC REQUIRED)
 # =============================================================================
 # Find Free Pascal Compiler
 # =============================================================================
@@ -40,18 +41,146 @@ if(LAZARUS_FOUND)
 endif()
 
 # =============================================================================
+# Utility Functions
+# =============================================================================
+# Placeholder function for checking SDL compatibility (to fix "Unknown CMake command" error)
+function(check_sdl_compatibility)
+    if(SDL2_FOUND AND SDL3_FOUND)
+        message(WARNING "Both SDL2 and SDL3 bindings were found.
+Ensure your Pascal code links to only one set of headers to prevent conflicts.")
+    endif()
+endfunction()
+
+
+# =============================================================================
 # Find SDL2 for Pascal (Optional)
 # =============================================================================
-find_package(SDL2)
+find_package(SDL2) # This is where the find_package call is
 
 # =============================================================================
 # Find SDL3 for Pascal (Optional)
 # =============================================================================
 find_package(SDL3)
 
-# Check for SDL2/SDL3 compatibility issues
-if(SDL2_FOUND AND SDL3_FOUND)
-    check_sdl_compatibility()
+
+# =============================================================================
+# Load External Project Module for KayteIDE C++ Build
+# =============================================================================
+include(ExternalProject)
+
+
+# =============================================================================
+# Build KayteIDE C++ Project
+# =============================================================================
+set(KAYTEIDE_CMAKE_FILE "${KAYTEIDE_DIR}/CMakeLists.txt")
+
+if(KAYTEIDE_FOUND AND EXISTS ${KAYTEIDE_CMAKE_FILE})
+    message(STATUS "=== Building KayteIDE C++ Project with CMake (Final command fix) ===")
+    
+    # Define build and install directories for the external project
+    set(KAYTEIDE_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/KayteIDE_build")
+    set(KAYTEIDE_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/KayteIDE_install_staging")
+    
+    # Define the expected executable name (e.g., kayteide or kayteide.exe)
+    set(KAYTEIDE_EXECUTABLE_FILE "kayteide${CMAKE_EXECUTABLE_SUFFIX}")
+    set(KAYTEIDE_BUILD_OUTPUT "${KAYTEIDE_BUILD_DIR}/${CMAKE_BUILD_TYPE}/${KAYTEIDE_EXECUTABLE_FILE}")
+    
+    # NOTE: The build output path is often under a build-type subdirectory (Debug, Release) for C++ projects.
+    # We will adjust the output path accordingly. If your C++ project builds directly into ${KAYTEIDE_BUILD_DIR}, use that path instead.
+    if(NOT EXISTS ${KAYTEIDE_BUILD_OUTPUT})
+        set(KAYTEIDE_BUILD_OUTPUT "${KAYTEIDE_BUILD_DIR}/${KAYTEIDE_EXECUTABLE_FILE}")
+    endif()
+    
+    set(KAYTEIDE_STAGING_OUTPUT "${KAYTEIDE_INSTALL_DIR}/${KAYTEIDE_EXECUTABLE_FILE}")
+
+    # Use ExternalProject_Add to configure and build the C++ project
+    ExternalProject_Add(kayteide_cpp_build
+        SOURCE_DIR ${KAYTEIDE_DIR}
+        BINARY_DIR ${KAYTEIDE_BUILD_DIR}
+        CMAKE_ARGS
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_INSTALL_PREFIX=${KAYTEIDE_INSTALL_DIR}
+        
+        # Use the project's own install rules
+        BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR>
+        INSTALL_COMMAND ${CMAKE_COMMAND} --install <BINARY_DIR>
+    )
+
+
+    # Create a simple, user-friendly target 'kayteide' that depends on the build
+    add_custom_target(kayteide DEPENDS kayteide_cpp_build)
+    message(STATUS "  ✓ kayteide C++ build target created. Output staged in ${KAYTEIDE_INSTALL_DIR}")
+
+    # Set variable for the installation rules
+    set(KAYTEIDE_FINAL_INSTALL_PATH ${KAYTEIDE_INSTALL_DIR})
+
+elseif(KAYTEIDE_FOUND)
+    message(STATUS "KayteIDE files found but C++ CMakeLists.txt not found. Skipping C++ build.")
+endif()
+
+
+# =============================================================================
+# Build KCC C Compiler Project
+# =============================================================================
+set(KCC_CMAKE_FILE "${KCC_DIR}/CMakeLists.txt")
+
+if(KCC_FOUND AND EXISTS ${KCC_CMAKE_FILE})
+    message(STATUS "=== Building KCC C Compiler Project with CMake (Fixing Install Prefix) ===")
+    
+    # Define build and install directories for the external project
+    set(KCC_BUILD_DIR "${CMAKE_CURRENT_BINARY_DIR}/KCC_build")
+    set(KCC_INSTALL_DIR "${CMAKE_CURRENT_BINARY_DIR}/KCC_install_staging")
+    
+    # Use ExternalProject_Add to configure, build, and let the external project install
+    ExternalProject_Add(kcc_cpp_build
+        SOURCE_DIR ${KCC_DIR}
+        BINARY_DIR ${KCC_BUILD_DIR}
+        # INSTALL_DIR is still needed for stamping, but the prefix below is key
+        INSTALL_DIR ${KCC_INSTALL_DIR} 
+        
+        # FIX: Explicitly set CMAKE_INSTALL_PREFIX for the external project
+        # This directs the external project's internal 'install' target to our staging folder.
+        CMAKE_ARGS
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_INSTALL_PREFIX:PATH=${KCC_INSTALL_DIR}
+            
+        # The external project's native 'install' step will now run to KCC_INSTALL_DIR.
+        # This is much cleaner than using manual POST_BUILD_COMMANDs.
+    )
+    
+    # Create a simple, user-friendly target 'kcc' that depends on the build
+    add_custom_target(kcc DEPENDS kcc_cpp_build)
+    message(STATUS "  ✓ kcc C compiler build target created. Output staged in ${KCC_INSTALL_DIR}")
+
+    # Set variable for the installation rules
+    set(KCC_FINAL_INSTALL_PATH ${KCC_INSTALL_DIR})
+
+elseif(KCC_FOUND)
+    message(STATUS "KCC files found but C++ CMakeLists.txt not found. Skipping KCC build.")
+endif()
+
+# Install kcc executable and contents
+if(TARGET kcc)
+    # The output is the staged install directory of the C++ project.
+    if(APPLE)
+        # On macOS, install contents to 'Contents/tools/KCC' inside the bundle
+        install(DIRECTORY 
+            ${KCC_FINAL_INSTALL_PATH}/
+            DESTINATION "Contents/tools/KCC"
+            COMPONENT applications
+            OPTIONAL
+        )
+        message(STATUS "  ✓ Install rule for KCC (macOS bundle) created.")
+    else()
+        # Standard install destination for other platforms (e.g., bin/KCC)
+        install(DIRECTORY
+            ${KCC_FINAL_INSTALL_PATH}/
+            DESTINATION bin/KCC
+            COMPONENT applications
+            OPTIONAL
+        )
+        message(STATUS "  ✓ Install rule for KCC (standard) created.")
+    endif()
 endif()
 
 # =============================================================================
@@ -60,7 +189,7 @@ endif()
 
 # Common flags for all builds
 set(FPC_COMMON_FLAGS
-    -O2                      # Optimization level 2
+	-O-                      # Change this from -O2 or -O0 to -O- (No Optimization)
     -g                       # Generate debug info
     -gl                      # Use line info unit
     -Xs                      # Link with static libraries
@@ -127,6 +256,30 @@ endif()
 # =============================================================================
 # Detect Project Files
 # =============================================================================
+# Install kayteide C++ project output
+if(TARGET kayteide)
+    # The output is the staged install directory of the C++ project.
+    if(APPLE)
+        # On macOS, install contents to 'Contents/tools/KayteIDE' inside the bundle
+        install(DIRECTORY 
+            ${KAYTEIDE_FINAL_INSTALL_PATH}/
+            DESTINATION "Contents/tools/KayteIDE"
+            COMPONENT applications
+            OPTIONAL
+        )
+        message(STATUS "  ✓ Install rule for KayteIDE (macOS bundle) created.")
+    else()
+        # Standard install destination for other platforms (e.g., bin/KayteIDE)
+        install(DIRECTORY
+            ${KAYTEIDE_FINAL_INSTALL_PATH}/
+            DESTINATION bin/KayteIDE
+            COMPONENT applications
+            OPTIONAL
+        )
+        message(STATUS "  ✓ Install rule for KayteIDE (standard) created.")
+    endif()
+endif()
+
 message(STATUS "")
 message(STATUS "=== Detecting Project Files ===")
 
@@ -161,6 +314,14 @@ message(STATUS "")
 # =============================================================================
 # Build Realms Project
 # =============================================================================
+
+if(TARGET kayteide)
+    message(STATUS "  ✓ kayteide - KayteIDE application")
+endif()
+
+if(TARGET kcc)
+    message(STATUS "  ✓ kcc- Kayte C Compiler")
+endif()
 
 # Get relative paths for project files
 if(REALMS_LPI_FOUND)
@@ -304,11 +465,28 @@ endif()
 # =============================================================================
 # Cross-Platform Configuration
 # =============================================================================
-if(WIN32)
+if(FPC_TARGET_OS STREQUAL "android")
+    # For Android cross-compilation (e.g., fpc -Tandroid -Paarch64)
+    set(PLATFORM_FLAGS -dANDROID)
+    set(PLATFORM_UNITS ${UNIT_DIR}/android)
+    set(PLATFORM_NAME "Android")
+    if(FPC_TARGET_CPU)
+        set(PLATFORM_NAME "Android (${FPC_TARGET_CPU})")
+    endif()
+elseif(FPC_TARGET_OS STREQUAL "ios" OR FPC_TARGET_OS STREQUAL "iphoneos")
+    # For iOS cross-compilation (e.g., fpc -Tios -Paarch64)
+    set(PLATFORM_FLAGS -diOS)
+    set(PLATFORM_UNITS ${UNIT_DIR}/ios)
+    set(PLATFORM_NAME "iOS")
+    if(FPC_TARGET_CPU)
+        set(PLATFORM_NAME "iOS (${FPC_TARGET_CPU})")
+    endif()
+elseif(WIN32)
     set(PLATFORM_FLAGS -dWINDOWS)
     set(PLATFORM_UNITS ${UNIT_DIR}/windows)
     set(PLATFORM_NAME "Windows")
 elseif(APPLE)
+    # This handles macOS build on a macOS host.
     set(PLATFORM_FLAGS -dMACOS)
     set(PLATFORM_UNITS ${UNIT_DIR}/macos)
     set(PLATFORM_NAME "macOS")
@@ -317,6 +495,7 @@ elseif(APPLE)
         set(PLATFORM_NAME "macOS (Apple Silicon)")
     endif()
 else()
+    # Default for all other targets (usually Linux host builds)
     set(PLATFORM_FLAGS -dLINUX)
     set(PLATFORM_UNITS ${UNIT_DIR}/linux)
     set(PLATFORM_NAME "Linux")
@@ -583,3 +762,65 @@ if(SDL2_FOUND OR SDL3_FOUND)
 endif()
 message(STATUS "=======================================================")
 message(STATUS "")
+
+
+# =============================================================================
+# Platform Flags Configuration
+# =============================================================================
+set(PLATFORM_FLAGS "")
+
+# --- 1. Linux Support (amd64 and arm64) ---
+if(CMAKE_SYSTEM_NAME MATCHES "Linux")
+    # Determine the target architecture
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64")
+        set(FPC_TARGET_CPU "aarch64") # For Linux ARM64
+        set(PLATFORM_FLAGS "${PLATFORM_FLAGS} -Taarch64")
+        message(STATUS "  Targeting Linux ARM64 (-Taarch64)")
+    else()
+        set(FPC_TARGET_CPU "x86_64") # For Linux AMD64
+        set(PLATFORM_FLAGS "${PLATFORM_FLAGS} -Tx86_64")
+        message(STATUS "  Targeting Linux AMD64 (-Tx86_64)")
+    endif()
+
+# --- 2. macOS Support (Universal or Single-Arch) ---
+elseif(APPLE)
+    # Universal Binary Support
+    if(BUILD_UNIVERSAL_MACOS)
+        # FPC's recommended method for multi-architecture targets on Darwin is to use -Xarch.
+        set(PLATFORM_FLAGS "${PLATFORM_FLAGS} -Paarch64 -Xarch=x86_64")
+        message(STATUS "  Targeting macOS UNIVERSAL (arm64 + amd64) binary.")
+    else()
+        # Single-Arch Build (Default behavior)
+        if(FPC_MACOS_ARCH MATCHES "arm64")
+            set(FPC_TARGET_CPU "aarch64")
+            set(PLATFORM_FLAGS "${PLATFORM_FLAGS} -Paarch64")
+            message(STATUS "  Targeting macOS ARM64 (Apple Silicon) single-architecture.")
+        else()
+            set(FPC_TARGET_CPU "x86_64")
+            set(PLATFORM_FLAGS "${PLATFORM_FLAGS} -Px86_64")
+            message(STATUS "  Targeting macOS AMD64 (Intel) single-architecture.")
+        endif()
+    endif()
+
+    # FIX: FPC Internal Error 200609171 on Darwin
+    # This forces DWARF-2 debugging to fix the known compiler bug on macOS.
+    set(PLATFORM_FLAGS "${PLATFORM_FLAGS} -Tdarwin -gw2")
+    message(STATUS "  Applying fix: Forcing DWARF-2 debug info (-gw2).")
+# -----------------------------------------------------------------------------
+    
+# --- 3. Windows Support (Default - not explicitly requested, but good for completeness) ---
+elseif(WIN32)
+    set(PLATFORM_FLAGS "${PLATFORM_FLAGS} -Twindows")
+    
+    # Check for the desired target CPU architecture
+    if("${CMAKE_SYSTEM_PROCESSOR}" MATCHES "arm64|aarch64")
+        set(FPC_TARGET_CPU "aarch64")
+        message(STATUS "  Targeting Windows ARM64 (-Twindows -Paarch64)")
+    else()
+        # Default to x86_64 for general 64-bit Windows builds
+        set(FPC_TARGET_CPU "x86_64")
+        message(STATUS "  Targeting Windows x86_64 (-Twindows -Px86_64)")
+    endif()
+endif()
+
+message(STATUS "  Final PLATFORM_FLAGS: ${PLATFORM_FLAGS}")

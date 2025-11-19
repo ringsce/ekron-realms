@@ -3,6 +3,10 @@
 *)
 library ref_gl;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 uses
   Cpas in '..\qcommon\Cpas.pas',
   DelphiTypes in '..\qcommon\DelphiTypes.pas',

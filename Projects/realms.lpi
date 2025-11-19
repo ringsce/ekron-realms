@@ -633,8 +633,8 @@
       <CustomOptions Value="-dBorland -dVer150 -dDelphi7 -dCompiler6_Up -dPUREPASCAL
 -vw -vm5024 -Fuengine
 -Fugame
- -Fu/Users/pedro/fpc-units
--Fu/Users/pedro/Projects/SB_MMO/ekron-realms/tools/SDL3-for-Pascal/units"/>
+-Fu/Users/pedro/Projects/SB_MMO/ekron-realms/tools/SDL3-for-Pascal/units
+-Fu/Users/pedro/Projects/SB_MMO/ekron-realms/tools/SDL2-for-Pascal/units/sdl2.pas"/>
     </Other>
   </CompilerOptions>
   <Debugging>

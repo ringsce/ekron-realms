@@ -86,6 +86,10 @@
 
 library gamex86;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 
 
 uses

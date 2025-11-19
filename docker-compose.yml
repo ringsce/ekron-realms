@@ -2,10 +2,14 @@ version: '3.8'
 
 services:
   ekron-builder:
+    # Build the image using the local Dockerfile
     build:
       context: .
       dockerfile: Dockerfile
     container_name: ekron_realms_cross
+    # Mount the local './output' folder to the container's '/app/output'
+    # This directory holds the binaries created during the Dockerfile's build steps.
     volumes:
       - ./output:/app/output
-
+    # New: Execute a command to show the results and then exit.
+    command: sh -c "echo '--- Build Products (Cross-Compiled) ---' && ls -lR /app/output && echo '--- Build complete ---'"

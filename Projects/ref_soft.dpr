@@ -1,13 +1,17 @@
 library ref_soft;
 
+{$IFDEF FPC}
+  {$MODE Delphi}
+{$ENDIF}
+
 
 uses
   SysUtils,
   Classes,
-  r_main in '..\ref_soft\r_main.pas',
+  r_main in '..\game\ref_soft\r_main.pas',
   q_shared in '..\game\q_shared.pas',
   q_shared_add in '..\game\q_shared_add.pas',
-  r_aclip in '..\ref_soft\r_aclip.pas',
+  r_aclip in '..\game\ref_soft\r_aclip.pas',
   r_alias_c in '..\ref_soft\r_alias_c.pas',
   r_bsp_c in '..\ref_soft\r_bsp_c.pas',
   r_draw in '..\ref_soft\r_draw.pas',

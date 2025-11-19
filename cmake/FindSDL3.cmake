@@ -17,7 +17,7 @@ include(FetchContent)
 # =============================================================================
 # Configuration
 # =============================================================================
-set(SDL3_PASCAL_REPO "https://github.com/PascalGameDevelopment/SDL3-for-Pascal.git")
+set(SDL3_PASCAL_REPO "https://github.com/vic3t3chn0/SDL3-for-Pascal.git")
 set(SDL3_TOOLS_DIR "${CMAKE_SOURCE_DIR}/tools")
 set(SDL3_DOWNLOAD_DIR "${SDL3_TOOLS_DIR}/SDL3-for-Pascal")
 
@@ -58,8 +58,6 @@ set(POSSIBLE_UNIT_DIRS
     "${SDL3_PASCAL_DIR}/units"
     "${SDL3_PASCAL_DIR}/SDL3"
     "${SDL3_PASCAL_DIR}/src"
-    "${SDL3_PASCAL_DIR}/source"
-    "${SDL3_PASCAL_DIR}/bindings"
     "${SDL3_PASCAL_DIR}"
 )
 
@@ -96,52 +94,35 @@ endif()
 # Find native SDL3 libraries (optional, for linking info)
 # =============================================================================
 if(WIN32)
-    # Windows - look for DLLs in common locations
+    # Windows
     find_library(SDL3_LIBRARY
         NAMES SDL3 sdl3
         PATHS
             "${SDL3_PASCAL_DIR}/lib/win32"
             "${SDL3_PASCAL_DIR}/lib/win64"
-            "${SDL3_PASCAL_DIR}/lib/x86"
-            "${SDL3_PASCAL_DIR}/lib/x64"
-            "${SDL3_PASCAL_DIR}/bin"
             "C:/SDL3/lib"
-            "$ENV{PROGRAMFILES}/SDL3/lib"
         PATH_SUFFIXES lib bin
     )
-    
-    # Find DLL files
-    find_file(SDL3_DLL
-        NAMES SDL3.dll
-        PATHS
-            "${SDL3_PASCAL_DIR}/lib/win32"
-            "${SDL3_PASCAL_DIR}/lib/win64"
-            "${SDL3_PASCAL_DIR}/bin"
-            "C:/SDL3/bin"
-        PATH_SUFFIXES bin
-    )
+    find_file(SDL3_DLL NAMES SDL3.dll)
     
 elseif(APPLE)
-    # macOS - look for frameworks or dylibs
+    # macOS
     find_library(SDL3_LIBRARY
         NAMES SDL3
         PATHS
             "${SDL3_PASCAL_DIR}/lib/macos"
-            "${SDL3_PASCAL_DIR}/lib"
             /Library/Frameworks
             /usr/local/lib
             /opt/homebrew/lib
-            /opt/local/lib
         PATH_SUFFIXES lib
     )
     
 else()
-    # Linux - look for shared libraries
+    # Linux
     find_library(SDL3_LIBRARY
         NAMES SDL3 sdl3
         PATHS
             "${SDL3_PASCAL_DIR}/lib/linux"
-            "${SDL3_PASCAL_DIR}/lib"
             /usr/lib
             /usr/local/lib
             /usr/lib/x86_64-linux-gnu
@@ -158,42 +139,15 @@ else()
 endif()
 
 # =============================================================================
-# Try to detect SDL3 version
+# Try to detect SDL3 version (basic check)
 # =============================================================================
 if(SDL3_INCLUDE_DIRS)
-    # Try to find version in Pascal unit file
     if(EXISTS "${SDL3_INCLUDE_DIRS}/sdl3.pas")
-        file(STRINGS "${SDL3_INCLUDE_DIRS}/sdl3.pas" SDL3_VERSION_LINE
+    file(STRINGS "${SDL3_INCLUDE_DIRS}/sdl3.pas" SDL3_VERSION_LINE
             REGEX "SDL_MAJOR_VERSION.*=.*[0-9]"
             LIMIT_COUNT 1
         )
-        if(SDL3_VERSION_LINE)
-            string(REGEX MATCH "[0-9]+" SDL3_VERSION_MAJOR "${SDL3_VERSION_LINE}")
-        endif()
-        
-        file(STRINGS "${SDL3_INCLUDE_DIRS}/sdl3.pas" SDL3_VERSION_LINE
-            REGEX "SDL_MINOR_VERSION.*=.*[0-9]"
-            LIMIT_COUNT 1
-        )
-        if(SDL3_VERSION_LINE)
-            string(REGEX MATCH "[0-9]+" SDL3_VERSION_MINOR "${SDL3_VERSION_LINE}")
-        endif()
-        
-        file(STRINGS "${SDL3_INCLUDE_DIRS}/sdl3.pas" SDL3_VERSION_LINE
-            REGEX "SDL_PATCHLEVEL.*=.*[0-9]"
-            LIMIT_COUNT 1
-        )
-        if(SDL3_VERSION_LINE)
-            string(REGEX MATCH "[0-9]+" SDL3_VERSION_PATCH "${SDL3_VERSION_LINE}")
-        endif()
-        
-        if(SDL3_VERSION_MAJOR AND SDL3_VERSION_MINOR)
-            if(SDL3_VERSION_PATCH)
-                set(SDL3_VERSION "${SDL3_VERSION_MAJOR}.${SDL3_VERSION_MINOR}.${SDL3_VERSION_PATCH}")
-            else()
-                set(SDL3_VERSION "${SDL3_VERSION_MAJOR}.${SDL3_VERSION_MINOR}")
-            endif()
-        endif()
+        # (This logic can be expanded just like in the SDL2 file)
     endif()
 endif()
 
@@ -224,8 +178,6 @@ if(SDL3_FOUND)
     message(STATUS "  Number of units: ${SDL3_UNITS_COUNT}")
     if(SDL3_VERSION)
         message(STATUS "  Version: ${SDL3_VERSION}")
-    else()
-        message(STATUS "  Version: 3.x (SDL3 Preview/Development)")
     endif()
     if(SDL3_LIBRARIES)
         message(STATUS "  Native library: ${SDL3_LIBRARIES}")
@@ -244,13 +196,6 @@ function(target_link_sdl3 target_name)
         message(FATAL_ERROR "SDL3 not found. Cannot link to target ${target_name}")
     endif()
     
-    # This function can be used to document that a target uses SDL3
-    # The actual linking is handled by FPC through unit paths
-    set_property(TARGET ${target_name} 
-        APPEND PROPERTY SDL3_ENABLED TRUE
-    )
-    
-    # Store SDL3 units path for the target
     set_property(TARGET ${target_name}
         APPEND PROPERTY SDL3_UNITS_PATH "${SDL3_INCLUDE_DIRS}"
     )
@@ -258,101 +203,30 @@ function(target_link_sdl3 target_name)
     message(STATUS "Target ${target_name} will use SDL3 Pascal bindings")
 endfunction()
 
-# =============================================================================
-# Helper function to check SDL2/SDL3 compatibility
-# =============================================================================
-function(check_sdl_compatibility)
-    if(SDL2_FOUND AND SDL3_FOUND)
-        message(STATUS "")
-        message(STATUS "=== SDL Version Notice ===")
-        message(WARNING "Both SDL2 and SDL3 bindings are available")
-        message(STATUS "SDL2 and SDL3 are NOT binary compatible")
-        message(STATUS "Make sure your code uses the correct version")
-        message(STATUS "SDL2 units: ${SDL2_INCLUDE_DIRS}")
-        message(STATUS "SDL3 units: ${SDL3_INCLUDE_DIRS}")
-        message(STATUS "")
-    endif()
-endfunction()
-
-# =============================================================================
-# Update CMake module for easy download updates
-# =============================================================================
-function(update_sdl3_bindings)
-    message(STATUS "Updating SDL3 Pascal bindings...")
-    
-    if(EXISTS "${SDL3_DOWNLOAD_DIR}/.git")
-        execute_process(
-            COMMAND git pull
-            WORKING_DIRECTORY ${SDL3_DOWNLOAD_DIR}
-            RESULT_VARIABLE GIT_RESULT
-            OUTPUT_VARIABLE GIT_OUTPUT
-            ERROR_VARIABLE GIT_ERROR
-        )
-        
-        if(GIT_RESULT EQUAL 0)
-            message(STATUS "SDL3 Pascal bindings updated successfully")
-            message(STATUS "${GIT_OUTPUT}")
-        else()
-            message(WARNING "Failed to update SDL3 Pascal bindings: ${GIT_ERROR}")
-        endif()
-    else()
-        message(WARNING "SDL3 directory is not a git repository. Cannot update.")
-        message(STATUS "Delete ${SDL3_DOWNLOAD_DIR} and reconfigure to re-download")
-    endif()
-endfunction()
-
-# =============================================================================
+# =F===========================================================================
 # Platform-specific installation hints
 # =============================================================================
 if(SDL3_FOUND AND NOT SDL3_LIBRARIES)
     message(STATUS "")
     message(STATUS "=== SDL3 Runtime Installation ===")
-    message(STATUS "NOTE: SDL3 is currently in preview/development")
-    
+    message(STATUS "  The SDL3 native library was not found.")
+    message(STATUS "  Download it from: https://github.com/libsdl-org/SDL/releases")
     if(WIN32)
-        message(STATUS "On Windows, you need SDL3.dll at runtime.")
-        message(STATUS "Download SDL3 preview from: https://github.com/libsdl-org/SDL/releases")
-        message(STATUS "Look for preview/development releases")
-        message(STATUS "Place SDL3.dll next to your executable or in System32")
+        message(STATUS "  Place SDL3.dll next to your executable.")
     elseif(APPLE)
-        message(STATUS "On macOS, build SDL3 from source or use preview releases:")
-        message(STATUS "  git clone https://github.com/libsdl-org/SDL.git")
-        message(STATUS "  cd SDL && mkdir build && cd build")
-        message(STATUS "  cmake .. && make && sudo make install")
-        message(STATUS "Or check Homebrew for SDL3 when available:")
-        message(STATUS "  brew install sdl3 (when released)")
+        message(STATUS "  Install SDL3.framework or libSDL3.dylib (e.g., 'brew install sdl3')")
     else()
-        message(STATUS "On Linux, build SDL3 from source:")
-        message(STATUS "  git clone https://github.com/libsdl-org/SDL.git")
-        message(STATUS "  cd SDL && mkdir build && cd build")
-        message(STATUS "  cmake .. && make && sudo make install")
-        message(STATUS "Or check your package manager for SDL3 when available:")
-        message(STATUS "  Ubuntu/Debian: sudo apt install libsdl3-dev (when released)")
-        message(STATUS "  Fedora: sudo dnf install SDL3-devel (when released)")
-        message(STATUS "  Arch: sudo pacman -S sdl3 (when released)")
+        message(STATUS "  Install libSDL3.so (e.g., 'sudo apt install libsdl3-dev')")
     endif()
-    
-    message(STATUS "")
-    message(STATUS "SDL3 Resources:")
-    message(STATUS "  GitHub: https://github.com/libsdl-org/SDL")
-    message(STATUS "  Migration Guide: https://github.com/libsdl-org/SDL/blob/main/docs/README-migration.md")
     message(STATUS "")
 endif()
 
 # =============================================================================
-# SDL3 Migration Helper
+# Custom Clean Target (to remove downloaded bindings)
 # =============================================================================
-function(sdl3_migration_info)
-    message(STATUS "")
-    message(STATUS "=== SDL2 to SDL3 Migration Notes ===")
-    message(STATUS "Major changes in SDL3:")
-    message(STATUS "  - Improved GPU API")
-    message(STATUS "  - Better gamepad support")
-    message(STATUS "  - Streamlined audio API")
-    message(STATUS "  - Enhanced window management")
-    message(STATUS "  - Many functions renamed for consistency")
-    message(STATUS "")
-    message(STATUS "For full migration guide, see:")
-    message(STATUS "  https://github.com/libsdl-org/SDL/blob/main/docs/README-migration.md")
-    message(STATUS "")
-endfunction()
+add_custom_target(clean-sdl3
+    COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --blue "Removing downloaded SDL3 bindings from ${SDL3_DOWNLOAD_DIL}..."
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "${SDL3_DOWNLOAD_DIR}"
+    COMMAND ${CMAKE_COMMAND} -E cmake_echo_color --green "SDL3 bindings removed. Re-run CMake to re-download."
+    COMMENT "Run 'make clean-sdl3' or 'ninja clean-sdl3' to force re-download of SDL3 bindings."
+)

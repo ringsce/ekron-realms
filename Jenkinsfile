@@ -4,7 +4,7 @@ pipeline {
   stages {
     stage('Checkout') {
       steps {
-        git 'https://github.com/your-org/ekron-realms.git'
+        git 'https://github.com/ringsce/ekron-realms.git'
       }
     }
 

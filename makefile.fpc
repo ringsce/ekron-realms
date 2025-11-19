@@ -1,13 +1,19 @@
 [package]
-name=EkronRealms
+name=Realms
 version=1.0
+sourcedir=src # Optional: Specify a common source directory if needed
 
 [compiler]
-# Enable object-oriented mode and debugging
-options=-Mobjfpc -Scgi -gl -Xs -O2 -vewn
+# Standard development/debugging options
+# -Mobjfpc: Object Pascal mode
+# -gl: Include line info in debug output
+# -O2: Optimization level 2 (Good balance)
+# -gh: Better quality debug information
+# -vw: Show warnings and errors
+options=-Mobjfpc -gl -O2 -gh -vw
 
-# Target platform
-target=darwin
+# Removed explicit 'target=darwin' to allow building for any OS (Linux, Windows, macOS)
+# The target will be determined by the environment FPC is running in or specified via command line.
 
 # Main program entry
 main=realms.lpr
@@ -17,6 +23,6 @@ main=realms.lpr
 bindir=bin
 libdir=lib
 
-# Files to install
-files=my_project:$(bindir)/EkronRealms
-
+# Files to install (The main executable)
+# The output executable is usually named after the package, e.g., Realms
+files=Realms:$(bindir)/Realms
